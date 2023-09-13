@@ -16,8 +16,8 @@ export default function EditPersonModal({person, account} : {person: any, accoun
   const supabase = createClientComponentClient();
 
   const [tags, setTags] = useState<any>([])
-  const [selectedTags, setSelectedTags] = useState([]);
-  const [relationships, setRelationships] = useState()
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [relationships, setRelationships] = useState<any>()
 
   const handleTagSelect = (event: any) => {
     const selectedTag = event.target.value;
