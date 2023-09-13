@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import Banner from "@/app/app/(dashboard)/site/[subdomain]/builder/components/sections/banner"
 import HtmlBlock from "@/app/app/(dashboard)/site/[subdomain]/builder/components/sections/html-block";
+import Register from "@/app/app/(dashboard)/site/[subdomain]/builder/components/sections/register"
 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
@@ -38,17 +39,11 @@ export default function SiteHomePage() {
           case "banner":
             Component = Banner;
             break;
-          case "collection":
-            Component = Collection;
-            break;
-          case "collections":
-            Component = Collections;
+          case "register":
+            Component = Register;
             break;
           case "html-block":
             Component = HtmlBlock;
-            break;
-          case "challenge":
-            Component = Challenge;
             break;
           default:
             Component = function DefaultComponent() { return null; };

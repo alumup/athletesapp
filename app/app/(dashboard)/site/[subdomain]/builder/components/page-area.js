@@ -5,6 +5,7 @@ import { useDrop } from "react-dnd";
 import { CrossCircledIcon, HamburgerMenuIcon } from "@radix-ui/react-icons";
 import Banner from "./sections/banner";
 import HtmlBlock from './sections/html-block'
+import Register from './sections/register'
 
 import DraggableComponent from "./draggable-component";
 import { usePageData } from "@/providers/page-provider";
@@ -112,7 +113,7 @@ export default function PageArea() {
               <div className="col-span-1">
                 <span>{site?.name}</span>
               </div>
-              <div className="col-span-1 flex justify-center text-zinc-50 text-sm">
+              <div className="col-span-1 flex justify-center text-zinc-50 text-sm space-x-2">
                   {pages?.map((page) => (
                       <Link key={page.id} href={`/${page.slug}`} className="text-gray-50 text-sm">
                         {page.name}
@@ -140,6 +141,9 @@ export default function PageArea() {
               case "html-block":
                   Component = HtmlBlock;
                   break;
+              case "register":
+                Component = Register;
+                break;
               case "form":
                 Component = FormArea;
                 break;

@@ -54,7 +54,7 @@ export async function getSite(subdomain: any){
 
   const { data } = await supabase
     .from('sites')
-    .select('*')
+    .select('*, accounts(*)')
     .eq('subdomain', subdomain)
     .single();
   

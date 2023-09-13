@@ -51,6 +51,9 @@ function Toolbar() {
       <PageComponent name="banner">
         <label>Banner</label>
       </PageComponent>
+      <PageComponent name="register">
+        <label>Register</label>
+      </PageComponent>
       <PageComponent name="html-block">
         <label>HTML Block</label>
       </PageComponent>
