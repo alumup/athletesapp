@@ -96,7 +96,7 @@ export default async function SiteLayout({
                     {data.name}
                   </Link>
                 </div>
-                <div className="col-span-1 hidden md:flex justify-center items-center">
+                <div className="col-span-1 hidden md:flex justify-center items-center space-x-2">
                   {pages?.map((page) => (
                       <Link key={page.id} href={`/${page.slug}`} className="text-gray-50 text-sm">
                         {page.name}

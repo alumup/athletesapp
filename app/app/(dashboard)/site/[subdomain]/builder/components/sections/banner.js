@@ -46,7 +46,7 @@ function Banner({ id }) {
             href: {
               type: 'input',
               label: 'Link',
-              value: '/this-is-a-link'
+              value: '/about'
             }
           },
         },
