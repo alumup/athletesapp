@@ -92,7 +92,7 @@ const columns: ColumnDef<Person>[] = [
     header: "Tags",
     cell: ({ row }) => (
       <div className="flex gap-1">
-        {(row.getValue("tags") || []).map((tag: any, index: any) => (
+        {(row.getValue("tags") as any[] || []).map((tag: any, index: any) => (
           <div key={index} className="rounded bg-lime-100 text-lime-800 px-3 py-1 text-xs">
             {tag}
           </div>
