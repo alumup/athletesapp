@@ -1,4 +1,4 @@
-import { getSiteData } from "@/lib/fetchers";
+import { getSiteData } from "@/lib/fetchers/server";
 import { headers } from "next/headers";
 import Image from "next/image";
 

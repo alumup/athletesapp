@@ -11,6 +11,7 @@ import {
   Megaphone,
   Menu,
   Newspaper,
+  User,
   Settings,
 } from "lucide-react";
 import {
@@ -19,31 +20,10 @@ import {
   useSelectedLayoutSegments,
 } from "next/navigation";
 import { ReactNode, useEffect, useMemo, useState } from "react";
-import { getSiteFromPostId } from "@/lib/actions";
 import Image from "next/image";
 import { FileCode, Github } from "lucide-react";
 
 const externalLinks = [
-  {
-    name: "Read announcement",
-    href: "https://vercel.com/blog/platforms-starter-kit",
-    icon: <Megaphone width={18} />,
-  },
-  {
-    name: "Star on GitHub",
-    href: "https://github.com/vercel/platforms",
-    icon: <Github width={18} />,
-  },
-  {
-    name: "Read the guide",
-    href: "https://vercel.com/guides/nextjs-multi-tenant-application",
-    icon: <FileCode width={18} />,
-  },
-  {
-    name: "View demo site",
-    href: "https://demo.vercel.pub",
-    icon: <Layout width={18} />,
-  },
   {
     name: "Deploy your own",
     href: "https://vercel.com/templates/next.js/platforms-starter-kit",
@@ -67,13 +47,6 @@ export default function Nav({ children }: { children: ReactNode }) {
 
   const [siteId, setSiteId] = useState<string | null>();
 
-  useEffect(() => {
-    if (segments[0] === "post" && id) {
-      getSiteFromPostId(id).then((id) => {
-        setSiteId(id);
-      });
-    }
-  }, [segments, id]);
 
   const tabs = useMemo(() => {
     if (segments[0] === "site" && id) {
@@ -82,12 +55,6 @@ export default function Nav({ children }: { children: ReactNode }) {
           name: "Back to All Sites",
           href: "/sites",
           icon: <ArrowLeft width={18} />,
-        },
-        {
-          name: "Posts",
-          href: `/site/${id}`,
-          isActive: segments.length === 2,
-          icon: <Newspaper width={18} />,
         },
         {
           name: "Analytics",
@@ -129,6 +96,12 @@ export default function Nav({ children }: { children: ReactNode }) {
         href: "/",
         isActive: segments.length === 0,
         icon: <LayoutDashboard width={18} />,
+      },
+      {
+        name: "People",
+        href: "/people",
+        isActive: segments[0] === "people",
+        icon: <User width={18} />,
       },
       {
         name: "Sites",
@@ -173,38 +146,12 @@ export default function Nav({ children }: { children: ReactNode }) {
         } fixed z-10 flex h-full flex-col justify-between border-r border-stone-200 bg-stone-100 p-4 transition-all dark:border-stone-700 dark:bg-stone-900 sm:w-60 sm:translate-x-0`}
       >
         <div className="grid gap-2">
-          <div className="flex items-center space-x-2 rounded-lg px-2 py-1.5">
-            <a
-              href="https://vercel.com/templates/next.js/platforms-starter-kit"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-lg p-1.5 hover:bg-stone-200 dark:hover:bg-stone-700"
-            >
-              <svg
-                width="26"
-                viewBox="0 0 76 65"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="text-black dark:text-white"
-              >
-                <path
-                  d="M37.5274 0L75.0548 65H0L37.5274 0Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </a>
-            <div className="h-6 rotate-[30deg] border-l border-stone-400 dark:border-stone-500" />
+          <div className="w-full flex items-center rounded-lg px-2 py-1.5">
             <Link
               href="/"
-              className="rounded-lg p-2 hover:bg-stone-200 dark:hover:bg-stone-700"
+              className="rounded-lg p-1.5 hover:bg-stone-200 dark:hover:bg-stone-700 font-bold"
             >
-              <Image
-                src="/logo.png"
-                width={24}
-                height={24}
-                alt="Logo"
-                className="dark:scale-110 dark:rounded-full dark:border dark:border-stone-400"
-              />
+              JUMPSHOT®
             </Link>
           </div>
           <div className="grid gap-1">

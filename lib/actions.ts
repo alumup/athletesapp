@@ -1,10 +1,8 @@
 "use server";
 
-import prisma from "@/lib/prisma";
-import { Post, Site } from "@prisma/client";
-import { revalidateTag } from "next/cache";
-import { withPostAuth, withSiteAuth } from "./auth";
-import { getSession } from "@/lib/auth";
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
+
 import {
   addDomainToVercel,
   // getApexDomain,
@@ -21,171 +19,191 @@ const nanoid = customAlphabet(
   7,
 ); // 7-character random string
 
+
+import { unstable_cache } from "next/cache";
+
+export const createPerson = async (data: any, id: string) => {
+
+  const supabase = createServerActionClient({ cookies });
+
+  try {
+    const { data: person, error } = await supabase
+      .from('person')
+      .insert([{
+        ...data,
+      }])
+      .single()
+
+    if (error) {
+      return {
+        error: error.message,
+      }
+    }
+
+    return person;
+  } catch (error: any) {
+    return {
+      error: error.message,
+    };
+  }
+}
+
+export const createGroup = async (data: any) => {
+  const supabase = createServerActionClient({cookies});
+
+  console.log("CREATE GROUP DATA", data)
+
+  try {
+    const { data: group, error } = await supabase
+      .from('group')
+      .insert([
+       {
+        name: "The Loonies",
+        event_id: "947c19e3-436d-421a-b278-19278de637b1"
+       }
+      ])
+      .single()
+
+      console.log("CREATE GROUP SUPABASE OBJECT", group)
+
+  
+    if (error) {
+      return {
+        error: error.message,
+      }
+    }
+
+    return group;
+  } catch (error: any) {
+    return {
+      error: error.message,
+    };
+  }
+}
+
+
 export const createSite = async (formData: FormData) => {
-  const session = await getSession();
-  if (!session?.user.id) {
+
+  const supabase = createServerActionClient({ cookies });
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
     return {
       error: "Not authenticated",
     };
   }
+
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
   const subdomain = formData.get("subdomain") as string;
 
   try {
-    const response = await prisma.site.create({
-      data: {
+    const { data: site, error } = await supabase
+      .from('sites')
+      .insert([{
         name,
         description,
         subdomain,
-        user: {
-          connect: {
-            id: session.user.id,
-          },
-        },
-      },
-    });
-    await revalidateTag(
-      `${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
-    );
-    return response;
-  } catch (error: any) {
-    if (error.code === "P2002") {
-      return {
-        error: `This subdomain is already taken`,
-      };
-    } else {
-      return {
-        error: error.message,
-      };
+      }])
+      .select('*')
+      .single()
+
+
+
+    if (error) {
+      console.log("-------- CREATE SITE ERROR ---------", error)
     }
+
+    // Revalidate tags
+    await unstable_cache(
+      () => Promise.resolve(),
+      [`${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`],
+      { revalidate: 900 },
+    );
+
+    return site;
+  } catch (error: any) {
+    return {
+      error: error.message,
+    };
   }
 };
 
-export const updateSite = withSiteAuth(
-  async (formData: FormData, site: Site, key: string) => {
-    const value = formData.get(key) as string;
 
-    try {
-      let response;
+export const updateSite = async (formData: FormData, siteId: string, key: string) => {
+  const supabase = createServerActionClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return {
+      error: "Not authenticated",
+    };
+  }
 
-      if (key === "customDomain") {
-        if (value.includes("vercel.pub")) {
-          return {
-            error: "Cannot use vercel.pub subdomain as your custom domain",
-          };
+  const value = formData.get(key) as string;
+  let siteUpdateData = { [key]: value };
 
-          // if the custom domain is valid, we need to add it to Vercel
-        } else if (validDomainRegex.test(value)) {
-          response = await prisma.site.update({
-            where: {
-              id: site.id,
-            },
-            data: {
-              customDomain: value,
-            },
-          });
-          await addDomainToVercel(value);
+  try {
+    let response;
 
-          // empty value means the user wants to remove the custom domain
-        } else if (value === "") {
-          response = await prisma.site.update({
-            where: {
-              id: site.id,
-            },
-            data: {
-              customDomain: null,
-            },
-          });
-        }
+    if (key === "domain") {
+      if (value.includes("vercel.pub")) {
+        return {
+          error: "Cannot use vercel.pub subdomain as your custom domain",
+        };
 
-        // if the site had a different customDomain before, we need to remove it from Vercel
-        if (site.customDomain && site.customDomain !== value) {
-          response = await removeDomainFromVercelProject(site.customDomain);
+        // if the custom domain is valid, we need to add it to Vercel
+      } else if (validDomainRegex.test(value)) {
+        siteUpdateData.domain = value;
+        await addDomainToVercel(value);
 
-          /* Optional: remove domain from Vercel team 
-
-          // first, we need to check if the apex domain is being used by other sites
-          const apexDomain = getApexDomain(`https://${site.customDomain}`);
-          const domainCount = await prisma.site.count({
-            where: {
-              OR: [
-                {
-                  customDomain: apexDomain,
-                },
-                {
-                  customDomain: {
-                    endsWith: `.${apexDomain}`,
-                  },
-                },
-              ],
-            },
-          });
-
-          // if the apex domain is being used by other sites
-          // we should only remove it from our Vercel project
-          if (domainCount >= 1) {
-            await removeDomainFromVercelProject(site.customDomain);
-          } else {
-            // this is the only site using this apex domain
-            // so we can remove it entirely from our Vercel team
-            await removeDomainFromVercelTeam(
-              site.customDomain
-            );
-          }
-          
-          */
-        }
-      } else if (key === "image" || key === "logo") {
-        if (!process.env.BLOB_READ_WRITE_TOKEN) {
-          return {
-            error:
-              "Missing BLOB_READ_WRITE_TOKEN token. Note: Vercel Blob is currently in beta – please fill out this form for access: https://tally.so/r/nPDMNd",
-          };
-        }
-
-        const file = formData.get(key) as File;
-        const filename = `${nanoid()}.${file.type.split("/")[1]}`;
-
-        const { url } = await put(filename, file, {
-          access: "public",
-        });
-
-        const blurhash = key === "image" ? await getBlurDataURL(url) : null;
-
-        response = await prisma.site.update({
-          where: {
-            id: site.id,
-          },
-          data: {
-            [key]: url,
-            ...(blurhash && { imageBlurhash: blurhash }),
-          },
-        });
-      } else {
-        response = await prisma.site.update({
-          where: {
-            id: site.id,
-          },
-          data: {
-            [key]: value,
-          },
-        });
+        // empty value means the user wants to remove the custom domain
+      } else if (value === "") {
+        siteUpdateData.domain = '';
       }
-      console.log(
-        "Updated site data! Revalidating tags: ",
-        `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
-        `${site.customDomain}-metadata`,
-      );
-      await revalidateTag(
-        `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
-      );
-      site.customDomain &&
-        (await revalidateTag(`${site.customDomain}-metadata`));
 
-      return response;
-    } catch (error: any) {
-      if (error.code === "P2002") {
+      // if the site had a different custom domain before, we need to remove it from Vercel
+      const { data: currentSite, error } = await supabase
+        .from('event')
+        .select('domain')
+        .eq('id', siteId)
+        .single();
+        
+      if (error) {
+        return { error: error.message };
+      }
+
+      if (currentSite.domain && currentSite.domain !== value) {
+        await removeDomainFromVercelProject(currentSite.domain);
+      }
+    } else if (key === "image" || key === "logo") {
+      if (!process.env.BLOB_READ_WRITE_TOKEN) {
+        return {
+          error:
+            "Missing BLOB_READ_WRITE_TOKEN token. Note: Vercel Blob is currently in beta – ping @steventey on Twitter for access.",
+        };
+      }
+
+      const file = formData.get(key) as File;
+      const filename = `${nanoid()}.${file.type.split("/")[1]}`;
+
+      const { url } = await put(filename, file, {
+        access: "public",
+      });
+
+      const blurhash = key === "image" ? await getBlurDataURL(url) : null;
+      siteUpdateData[key] = url;
+      if (blurhash) siteUpdateData.imageBlurhash = blurhash;
+    }
+
+    const { data: updatedSite, error } = await supabase
+      .from('event')
+      .update(siteUpdateData)
+      .eq('id', siteId)
+      .select('*')
+      .single()
+
+    if (error) {
+      if (error.message.includes('constraint violation')) {
         return {
           error: `This ${key} is already taken`,
         };
@@ -195,235 +213,107 @@ export const updateSite = withSiteAuth(
         };
       }
     }
-  },
-);
 
-export const deleteSite = withSiteAuth(async (_: FormData, site: Site) => {
-  try {
-    const response = await prisma.site.delete({
-      where: {
-        id: site.id,
-      },
-    });
-    await revalidateTag(
-      `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
+    console.log(
+      "Updated site data! Revalidating tags: ",
+      `${updatedSite.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
+      `${updatedSite.domain}-metadata`,
     );
-    response.customDomain &&
-      (await revalidateTag(`${site.customDomain}-metadata`));
-    return response;
+
+    unstable_cache(
+      () => Promise.resolve(),
+      [`${updatedSite.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`],
+      { revalidate: 900 },
+    );
+
+    if (updatedSite.domain) {
+      unstable_cache(
+        () => Promise.resolve(),
+        [`${updatedSite.domain}-metadata`],
+        { revalidate: 900 },
+      );
+    }
+
+    return updatedSite;
   } catch (error: any) {
     return {
       error: error.message,
     };
   }
-});
-
-export const getSiteFromPostId = async (postId: string) => {
-  const post = await prisma.post.findUnique({
-    where: {
-      id: postId,
-    },
-    select: {
-      siteId: true,
-    },
-  });
-  return post?.siteId;
 };
 
-export const createPost = withSiteAuth(async (_: FormData, site: Site) => {
-  const session = await getSession();
-  if (!session?.user.id) {
+
+export const deleteSite = async (siteId: string) => {
+  const supabase = createServerActionClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
     return {
       error: "Not authenticated",
     };
   }
-  const response = await prisma.post.create({
-    data: {
-      siteId: site.id,
-      userId: session.user.id,
-    },
-  });
 
-  await revalidateTag(
-    `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-posts`,
+  const { data: event, error: fetchError } = await supabase
+    .from('event')
+    .select('subdomain, domain')
+    .eq('id', siteId)
+    .single();
+
+  if (fetchError || !event) {
+    return {
+      error: fetchError?.message || 'Event not found',
+    };
+  }
+
+  const { error: deleteError } = await supabase
+    .from('event')
+    .delete()
+    .match({ id: siteId });
+
+  if (deleteError) {
+    return {
+      error: deleteError.message,
+    };
+  }
+
+  await unstable_cache(
+    () => Promise.resolve(),
+    [`${event.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`],
+    { revalidate: 900 },
   );
-  site.customDomain && (await revalidateTag(`${site.customDomain}-posts`));
-
-  return response;
-});
-
-// creating a separate function for this because we're not using FormData
-export const updatePost = async (data: Post) => {
-  const session = await getSession();
-  if (!session?.user.id) {
-    return {
-      error: "Not authenticated",
-    };
-  }
-  const post = await prisma.post.findUnique({
-    where: {
-      id: data.id,
-    },
-    include: {
-      site: true,
-    },
-  });
-  if (!post || post.userId !== session.user.id) {
-    return {
-      error: "Post not found",
-    };
-  }
-  try {
-    const response = await prisma.post.update({
-      where: {
-        id: data.id,
-      },
-      data: {
-        title: data.title,
-        description: data.description,
-        content: data.content,
-      },
-    });
-
-    await revalidateTag(
-      `${post.site?.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-posts`,
+  if (event.domain) {
+    await unstable_cache(
+      () => Promise.resolve(),
+      [`${event.domain}-metadata`],
+      { revalidate: 900 },
     );
-    await revalidateTag(
-      `${post.site?.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-${post.slug}`,
-    );
-
-    // if the site has a custom domain, we need to revalidate those tags too
-    post.site?.customDomain &&
-      (await revalidateTag(`${post.site?.customDomain}-posts`),
-      await revalidateTag(`${post.site?.customDomain}-${post.slug}`));
-
-    return response;
-  } catch (error: any) {
-    return {
-      error: error.message,
-    };
   }
+
+  return { success: true };
 };
 
-export const updatePostMetadata = withPostAuth(
-  async (
-    formData: FormData,
-    post: Post & {
-      site: Site;
-    },
-    key: string,
-  ) => {
-    const value = formData.get(key) as string;
 
-    try {
-      let response;
-      if (key === "image") {
-        const file = formData.get("image") as File;
-        const filename = `${nanoid()}.${file.type.split("/")[1]}`;
 
-        const { url } = await put(filename, file, {
-          access: "public",
-        });
-
-        const blurhash = await getBlurDataURL(url);
-
-        response = await prisma.post.update({
-          where: {
-            id: post.id,
-          },
-          data: {
-            image: url,
-            imageBlurhash: blurhash,
-          },
-        });
-      } else {
-        response = await prisma.post.update({
-          where: {
-            id: post.id,
-          },
-          data: {
-            [key]: key === "published" ? value === "true" : value,
-          },
-        });
-      }
-
-      await revalidateTag(
-        `${post.site?.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-posts`,
-      );
-      await revalidateTag(
-        `${post.site?.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-${post.slug}`,
-      );
-
-      // if the site has a custom domain, we need to revalidate those tags too
-      post.site?.customDomain &&
-        (await revalidateTag(`${post.site?.customDomain}-posts`),
-        await revalidateTag(`${post.site?.customDomain}-${post.slug}`));
-
-      return response;
-    } catch (error: any) {
-      if (error.code === "P2002") {
-        return {
-          error: `This slug is already in use`,
-        };
-      } else {
-        return {
-          error: error.message,
-        };
-      }
-    }
-  },
-);
-
-export const deletePost = withPostAuth(async (_: FormData, post: Post) => {
-  try {
-    const response = await prisma.post.delete({
-      where: {
-        id: post.id,
-      },
-      select: {
-        siteId: true,
-      },
-    });
-    return response;
-  } catch (error: any) {
-    return {
-      error: error.message,
-    };
-  }
-});
-
-export const editUser = async (
-  formData: FormData,
-  _id: unknown,
-  key: string,
-) => {
-  const session = await getSession();
-  if (!session?.user.id) {
+export const editUser = async (formData: FormData, key: string) => {
+  const supabase = createServerActionClient({ cookies });
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
     return {
       error: "Not authenticated",
     };
   }
+  
   const value = formData.get(key) as string;
+  
+  const { error } = await supabase
+    .from('users')
+    .update({ [key]: value })
+    .eq('id', user.id);
 
-  try {
-    const response = await prisma.user.update({
-      where: {
-        id: session.user.id,
-      },
-      data: {
-        [key]: value,
-      },
-    });
-    return response;
-  } catch (error: any) {
-    if (error.code === "P2002") {
-      return {
-        error: `This ${key} is already in use`,
-      };
-    } else {
-      return {
-        error: error.message,
-      };
-    }
+  if (error) {
+    return {
+      error: error.message,
+    };
   }
+  
+  return { success: true };
 };

@@ -1,6 +1,7 @@
 "use client";
 
-import { AlertCircle, CheckCircle2, XCircle } from "lucide-react";
+
+import { CheckCircledIcon, CrossCircledIcon, InfoCircledIcon } from "@radix-ui/react-icons";
 import LoadingSpinner from "./loading-spinner";
 import { useDomainStatus } from "./use-domain-status";
 
@@ -10,19 +11,19 @@ export default function DomainStatus({ domain }: { domain: string }) {
   return loading ? (
     <LoadingSpinner />
   ) : status === "Valid Configuration" ? (
-    <CheckCircle2
+    <CheckCircledIcon
       fill="#2563EB"
       stroke="currentColor"
       className="text-white dark:text-black"
     />
   ) : status === "Pending Verification" ? (
-    <AlertCircle
+    <InfoCircledIcon
       fill="#FBBF24"
       stroke="currentColor"
       className="text-white dark:text-black"
     />
   ) : (
-    <XCircle
+    <CrossCircledIcon
       fill="#DC2626"
       stroke="currentColor"
       className="text-white dark:text-black"

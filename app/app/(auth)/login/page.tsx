@@ -1,41 +1,86 @@
-import Image from "next/image";
-import LoginButton from "./login-button";
-import { Suspense } from "react";
+'use client'
 
-export default function LoginPage() {
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+
+export default function Login() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const router = useRouter()
+  const supabase = createClientComponentClient()
+
+  // const handleSignUp = async () => {
+  //   await supabase.auth.signUp({
+  //     email,
+  //     password,
+  //     options: {
+  //       emailRedirectTo: `${location.origin}/auth/callback`,
+  //     },
+  //   })
+  //   router.refresh()
+  // }
+
+  const handleSignIn = async () => {
+   const {error} = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+    if (error) {
+      alert(error.message)
+      return
+    }
+
+    
+    router.refresh()
+  }
+
+  // const handleSignOut = async () => {
+  //   await supabase.auth.signOut()
+  //   router.refresh()
+  // }
+
   return (
-    <div className="mx-5 border border-stone-200 py-10 dark:border-stone-700 sm:mx-auto sm:w-full sm:max-w-md sm:rounded-lg sm:shadow-md">
-      <Image
-        alt="Platforms Starter Kit"
-        width={100}
-        height={100}
-        className="relative mx-auto h-12 w-auto dark:scale-110 dark:rounded-full dark:border dark:border-stone-400"
-        src="/logo.png"
-      />
-      <h1 className="mt-6 text-center font-cal text-3xl dark:text-white">
-        Platforms Starter Kit
-      </h1>
-      <p className="mt-2 text-center text-sm text-stone-600 dark:text-stone-400">
-        Build multi-tenant applications with custom domains. <br />
-        <a
-          className="font-medium text-black hover:text-stone-800 dark:text-stone-300 dark:hover:text-stone-100"
-          href="https://vercel.com/blog/platforms-starter-kit"
-          rel="noreferrer"
-          target="_blank"
-        >
-          Read the announcement.
-        </a>
-      </p>
+    <div className="min-h-screen w-full flex flex-col items-center justify-center">
+      <div className="max-w-md mx-3 w-full border border-gray-100 shadow rounded p-5">
+        <div className="relative w-full h-[150px] bg-black rounded overflow-hidden">
+          
+        </div>
+        <div className="flex justify-center mt-5">
+          <h1 className="text-3xl font-bold text-gray-700 dark:text-gray-300">
+            Sign In
+          </h1>
+        </div>
+        <div>
+          <input 
+            name="email" 
+            title='email' 
+            placeholder='email' 
+            className="mt-5 border border-gray-200 rounded p-2 w-full"
+            onChange={(e) => setEmail(e.target.value)} 
+            value={email} />
+        </div>
+        <div>
+          <input
+            type="password"
+            title='password'
+            placeholder='password'
+            name="password"
+            className="border border-gray-200 rounded p-2 w-full mt-5"
+            onChange={(e) => setPassword(e.target.value)}
+            value={password}
+          />
+        </div>
+        <div className="mt-5 flex flex-col space-y-2">
+          {/* <button onClick={handleSignUp} className="bg-indigo-400 textt-white rounded px-4 py-2">Sign up</button> */}
+          <button type="button" onClick={handleSignIn} className="bg-black  text-white rounded px-4 py-2 uppercase text-sm">Sign In</button>
+        </div>
 
-      <div className="mx-auto mt-4 w-11/12 max-w-xs sm:w-full">
-        <Suspense
-          fallback={
-            <div className="my-2 h-10 w-full rounded-md border border-stone-200 bg-stone-100 dark:border-stone-700 dark:bg-stone-800" />
-          }
-        >
-          <LoginButton />
-        </Suspense>
+      </div>
+
+      <div className="flex justify-center w-full mt-5">
+        <span className="text-xs text-gray-500 font-semibold">Powered by Gigg®</span>
       </div>
     </div>
-  );
+  )
 }

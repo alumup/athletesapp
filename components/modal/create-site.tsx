@@ -38,9 +38,9 @@ export default function CreateSiteModal() {
             toast.error(res.error);
           } else {
             va.track("Created Site");
-            const { id } = res;
+            const { slug } = res;
             router.refresh();
-            router.push(`/site/${id}`);
+            router.push(`/site/${slug}`);
             modal?.hide();
             toast.success(`Successfully created site!`);
           }
@@ -109,7 +109,7 @@ export default function CreateSiteModal() {
             placeholder="Description about why my site is so awesome"
             value={data.description}
             onChange={(e) => setData({ ...data, description: e.target.value })}
-            maxLength={140}
+            maxLength={260}
             rows={3}
             className="w-full rounded-md border border-stone-200 bg-stone-50 px-4 py-2 text-sm text-stone-600 placeholder:text-stone-400 focus:border-black  focus:outline-none focus:ring-black dark:border-stone-600 dark:bg-black dark:text-white dark:placeholder-stone-700 dark:focus:ring-white"
           />
