@@ -15,7 +15,7 @@ export default function CreatePersonModal({account} : {account: any}) {
   const modal = useModal();
   const supabase = createClientComponentClient();
   const [tags, setTags] = useState<any>([])
-  const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const handleTagSelect = (event: any) => {
     const selectedTag = event.target.value;
