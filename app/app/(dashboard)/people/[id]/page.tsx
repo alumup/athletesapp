@@ -2,7 +2,7 @@
 
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
-
+import Link from "next/link";
 import { getAccount } from "@/lib/fetchers/server";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import EditPersonModal from "@/components/modal/edit-person-modal";
@@ -65,7 +65,7 @@ export default async function PersonPage({
       <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
         <div className="flex flex-col space-y-0.5">
           <h1 className="truncate font-cal text-base md:text-lg font-bold dark:text-white sm:w-auto sm:text-3xl">
-            {fullName(person)}
+            {person?.name || fullName(person)}
           </h1>
           <p className="text-stone-500 dark:text-stone-400">
               {person?.email}
@@ -81,9 +81,10 @@ export default async function PersonPage({
         {relationships?.map((relation, i) => (
           <div key={i}>
             <div className="border border-stone-200 px-3 py-2 rounded flex items-center space-x-1">
-              <span>{relation.to.first_name}</span>
-              <span>{relation.to.last_name}</span>
-              <span>{relation.name}</span>
+              <div className="flex flex-col">
+                <span>{relation.name} of</span>
+                <Link href={`/people/${relation.to.id}`} className="font-bold text-sm">{relation.to.name || fullName(relation.to)}</Link>
+              </div>
             </div>
           </div>
         ))}

@@ -10,6 +10,14 @@ import { useModal } from "./provider";
 import { fullName } from "@/lib/utils";
 
 
+const formatDate = (dateString: any) => {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = ('0' + (date.getMonth() + 1)).slice(-2); // Months are 0 based index
+  const day = ('0' + date.getDate()).slice(-2);
+  return `${year}-${month}-${day}`;
+};
+
 export default function EditPersonModal({person, account} : {person: any, account: any}) {
   const {refresh}= useRouter();
   const modal = useModal();
@@ -149,8 +157,20 @@ export default function EditPersonModal({person, account} : {person: any, accoun
       className="w-full rounded-md bg-white dark:bg-black md:max-w-md md:border md:border-stone-200 md:shadow dark:md:border-stone-700"
     >
       <div className="relative flex flex-col space-y-4 p-5 md:p-10">
-        <h2 className="font-cal text-2xl dark:text-white">Edit {fullName(person)}</h2>
-
+        <h2 className="font-cal text-2xl dark:text-white">Edit {person?.name || fullName(person)}</h2>
+        <div className="flex flex-col space-y-2">
+          <label htmlFor="phone" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+            Name
+          </label>
+          <input
+            type="text"
+            id="phone"
+            defaultValue={person?.name}
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            {...register("name", { required: true })}
+          />
+          {errors.phone && <span className="text-sm text-red-500">This field is required</span>}
+        </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-1 flex flex-col space-y-2">
             <label htmlFor="first_name" className="text-sm font-medium text-gray-700 dark:text-stone-300">
@@ -217,7 +237,7 @@ export default function EditPersonModal({person, account} : {person: any, accoun
           <input
             type="date"
             id="birthdate"
-            defaultValue={person?.birthdate}
+            defaultValue={person?.birthdate ? formatDate(person.birthdate) : ''}
             className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
             {...register("birthdate")}
           />
@@ -231,6 +251,7 @@ export default function EditPersonModal({person, account} : {person: any, accoun
           <select
             id="grade"
             defaultValue={person?.grade}
+    
             className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
             {...register("grade")}
           >

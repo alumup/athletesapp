@@ -13,7 +13,7 @@ export default function Leaflet({
   const transitionProps = { type: "spring", stiffness: 500, damping: 30 };
   useEffect(() => {
     controls.start({
-      y: 20,
+      y: 0,
       transition: transitionProps,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

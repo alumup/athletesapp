@@ -41,7 +41,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
                 href="/"
                 className="font-bold">
                   <Image
-                    src="/logo-horizontal.png"
+                    src="/jumpshot-star.svg"
                     alt="logo"
                     width={125}
                     height={75}

@@ -51,7 +51,7 @@ export default function Modal({
                   ref={desktopModalRef}
                   key="desktop-modal"
                   className="fixed inset-0 z-40 hidden min-h-screen items-center justify-center md:flex"
-                  initial={{ scale: 0.95 }}
+                  initial={{ scale: 1 }}
                   animate={{ scale: 1 }}
                   exit={{ scale: 0.95 }}
                   onMouseDown={(e) => {
