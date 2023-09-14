@@ -97,7 +97,7 @@ export default function CreateRegModal({ event }) {
     console.log('Saved successfully!', savedPeople, savedRelationships, savedParticipants);
   };
   return (
-    <div key="modal" className="relative max-h-[700px] h-full overflow-y-scroll bg-white border border-gray-50 shadow-sm rounded px-5 pt-10 pb-20 max-w-lg w-full">
+    <div key="modal" className="relative h-[calc(100vh-100px)] md:max-h-[700px] md:h-full overflow-y-scroll bg-white border border-gray-50 shadow-sm rounded px-5 pt-10 pb-20 max-w-lg w-full">
       <h1 className="text-2xl font-bold">Register</h1>
       {!success && (
       <form onSubmit={handleSubmit(onSubmit)}>
