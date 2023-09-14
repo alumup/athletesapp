@@ -79,7 +79,7 @@ function Register({ id }) {
             <h1 className={`font-primary text-3xl md:text-4xl font-bold text-center ${componentData.theme.value === 'dark' ? 'text-base-200 dark:text-base-100' : 'text-base-700 dark:text-base-300'} font-bold`}>{componentData.title.value}</h1>
             <div className="w-full max-w-2xl mx-auto flex flex-col items-center justify-center">
               <h2 className={`font-secondary text-md md:text-base text-center ${componentData.theme.value === 'dark' ? 'text-base-200 dark:text-base-100' : 'text-base-700 dark:text-base-500'} font-medium`}>{componentData.subtitle.value}</h2>
-              <p className="mt-5 text-light text-center">Tryouts are on....</p>
+              <p className="mt-5 text-light text-center">Tryouts are on September 26-27th at 7 PM at Provo High.</p>
             </div>
             <div className="mt-2 flex items-center justify-center space-x-2">
               <GenericButton cta="Register">
