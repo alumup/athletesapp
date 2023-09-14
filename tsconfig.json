@@ -23,6 +23,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "lib/fetchers/server.js", "components/profile.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "lib/fetchers/server.js", "components/profile.jsx", "components/modal/reg-modal.jsx"],
   "exclude": ["node_modules"]
 }

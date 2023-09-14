@@ -3,7 +3,7 @@ import {useEffect, useState} from 'react'
 import { useForm } from 'react-hook-form';
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
-export default function CreateRegModal({ event }: {event: any}) {
+export default function CreateRegModal({ event }) {
   const [currentPerson, setCurrentPerson] = useState(0);
   const [success, setSuccess] = useState(false)
   const { register, handleSubmit, watch } = useForm({
@@ -34,12 +34,12 @@ export default function CreateRegModal({ event }: {event: any}) {
     };
   }, []);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data) => {
     // Insert the self person and the child people into the 'people' table
     const { data: savedPeople, error: peopleError } = await supabase
       .from('people')
       .insert([
-        ...data.people.map((person: any) => ({ ...person, account_id: '0b2390b7-8da9-44c8-b55e-38d5a29115f2' })),
+        ...data.people.map((person) => ({ ...person, account_id: '0b2390b7-8da9-44c8-b55e-38d5a29115f2' })),
         { ...data.self, account_id: '0b2390b7-8da9-44c8-b55e-38d5a29115f2'}
       ])
       .select('*');
@@ -50,7 +50,7 @@ export default function CreateRegModal({ event }: {event: any}) {
     }
   
     // Get the id of the self person
-    const selfPerson = savedPeople.find((person: any) => person.email === data.self.email);
+    const selfPerson = savedPeople.find((person) => person.email === data.self.email);
     if (!selfPerson) {
       console.error('Self person not found in saved people');
       return;
@@ -59,11 +59,11 @@ export default function CreateRegModal({ event }: {event: any}) {
   
     // Get the ids of the child people
     const childPeopleIds = savedPeople
-      .filter((person: any) => person.email !== data.self.email)
-      .map((person: any) => person.id);
+      .filter((person) => person.email !== data.self.email)
+      .map((person) => person.id);
   
     // Insert the relationships into the 'relationships' table
-    const relationships = childPeopleIds.map((id: any) => ({
+    const relationships = childPeopleIds.map((id) => ({
       name: 'Parent',
       person_id: id,
       relation_id: selfId
@@ -79,7 +79,7 @@ export default function CreateRegModal({ event }: {event: any}) {
     }
   
     // Insert the people as participants into the 'participants' table
-    const participants = savedPeople.map((person: any) => ({
+    const participants = savedPeople.map((person) => ({
       person_id: person.id,
       event_id: '24ffc200-a21e-494d-bbb6-92fe641776d7'
     }));
