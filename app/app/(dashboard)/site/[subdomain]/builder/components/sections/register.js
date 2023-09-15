@@ -3,13 +3,17 @@ import React, { useEffect, useState } from 'react';
 import { usePageData } from "@/providers/page-provider";
 import CustomComponentEditor from '../editor';
 import GenericButton from "@/components/modal-buttons/generic-button";
-import CreateRegistrantModal from "@/components/modal/create-registrant-modal";
 import CreateRegModal from '@/components/modal/reg-modal';
+import Schedule from './../schedule'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import LinkButton from '@/components/modal-buttons/link-button';
+import ScheduleModal from '@/components/modal/schedule-modal';
 
 function Register({ id }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [event, setEvent] = useState(null)
   const {site, liveMode, pageState, setPageState } = usePageData(); // Use the hook
-
+  const supabase = createClientComponentClient();
 
 
   
@@ -35,6 +39,11 @@ function Register({ id }) {
           type: 'text',
           label: 'Subtitle',
           value: 'This is the subtitle',
+        },
+        event : {
+          type: 'text',
+          label: 'Event ID',
+          value: '24ffc200-a21e-494d-bbb6-92fe641776d7'
         },
         primaryCta: {
           type: 'button',
@@ -63,6 +72,21 @@ function Register({ id }) {
     setPageState(prevState => ({ ...prevState, components: updatedComponents }));
   }, [id, componentData, setPageState]);
 
+  useEffect(() => {
+    const getEvent = async () => {
+      const {data, error} = await supabase
+        .from('events')
+        .select('*')
+        .eq('id', componentData?.event?.value)
+        .single()
+
+      setEvent(data)
+      console.log("EVENT", data)
+    }
+
+    getEvent()
+  }, [componentData])
+
   const handleEdit = (updatedData) => {
     setComponentData(updatedData);
     setIsEditing(false);
@@ -79,12 +103,16 @@ function Register({ id }) {
             <h1 className={`font-primary text-3xl md:text-4xl font-bold text-center ${componentData.theme.value === 'dark' ? 'text-base-200 dark:text-base-100' : 'text-base-700 dark:text-base-300'} font-bold`}>{componentData.title.value}</h1>
             <div className="w-full max-w-2xl mx-auto flex flex-col items-center justify-center">
               <h2 className={`font-secondary text-md md:text-base text-center ${componentData.theme.value === 'dark' ? 'text-base-200 dark:text-base-100' : 'text-base-700 dark:text-base-500'} font-medium`}>{componentData.subtitle.value}</h2>
-              <p className="mt-5 text-light text-center">Tryouts are on September 26-27th at 7 PM at Provo High.</p>
             </div>
             <div className="mt-2 flex items-center justify-center space-x-2">
               <GenericButton cta="Register">
-              <CreateRegModal />
-             </GenericButton>
+                <CreateRegModal event={event}/>
+              </GenericButton>
+            </div>
+            <div className="max-w-2xl mx-auto">
+              <LinkButton cta={"See Schedule"}>
+                <ScheduleModal event={event} />
+              </LinkButton>
             </div>
 
           {!liveMode && (

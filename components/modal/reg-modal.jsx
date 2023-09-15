@@ -6,7 +6,7 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 export default function CreateRegModal({ event }) {
   const [currentPerson, setCurrentPerson] = useState(0);
   const [success, setSuccess] = useState(false)
-  const { register, handleSubmit, watch } = useForm({
+  const { register, handleSubmit, watch, formState: { errors }} = useForm({
     defaultValues: {
       registrationType: 'child',
       numberOfKids: 1,
@@ -23,6 +23,8 @@ export default function CreateRegModal({ event }) {
   const registrationType = watch("registrationType");
   const numberOfKids = watch("numberOfKids");
   const supabase = createClientComponentClient();
+
+  
 
   useEffect(() => {
     // Disable body scroll when modal opens
@@ -65,8 +67,8 @@ export default function CreateRegModal({ event }) {
     // Insert the relationships into the 'relationships' table
     const relationships = childPeopleIds.map((id) => ({
       name: 'Parent',
-      person_id: id,
-      relation_id: selfId
+      person_id: selfId,
+      relation_id: id
     }));
   
     const { data: savedRelationships, error: relationshipsError } = await supabase
@@ -108,15 +110,17 @@ export default function CreateRegModal({ event }) {
               <label htmlFor='name'>Name</label>
               <input 
                 className="border border-gray-300 px-3 py-2 rounded"
-                {...register(`self.name`)} placeholder="Name" 
+                {...register(`self.name`, {required: true})} placeholder="Name" 
               />
+               {errors.name && <span className="text-sm text-red-500">This field is required</span>}
             </div>
             <div className="flex flex-col mt-1">
               <label htmlFor='email'>Email</label>
               <input 
                 className="border border-gray-300 px-3 py-2 rounded"
-                {...register(`self.email`)} placeholder="Email"
+                {...register(`self.email`, {required: true})} placeholder="Email"
               />
+               {errors.email && <span className="text-sm text-red-500">This field is required</span>}
             </div>
           </div>
         </div>
@@ -149,8 +153,9 @@ export default function CreateRegModal({ event }) {
                 <label htmlFor='Grade'>Grade</label>
                 <input 
                   className="border border-gray-300 px-3 py-2 rounded"
-                  {...register(`self.grade`, {required: true})} placeholder="Name" 
+                  {...register(`self.grade`, {required: true})} placeholder="Grade" 
                 />
+                 {errors.grade && <span className="text-sm text-red-500">This field is required</span>}
               </div>
               <div className="flex flex-col mt-1">
                 <label htmlFor='birthdate'>Birthdate</label>
@@ -158,6 +163,7 @@ export default function CreateRegModal({ event }) {
                   className="border border-gray-300 px-3 py-2 rounded"
                   {...register(`self.birthdate`, {required: true})} placeholder="Email"
                 />
+                 {errors.birthdate && <span className="text-sm text-red-500">This field is required</span>}
               </div>
             </div>
           </div>
@@ -175,8 +181,9 @@ export default function CreateRegModal({ event }) {
                   <label htmlFor='name'>Name</label>
                   <input 
                     className="border border-gray-300 px-3 py-2 rounded"
-                    {...register(`people[${index}].name`)} placeholder="Name" 
+                    {...register(`people[${index}].name`, {required: true})} placeholder="Name" 
                   />
+                   {errors.phone && <span className="text-sm text-red-500">This field is required</span>}
                 </div>
                 {/* <div className="flex flex-col mt-1">
                   <label htmlFor='email'>Email</label>
@@ -189,16 +196,18 @@ export default function CreateRegModal({ event }) {
                   <label htmlFor='grade'>Grade</label>
                   <input 
                     className="border border-gray-300 px-3 py-2 rounded"
-                    {...register(`people[${index}].grade`)} placeholder="Grade" 
+                    {...register(`people[${index}].grade`, {required: true})} placeholder="Grade" 
                   />
+                   {errors.phone && <span className="text-sm text-red-500">This field is required</span>}
                 </div>
                 <div className="flex flex-col mt-1">
                   <label htmlFor='birthdate'>Birthdate</label>
                   <input 
                     type="date"
                     className="border border-gray-300 px-3 py-2 rounded"
-                    {...register(`people[${index}].grade`)} placeholder="Birthdate"
+                    {...register(`people[${index}].birthdate`, {required: true})} placeholder="Birthdate"
                   />
+                   {errors.birthdate && <span className="text-sm text-red-500">This field is required</span>}
                 </div>
               </div>
             </div>

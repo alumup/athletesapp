@@ -7,6 +7,9 @@ import { getAccount } from "@/lib/fetchers/server";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import EditPersonModal from "@/components/modal/edit-person-modal";
 import { fullName } from "@/lib/utils";
+import { Playfair_Display } from "next/font/google";
+
+
 
 export default async function PersonPage({
   params
@@ -33,7 +36,7 @@ export default async function PersonPage({
       return data
     }
 
-    async function fetchRelationships() {
+    async function fetchToRelationships() {
       const { data, error } = await supabase
         .from("relationships")
         .select("*,from:person_id(*),to:relation_id(*)")
@@ -51,12 +54,31 @@ export default async function PersonPage({
     return data
     }
 
+    async function fetchFromRelationships() {
+      const { data, error } = await supabase
+        .from("relationships")
+        .select("*,from:person_id(*),to:relation_id(*)")
+        .eq("relation_id", params.id)
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    if (data) {
+      console.log(data)
+    }
+    
+    return data
+    }
+
     const person = await fetchPerson()
-    const relationships = await fetchRelationships();
+    const toRelationships = await fetchToRelationships();
+    const fromRelationships = await fetchFromRelationships();
     const account = await getAccount();
 
     
-    console.log("GUARDIANS", relationships)
+
 
   
   return (
@@ -64,7 +86,7 @@ export default async function PersonPage({
     <div className="flex flex-col space-y-6">
       <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
         <div className="flex flex-col space-y-0.5">
-          <h1 className="truncate font-cal text-base md:text-lg font-bold dark:text-white sm:w-auto sm:text-3xl">
+          <h1 className="truncate font-cal text-base md:text-xl font-bold dark:text-white sm:w-auto sm:text-3xl">
             {person?.name || fullName(person)}
           </h1>
           <p className="text-stone-500 dark:text-stone-400">
@@ -77,13 +99,24 @@ export default async function PersonPage({
 
       </div>
       <div className="mt-10">
-  
-        {relationships?.map((relation, i) => (
+        <h2 className="mb-3 font-bold text-zinc-500 text-xs uppercase">Relationships</h2>
+        {toRelationships?.map((relation, i) => (
           <div key={i}>
             <div className="border border-stone-200 px-3 py-2 rounded flex items-center space-x-1">
               <div className="flex flex-col">
                 <span>{relation.name} of</span>
                 <Link href={`/people/${relation.to.id}`} className="font-bold text-sm">{relation.to.name || fullName(relation.to)}</Link>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        {fromRelationships?.map((relation, i) => (
+          <div key={i}>
+            <div className="border border-stone-200 px-3 py-2 rounded flex items-center space-x-1">
+              <div className="flex flex-col">
+                <span>{relation.name} is</span>
+                <Link href={`/people/${relation.from.id}`} className="font-bold text-sm">{relation.from.name || fullName(relation.to)}</Link>
               </div>
             </div>
           </div>
