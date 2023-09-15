@@ -9,12 +9,12 @@ const title =
   "Jumpshot®";
 const description =
   "The CRM that helps high school coaches win.";
-const image = "https://vercel.pub/thumbnail.png";
+const image = "";
 
 export const metadata: Metadata = {
   title,
   description,
-  icons: ["https://vercel.pub/favicon.ico"],
+  icons: ["/favicon.ico"],
   openGraph: {
     title,
     description,

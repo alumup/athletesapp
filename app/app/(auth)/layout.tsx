@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { ReactNode } from "react";
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
-  title: "Login | Gigg",
+  title: "Login | Jumpshot®",
 };
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
