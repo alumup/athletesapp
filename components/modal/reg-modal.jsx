@@ -37,14 +37,18 @@ export default function CreateRegModal({ event }) {
   }, []);
 
   const onSubmit = async (data) => {
+
+    const people = data.people.filter((person) => person.name); // don't save the peron if they are missing a name.
+
     // Insert the self person and the child people into the 'people' table
     const { data: savedPeople, error: peopleError } = await supabase
       .from('people')
       .insert([
-        ...data.people.map((person) => ({ ...person, account_id: '0b2390b7-8da9-44c8-b55e-38d5a29115f2' })),
+        ...people.map((person) => ({ ...person, account_id: '0b2390b7-8da9-44c8-b55e-38d5a29115f2' })),
         { ...data.self, account_id: '0b2390b7-8da9-44c8-b55e-38d5a29115f2'}
       ])
       .select('*');
+
   
     if (peopleError) {
       console.error(peopleError);
@@ -79,16 +83,19 @@ export default function CreateRegModal({ event }) {
       console.error(relationshipsError);
       return;
     }
-  
-    // Insert the people as participants into the 'participants' table
-    const participants = savedPeople.map((person) => ({
-      person_id: person.id,
-      event_id: '24ffc200-a21e-494d-bbb6-92fe641776d7'
-    }));
-  
-    const { data: savedParticipants, error: participantsError } = await supabase
-      .from('participants')
-      .insert(participants);
+
+
+
+      let participants = savedPeople
+        .filter((person) => person.email !== data.self.email || registrationType === 'self')
+        .map((person) => ({
+          person_id: person.id,
+          event_id: event?.id
+        }));
+
+  const { data: savedParticipants, error: participantsError } = await supabase
+    .from('participants')
+    .insert(participants);
   
     if (participantsError) {
       console.error(participantsError);
@@ -160,8 +167,9 @@ export default function CreateRegModal({ event }) {
               <div className="flex flex-col mt-1">
                 <label htmlFor='birthdate'>Birthdate</label>
                 <input 
+                  type="date"
                   className="border border-gray-300 px-3 py-2 rounded"
-                  {...register(`self.birthdate`, {required: true})} placeholder="Email"
+                  {...register(`self.birthdate`, {required: true})} placeholder="Birthdate"
                 />
                  {errors.birthdate && <span className="text-sm text-red-500">This field is required</span>}
               </div>
