@@ -88,14 +88,13 @@ export default async function SiteLayout({
           <div className="sticky ease left-0 right-0 top-0 z-30 bg-stone-900 text-stone-100 transition-all duration-150">
             <div className="mx-auto flex h-full max-w-7xl items-center space-x-5 py-2 px-3 md:px-6 lg:px-8">
               <div className="w-full grid grid-cols-2 md:grid-cols-3 gap-5">
-                <div className="col-span-1 w-full flex items-center">
-                  <Link 
-                    href="/"
-                    className="font-semibold text-xl tracking-tight dark:text-white"
-                  >
-                    {data.name}
-                  </Link>
-                </div>
+              <div className="col-span-1 flex items-center">
+                <img 
+                  src={`https://zkoxnmdrhgbjovfvparc.supabase.co/storage/v1/object/public/logos/provo-bulldog-white.svg`}
+                  className="w-8 h-8 fill-zinc-50"
+                />
+                <span className="ml-2 font-bold">{data?.name}</span>
+              </div>
                 <div className="col-span-1 hidden md:flex justify-center items-center space-x-2">
                   {pages?.map((page) => (
                       <Link key={page.id} href={`/${page.slug}`} className="text-gray-50 text-sm">
