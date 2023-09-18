@@ -15,6 +15,7 @@ module.exports = {
       "www.google.com",
       "flag.vercel.app",
       "illustrations.popsy.co",
+      "zkoxnmdrhgbjovfvparc.supabase.co"
     ],
   },
   reactStrictMode: false,

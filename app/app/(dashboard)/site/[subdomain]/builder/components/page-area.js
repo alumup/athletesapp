@@ -3,6 +3,9 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useDrop } from "react-dnd";
 import { CrossCircledIcon, HamburgerMenuIcon } from "@radix-ui/react-icons";
+
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+
 import Banner from "./sections/banner";
 import HtmlBlock from './sections/html-block'
 import Register from './sections/register'
@@ -12,6 +15,7 @@ import { usePageData } from "@/providers/page-provider";
 import FormArea from "./form-area";
 import CustomDragLayer from "./custom-drag-layer";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 
 function makeID(length) {
   let result = "";
@@ -31,6 +35,11 @@ export default function PageArea() {
   const [draggingIndex, setDraggingIndex] = useState(null);
   const pageStateRef = useRef(pageState);
   const params = useParams
+
+  const supabase = createClientComponentClient();
+
+
+
 
 
   useEffect(() => {
@@ -109,9 +118,13 @@ export default function PageArea() {
           ref={dropRef}
         >
           <div className="w-full bg-zinc-900 text-zinc-100 py-2 px-3 md:px-5 px-8">
-            <div className="grid grid-cols-2 md:grid-cols-3">
-              <div className="col-span-1">
-                <span>{site?.name}</span>
+            <div className="grid grid-cols-2 md:grid-cols-3 items-center">
+              <div className="col-span-1 flex items-center">
+                <img 
+                  src={`https://zkoxnmdrhgbjovfvparc.supabase.co/storage/v1/object/public/logos/provo-bulldog-white.svg`}
+                  className="w-8 h-8 fill-zinc-50"
+                />
+                <span className="ml-2 font-bold">{site?.name}</span>
               </div>
               <div className="col-span-1 flex justify-center text-zinc-50 text-sm space-x-2">
                   {pages?.map((page) => (

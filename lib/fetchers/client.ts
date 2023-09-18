@@ -52,11 +52,18 @@ export async function getSiteId(subdomain: any){
 export async function getSite(subdomain: any){
   const supabase = createClientComponentClient();
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('sites')
     .select('*, accounts(*)')
     .eq('subdomain', subdomain)
     .single();
-  
-  return data || "";
+
+  if (error) {
+    return error
+  }
+
+  if (data) {
+    return data
+  }
+
 }

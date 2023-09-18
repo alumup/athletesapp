@@ -6,11 +6,11 @@ import {
 
 export const addDomainToVercel = async (domain: string) => {
   return await fetch(
-    `https://api.vercel.com/v9/projects/${process.env.PROJECT_ID_VERCEL}/domains?teamId=${process.env.TEAM_ID_VERCEL}`,
+    `https://api.vercel.com/v9/projects/prj_DfaMI1Sx90G5vYRexemgkU40nryl/domains?teamId=team_f89ZiVCRduIRLwqrM6ZbchHH`,
     {
       body: `{\n  "name": "${domain}"\n}`,
       headers: {
-        Authorization: `Bearer ${process.env.AUTH_BEARER_TOKEN}`,
+        Authorization: `Bearer hdM2hSUXfqdZuCx1puueVkVk`,
         "Content-Type": "application/json",
       },
       method: "POST",
