@@ -2,11 +2,12 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useDrop } from "react-dnd";
-import { CrossCircledIcon, HamburgerMenuIcon } from "@radix-ui/react-icons";
+import { BackpackIcon, CrossCircledIcon, HamburgerMenuIcon } from "@radix-ui/react-icons";
 
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 import Banner from "./sections/banner";
+import Photos from "./sections/photos";
 import HtmlBlock from './sections/html-block'
 import Register from './sections/register'
 
@@ -135,7 +136,8 @@ export default function PageArea() {
                   }
               </div>
               <div className="col-span-1 flex justify-end items-center">
-                <HamburgerMenuIcon className="w-6 h-6 text-zinc-50" />
+                <HamburgerMenuIcon className="w-6 h-6 text-zinc-50 mr-2" />
+                <BackpackIcon className="w-5 h-5 text-zinc-50" />
               </div>
             </div>
           </div>
@@ -150,6 +152,9 @@ export default function PageArea() {
             switch (component.name) {
               case "banner":
                 Component = Banner;
+                break;
+              case "photos":
+                Component = Photos;
                 break;
               case "html-block":
                   Component = HtmlBlock;

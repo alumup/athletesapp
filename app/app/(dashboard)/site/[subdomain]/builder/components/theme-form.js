@@ -1,9 +1,10 @@
 'use client'
 import { useEffect, useContext } from 'react';
-import { Raleway, Playfair_Display, Inter } from 'next/font/google';
+import { Raleway, Playfair_Display, Inter, Nunito_Sans } from 'next/font/google';
 const raleway = Raleway({subsets: ['latin'] });
 const playfair = Playfair_Display({style: ['italic'], subsets: ['latin']})
 const inter = Inter({subsets: ['latin']}) 
+const nunito_sans = Nunito_Sans({subsets: ['latin'], weight: '1000'})
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useParams } from 'next/navigation';
 import { useThemeData } from '@/providers/theme-provider';
@@ -104,7 +105,7 @@ function ThemeForm() {
                     className="bg-white border border-gray-200 rounded flex justify-between text-sm w-full mt-2"
                   >
                     {/* Replace ['Roboto', 'Open Sans'] with your list of fonts */}
-                    {[raleway, playfair, inter].map((font,i) => (
+                    {[nunito_sans, raleway, playfair, inter].map((font,i) => (
                       <option key={i} value={font.style.fontFamily}>{font.style.fontFamily}</option>
                     ))}
                   </select>

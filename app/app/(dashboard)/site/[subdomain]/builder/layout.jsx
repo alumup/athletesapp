@@ -7,7 +7,7 @@ import { FormProvider}  from "@/providers/form-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import Script from 'next/script';
+
 import {
   Accordion,
   AccordionContent,

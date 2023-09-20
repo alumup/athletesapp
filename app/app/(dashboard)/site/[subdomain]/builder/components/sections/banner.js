@@ -73,9 +73,9 @@ function Banner({ id }) {
       {isEditing ? (
        <CustomComponentEditor componentData={componentData} setComponentData={setComponentData} onEdit={handleEdit} />
       ) : (
-        <div className={`flex flex-col justify-center items-center px-5 py-10 min-h-[300px] h-full relative group ${componentData.theme.value === 'dark' ? 'bg-gray-300 dark:bg-gray-900' : 'bg-gray-100 dark:bg-gray-300'}`}>
-            <h1 className={`text-2xl font-bold ${componentData.theme.value === 'dark' ? 'text-base-200 dark:text-base-100' : 'text-base-700 dark:text-base-300'} font-bold`}>{componentData.title.value}</h1>
-            <h2 className={`text-base ${componentData.theme.value === 'dark' ? 'text-base-200 dark:text-base-100' : 'text-base-700 dark:text-base-500'} font-medium`}>{componentData.subtitle.value}</h2>
+        <div className={`flex flex-col justify-center items-center px-5 py-10 min-h-[300px] h-full relative group ${componentData.theme.value === 'dark' ? 'bg-gray-50 dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-300'}`}>
+            <h1 className={`text-2xl uppercase ${componentData.theme.value === 'dark' ? 'text-base-200 dark:text-base-100' : 'text-base-700 dark:text-base-300'}`}>{componentData.title.value}</h1>
+            <h2 className={`mt-5 md:mt-10 text-base ${componentData.theme.value === 'dark' ? 'text-base-200 dark:text-base-100' : 'text-base-700 dark:text-base-500'} font-light`}>{componentData.subtitle.value}</h2>
             <div className="mt-2 flex items-center justify-center space-x-2">
               {componentData.primaryCta && (
                 <Link href={componentData.primaryCta.properties.href.value} className="bg-primary text-primary-content rounded px-3 py-2">{componentData.primaryCta.properties.text.value}</Link>

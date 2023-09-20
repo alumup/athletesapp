@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import Banner from "@/app/app/(dashboard)/site/[subdomain]/builder/components/sections/banner"
 import HtmlBlock from "@/app/app/(dashboard)/site/[subdomain]/builder/components/sections/html-block";
 import Register from "@/app/app/(dashboard)/site/[subdomain]/builder/components/sections/register"
+import Photos from "@/app/app/(dashboard)/site/[subdomain]/builder/components/sections/photos"
 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
@@ -38,6 +39,9 @@ export default function SiteHomePage() {
         switch (component.name) {
           case "banner":
             Component = Banner;
+            break;
+          case "photos":
+            Component = Photos;
             break;
           case "register":
             Component = Register;

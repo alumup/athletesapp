@@ -4,7 +4,6 @@ import { usePageData } from "@/providers/page-provider";
 import CustomComponentEditor from '../editor';
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreateRegModal from '@/components/modal/reg-modal';
-import Schedule from './../schedule'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import LinkButton from '@/components/modal-buttons/link-button';
 import ScheduleModal from '@/components/modal/schedule-modal';
@@ -99,12 +98,12 @@ function Register({ id }) {
       {isEditing ? (
        <CustomComponentEditor componentData={componentData} setComponentData={setComponentData} onEdit={handleEdit} />
       ) : (
-        <div className={`flex flex-col justify-center items-center px-5 py-10 min-h-[300px] h-full relative group ${componentData.theme.value === 'dark' ? 'bg-gray-300 dark:bg-gray-900' : 'bg-gray-100 dark:bg-gray-300'}`}>
-            <h1 className={`font-primary text-3xl md:text-4xl font-bold text-center ${componentData.theme.value === 'dark' ? 'text-base-200 dark:text-base-100' : 'text-base-700 dark:text-base-300'} font-bold`}>{componentData.title.value}</h1>
-            <div className="w-full max-w-2xl mx-auto flex flex-col items-center justify-center">
-              <h2 className={`font-secondary text-md md:text-base text-center ${componentData.theme.value === 'dark' ? 'text-base-200 dark:text-base-100' : 'text-base-700 dark:text-base-500'} font-medium`}>{componentData.subtitle.value}</h2>
+        <div className={`flex flex-col justify-center items-center px-5 py-10 min-h-[300px] h-full relative group ${componentData.theme.value === 'dark' ? 'bg-gray-50 dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-300'}`}>
+            <h1 className={`font-primary uppercase text-3xl md:text-6xl font-bold text-center ${componentData.theme.value === 'dark' ? 'text-base-200 dark:text-base-100' : 'text-base-700 dark:text-base-300'}`}>{componentData.title.value}</h1>
+            <div className="mt-5 w-full max-w-2xl mx-auto flex flex-col items-center justify-center">
+              <h2 className={`font-secondary font-light text-md md:text-base text-center ${componentData.theme.value === 'dark' ? 'text-base-200 dark:text-base-100' : 'text-base-700 dark:text-base-500'} font-light`}>{componentData.subtitle.value}</h2>
             </div>
-            <div className="mt-2 flex items-center justify-center space-x-2">
+            <div className="mt-5 flex items-center justify-center space-x-2">
               <GenericButton cta="Register">
                 <CreateRegModal event={event}/>
               </GenericButton>

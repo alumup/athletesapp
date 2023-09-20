@@ -1,5 +1,5 @@
 import localFont from "next/font/local";
-import { Inter, Lora, Work_Sans } from "next/font/google";
+import { Inter, Lora, Work_Sans, Nunito_Sans } from "next/font/google";
 
 export const inter = Inter({
   variable: "--font-inter",
@@ -31,8 +31,16 @@ export const work = Work_Sans({
   display: "swap",
 });
 
+export const nunito_sans = Nunito_Sans({
+  variable: "--font-title",
+  subsets: ["latin"],
+  weight: "1000",
+  display: "swap",
+});
+
 export const fontMapper = {
   "font-cal": calTitle.variable,
   "font-lora": lora.variable,
   "font-work": work.variable,
+  "font-nunito-sans": nunito_sans.variable
 } as Record<string, string>;
