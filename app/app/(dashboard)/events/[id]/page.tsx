@@ -1,12 +1,8 @@
 
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
-import Link from "next/link";
 import { getAccount } from "@/lib/fetchers/server";
-import GenericButton from "@/components/modal-buttons/generic-button";
-import EditPersonModal from "@/components/modal/edit-person-modal";
-import { fullName } from "@/lib/utils";
-import { Playfair_Display } from "next/font/google";
+
 
 import { EventTable } from './table'
 
@@ -20,7 +16,7 @@ export default async function EventPage({
 
 
     async function fetchEvent() {
-      const { data, error } = await supabase
+      const { data: events, error } = await supabase
         .from("events")
         .select("*")
         .eq("id", params.id)
@@ -32,7 +28,7 @@ export default async function EventPage({
       }
 
       
-      return data
+      return events
     }
 
     async function fetchParticipants() {
@@ -61,7 +57,7 @@ export default async function EventPage({
 
     const account = await getAccount();
 
-    const people = participants?.map(participant => participant.people);
+    const people = participants?.map(participant => participant.people) || [];
     
 
 
