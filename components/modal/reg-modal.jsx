@@ -254,7 +254,13 @@ export default function CreateRegModal({ event }) {
       )}
 
       {success && (
-        <h1>Thank You</h1>
+        <div className="p-5">
+          <h1 className="font-bolt text-lg">You're Registered!</h1>
+          <p className="mt-5 font-light">
+            Thank you for registering for {event.name}! We will see you
+            on {event.schedule.start_date} at {event.location.name}.
+          </p>
+        </div>
       )}
     </div>
   )
