@@ -15,6 +15,24 @@ import { SupabaseAuthClient } from "@supabase/supabase-js/dist/module/lib/Supaba
 
 export const dynamic = 'force-dynamic'
 
+export const metadata = {
+  openGraph: {
+    title: 'Provo High Basketball',
+    description: 'Home of 17 State Championships',
+    url: 'https://provobasketball.com',
+    siteName: 'Provo High Basketball',
+    images: [
+      {
+        url: '/vance-champs.jpg',
+        width: 800,
+        height: 600,
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+}
+
 export async function generateStaticParams() {
 
   const supabase = createClientComponentClient();
