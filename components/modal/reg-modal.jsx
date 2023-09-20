@@ -55,8 +55,8 @@ export default function CreateRegModal({ event }) {
     const { data: savedPeople, error: peopleError } = await supabase
       .from('people')
       .insert([
-        ...people.map((person) => ({ ...person, account_id: '0b2390b7-8da9-44c8-b55e-38d5a29115f2' })),
-        { ...data.self, account_id: '0b2390b7-8da9-44c8-b55e-38d5a29115f2'}
+        ...people.map((person) => ({ ...person, name: `${person.first_name} ${person.last_name}`, account_id: '0b2390b7-8da9-44c8-b55e-38d5a29115f2' })),
+        { ...data.self, name: `${data.self.first_name} ${data.self.last_name}`, account_id: '0b2390b7-8da9-44c8-b55e-38d5a29115f2'}
       ])
       .select('*');
 
@@ -190,7 +190,8 @@ export default function CreateRegModal({ event }) {
                 <label htmlFor='Grade'>Grade</label>
                 <input 
                   className="border border-gray-300 px-3 py-2 rounded"
-                  {...register(`self.grade`, {required: true})} placeholder="Grade" 
+                  type="number"
+                  {...register(`self.grade`, {required: true})} placeholder="Grade (number)" 
                 />
                  {errors.grade && <span className="text-sm text-red-500">This field is required</span>}
               </div>
@@ -238,7 +239,8 @@ export default function CreateRegModal({ event }) {
                   <label htmlFor='grade'>Grade</label>
                   <input 
                     className="border border-gray-300 px-3 py-2 rounded"
-                    {...register(`people[${index}].grade`, {required: true})} placeholder="Grade" 
+                    type="number"
+                    {...register(`people[${index}].grade`, {required: true})} placeholder="Grade (number)" 
                   />
                    {errors.grade && <span className="text-sm text-red-500">This field is required</span>}
                 </div>

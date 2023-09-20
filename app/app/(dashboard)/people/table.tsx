@@ -79,6 +79,16 @@ const columns: ColumnDef<Person>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: "first_name",
+    header: "First Name",
+    cell: ({ row }) => <div>{row.getValue("first_name")}</div>,
+  },
+  {
+    accessorKey: "last_name",
+    header: "Last Name",
+    cell: ({ row }) => <div>{row.getValue("last_name")}</div>,
+  },
+  {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => <div>{row.getValue("name")}</div>,
