@@ -129,6 +129,14 @@ export default function CreateRegModal({ event }) {
               />
                {errors.email && <span className="text-sm text-red-500">This field is required</span>}
             </div>
+            <div className="flex flex-col mt-1">
+              <label htmlFor='phone'>Phone</label>
+              <input 
+                className="border border-gray-300 px-3 py-2 rounded"
+                {...register(`self.phone`, {required: true})} placeholder="Phone"
+              />
+               {errors.email && <span className="text-sm text-red-500">This field is required</span>}
+            </div>
           </div>
         </div>
         <div className="mt-5 flex flex-col space-y-2">
