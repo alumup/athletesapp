@@ -104,7 +104,7 @@ function Register({ id }) {
               <h2 className={`font-secondary font-light text-md md:text-base text-center ${componentData.theme.value === 'dark' ? 'text-base-200 dark:text-base-100' : 'text-base-700 dark:text-base-500'} font-light`}>{componentData.subtitle.value}</h2>
             </div>
             <div className="mt-5 flex items-center justify-center space-x-2">
-              <GenericButton cta="Register">
+              <GenericButton cta="Register for Tryouts">
                 <CreateRegModal event={event}/>
               </GenericButton>
             </div>
