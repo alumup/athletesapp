@@ -10,9 +10,11 @@ export default function CreateRegModal({ event }) {
     defaultValues: {
       registrationType: 'child',
       numberOfKids: 1,
-      people: [{name: null, gender: null, email: null, grade: null, birthdate: null }],
+      people: [{name: null, first_name: null, last_name: null, gender: null, email: null, grade: null, birthdate: null }],
       self: {
         name: null,
+        first_name: null,
+        last_name: null,
         email: null,
         phone: null,
         grade: null,
@@ -38,7 +40,16 @@ export default function CreateRegModal({ event }) {
 
   const onSubmit = async (data) => {
 
-    const people = data.people.filter((person) => person.name); // don't save the peron if they are missing a name.
+
+    const people = data.people
+    .filter((person) => person.first_name && person.last_name)
+    .map((person) => ({
+      ...person,
+      email: data.self.email,
+      phone: data.self.phone,
+      dependent: registrationType === 'child',
+    }));
+
 
     // Insert the self person and the child people into the 'people' table
     const { data: savedPeople, error: peopleError } = await supabase
@@ -86,16 +97,16 @@ export default function CreateRegModal({ event }) {
 
 
 
-      let participants = savedPeople
-        .filter((person) => person.email !== data.self.email || registrationType === 'self')
-        .map((person) => ({
-          person_id: person.id,
-          event_id: event?.id
-        }));
+    let participants = savedPeople
+    .filter((person) => person.dependent || registrationType === 'self')
+    .map((person) => ({
+      person_id: person.id,
+      event_id: event?.id
+    }));
 
-  const { data: savedParticipants, error: participantsError } = await supabase
-    .from('participants')
-    .insert(participants);
+    const { data: savedParticipants, error: participantsError } = await supabase
+      .from('participants')
+      .insert(participants);
   
     if (participantsError) {
       console.error(participantsError);
@@ -106,21 +117,32 @@ export default function CreateRegModal({ event }) {
     console.log('Saved successfully!', savedPeople, savedRelationships, savedParticipants);
   };
   return (
-    <div key="modal" className="relative h-[calc(100vh-200px)] md:max-h-[700px] md:h-full overflow-y-scroll bg-white border border-gray-50 shadow-sm rounded px-5 pt-10 pb-20 max-w-lg w-full">
+    <div key="modal" className="relative h-[calc(100vh-200px)] md:max-h-[700px] md:h-full overflow-y-scroll bg-white border border-gray-50 shadow-sm rounded px-5 pt-10 pb-0 max-w-lg w-full">
       <h1 className="text-2xl font-bold">Register</h1>
       {!success && (
       <form onSubmit={handleSubmit(onSubmit)}>
         <h1 className="mt-5 text-lg">What's your name?</h1>
         <div className="mt-3">
           <div className="flex flex-col space-y-2">
-            <div className="flex flex-col mt-1">
-              <label htmlFor='name'>Name</label>
-              <input 
-                className="border border-gray-300 px-3 py-2 rounded"
-                {...register(`self.name`, {required: true})} placeholder="Name" 
-              />
-               {errors.name && <span className="text-sm text-red-500">This field is required</span>}
+            <div className="grid grid-cols-2 gap-5">
+              <div className="flex flex-col mt-1">
+                <label htmlFor='first_name'>First Name</label>
+                <input 
+                  className="border border-gray-300 px-3 py-2 rounded"
+                  {...register(`self.first_name`, {required: true})} placeholder="First Name" 
+                />
+                {errors.first_name && <span className="text-sm text-red-500">This field is required</span>}
+              </div>
+              <div className="flex flex-col mt-1">
+                <label htmlFor='last_name'>Last Name</label>
+                <input 
+                  className="border border-gray-300 px-3 py-2 rounded"
+                  {...register(`self.last_name`, {required: true})} placeholder="Last Name" 
+                />
+                {errors.last_name && <span className="text-sm text-red-500">This field is required</span>}
+              </div>
             </div>
+ 
             <div className="flex flex-col mt-1">
               <label htmlFor='email'>Email</label>
               <input 
@@ -193,28 +215,32 @@ export default function CreateRegModal({ event }) {
             <div key={index} className="border border-gray-300 rounded p-2 mt-3">
               <h3>Person {index + 1}</h3>
               <div className="flex flex-col space-y-2">
-                <div className="flex flex-col mt-1">
-                  <label htmlFor='name'>Name</label>
-                  <input 
-                    className="border border-gray-300 px-3 py-2 rounded"
-                    {...register(`people[${index}].name`, {required: true})} placeholder="Name" 
-                  />
-                   {errors.phone && <span className="text-sm text-red-500">This field is required</span>}
+                <div className="grid grid-cols-2 gap-5">
+                  <div className="flex flex-col mt-1">
+                    <label htmlFor='first_name'>First Name</label>
+                    <input 
+                      className="border border-gray-300 px-3 py-2 rounded"
+                      {...register(`people[${index}].first_name`, {required: true})} placeholder="First Name" 
+                    />
+                    {errors.first_name && <span className="text-sm text-red-500">This field is required</span>}
+                  </div>
+                  <div className="flex flex-col mt-1">
+                    <label htmlFor='last_name'>Last Name</label>
+                    <input 
+                      className="border border-gray-300 px-3 py-2 rounded"
+                      {...register(`people[${index}].last_name`, {required: true})} placeholder="Last Name" 
+                    />
+                   {errors.last_name && <span className="text-sm text-red-500">This field is required</span>}
+                  </div>
                 </div>
-                {/* <div className="flex flex-col mt-1">
-                  <label htmlFor='email'>Email</label>
-                  <input 
-                    className="border border-gray-300 px-3 py-2 rounded"
-                    {...register(`people[${index}].email`)} placeholder="Email"
-                  />
-                </div> */}
+               
                 <div className="flex flex-col mt-1">
                   <label htmlFor='grade'>Grade</label>
                   <input 
                     className="border border-gray-300 px-3 py-2 rounded"
                     {...register(`people[${index}].grade`, {required: true})} placeholder="Grade" 
                   />
-                   {errors.phone && <span className="text-sm text-red-500">This field is required</span>}
+                   {errors.grade && <span className="text-sm text-red-500">This field is required</span>}
                 </div>
                 <div className="flex flex-col mt-1">
                   <label htmlFor='birthdate'>Birthdate</label>
@@ -228,7 +254,7 @@ export default function CreateRegModal({ event }) {
               </div>
             </div>
           
-          <div className="flex justify-between items-center mt-3">
+          <div className="flex justify-between items-center mt-3 pb-5">
             <button 
               onClick={() => setCurrentPerson(currentPerson - 1)} 
               disabled={currentPerson === 0}
@@ -247,8 +273,10 @@ export default function CreateRegModal({ event }) {
           </>
           )
         ))}
-        <div className="fixed bottom-0 inset-x-0 bg-white p-3 border-t border-gray-300">
-          <button type="submit" className="bg-zinc-900 text-zinc-50 px-5 py-3 rounded">Register</button>
+        <div className="sticky bottom-0 top-0 inset-x-0 bg-white p-3 border-t border-gray-300">
+          <div className="flex justify-end">
+            <button type="submit" className="bg-zinc-900 text-zinc-50 px-5 py-3 rounded">Register</button>
+          </div>
         </div>
       </form>
       )}
