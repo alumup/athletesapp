@@ -61,11 +61,12 @@ export default function EditPersonModal({person, account} : {person: any, accoun
       .from('people')
       .update([
         {
+          name: data.name,
           first_name: data.first_name,
           last_name: data.last_name,
           email: data.email,
           phone: data.phone,
-          birthdate: data.birthdate,
+          birthdate: data.birthdate || null,
           grade: data.grade,
           tags: selectedTags,
         }

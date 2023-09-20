@@ -67,16 +67,17 @@ export default function CreateRegModal({ event }) {
     }
   
     // Get the id of the self person
-    const selfPerson = savedPeople.find((person) => person.email === data.self.email);
+    const selfPerson = savedPeople.find((person) => !person.dependent);
     if (!selfPerson) {
       console.error('Self person not found in saved people');
       return;
     }
     const selfId = selfPerson.id;
   
-    // Get the ids of the child people
+
+    // Get the ids of the people who should be considered a child of the person registering
     const childPeopleIds = savedPeople
-      .filter((person) => person.email !== data.self.email)
+      .filter((person) => person.dependent)
       .map((person) => person.id);
   
     // Insert the relationships into the 'relationships' table

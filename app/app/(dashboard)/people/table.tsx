@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react";
 import Link from "next/link";
-
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import {
   TrashIcon,
   ListBulletIcon,
@@ -151,7 +151,8 @@ const columns: ColumnDef<Person>[] = [
 
 export function DataTableDemo({data}: {data: Person[]}) {
 
- 
+  const supabase = createClientComponentClient();
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
@@ -184,11 +185,16 @@ export function DataTableDemo({data}: {data: Person[]}) {
   });
 
   
-
-    const handleDeleteSelected = () => {
-      const selectedRows = table.getSelectedRowModel().rows;
-      // Logic to delete selected rows
-    };
+  const handleDeleteSelected = async () => {
+    const selectedRows = table.getSelectedRowModel().rows;
+    // Logic to delete selected rows
+    await Promise.all(selectedRows.map((row) => {
+      return supabase
+        .from('people')
+        .delete()
+        .eq("id", row.original.id)
+    }));
+  };
   
     // Check if any row is selected
     const isAnyRowSelected = table.getSelectedRowModel().rows.length > 0;
