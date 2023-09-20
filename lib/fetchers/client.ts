@@ -1,6 +1,33 @@
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 
+
+export async function getAccount() {
+  
+  const supabase = createClientComponentClient();
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  try {
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*, accounts(*)')
+      .eq('id', user?.id)
+      .single();
+
+    if (profileError) throw profileError;
+
+    return profile.accounts;
+
+  } catch (error: any) {
+    return {
+      error: error.message,
+    };
+  }
+}
+
+
 export async function getCollectionClient(collection_id: string) {
 
   const supabase = createClientComponentClient();
