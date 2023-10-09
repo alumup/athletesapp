@@ -1,16 +1,14 @@
 'use client'
 import { useEffect, useState } from "react";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import LoadingDots from "@/components/icons/loading-dots";
-import { useFormData } from "@/providers/form-provider";
-import BackBtn from "@/components/dynamic-form/buttons/back-btn";
 
-export const StripeElements = ({ isFirstStep, formStep, setFormStep }) => {
+
+export const StripeElements = () => {
   const stripe = useStripe();
   const elements = useElements();
-  const { setPaymentSuccess } = useFormData();
   const [message, setMessage] = useState(null);
   const [paymentError, setPaymentError] = useState(null);
+  const [paymentSuccess, setPaymentSuccess] = useState(null)
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -62,13 +60,14 @@ export const StripeElements = ({ isFirstStep, formStep, setFormStep }) => {
       elements,
       redirect: "if_required",
       confirmParams: {
-        return_url: "http://provo.tengreens.com",
+        return_url: "http://provo.jumpshot.app",
       },
     });
 
     if (confirmError.error) {
       setMessage(confirmError.error.message);
     } else {
+      setMessage("Payment Successful!")
       setPaymentSuccess(true);
     }
 
@@ -92,8 +91,7 @@ export const StripeElements = ({ isFirstStep, formStep, setFormStep }) => {
         </div>
       )}
       <PaymentElement id="payment-element" options={paymentElementOptions} />
-      <div className="fixed md:relative bottom-0 inset-x-0 flex items-center justify-between bg-white p-5 border-t border-gray-200 shadow-sm">
-        {!isFirstStep && <BackBtn step={formStep} setFormStep={setFormStep} cta="Back" />}
+      <div className="fixed md:relative bottom-0 inset-x-0 flex items-center justify-end bg-white p-5 border-t border-gray-200 shadow-sm">
         <button
           disabled={isLoading || !stripe || !elements}
           id="submit"
@@ -101,7 +99,7 @@ export const StripeElements = ({ isFirstStep, formStep, setFormStep }) => {
           className="bg-black text-white px-5 py-2 rounded"
         >
           <span id="button-text" className="whitespace-nowrap">
-            {isLoading ? <LoadingDots color="#fff" /> : "Pay now"}
+            {isLoading ? "Loading..." : "Pay now"}
           </span>
         </button>
       </div>

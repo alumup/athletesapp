@@ -1,7 +1,7 @@
 "use client";
 
 
-import Schedule from "@/app/app/(dashboard)/site/[subdomain]/builder/components/schedule";
+import Schedule from "@/app/app/(dashboard)/site/[subdomain]/builder/schedule";
 
 
 

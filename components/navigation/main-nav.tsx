@@ -24,6 +24,12 @@ export function MainNav({
         People
       </Link>
       <Link
+        href="/teams"
+        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+      >
+        Teams
+      </Link>
+      <Link
         href="/sites"
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >

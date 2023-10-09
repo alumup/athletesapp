@@ -3,7 +3,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { createContext, useState, useContext, useEffect } from 'react';
 import { useSearchParams, usePathname, useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion';
-import { getSite } from '@/lib/fetchers/client';
+import { getSiteData } from '@/lib/fetchers/client';
 export const PageContext = createContext();
 
 
@@ -20,7 +20,7 @@ function PageProvider({ children }) {
 
   useEffect(() => {
     const findSite = async () => {
-      const website = await getSite(params.subdomain)
+      const website = await getSiteData(params.subdomain)
       console.log("WEBSITTE", website)
       setSite(website)
     }
@@ -63,7 +63,7 @@ function PageProvider({ children }) {
 
 
   useEffect(() => {
-    console.log("PatHNAME IN PROVIDER", pathname)
+    console.log("PATHNAME IN PROVIDER", pathname)
 
     const search = searchParams.get('page')
     console.log("PAGE PARAM IN PROVIDER", search)

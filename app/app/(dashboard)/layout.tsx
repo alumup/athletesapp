@@ -40,12 +40,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
               <Link
                 href="/"
                 className="font-bold">
-                  <Image
-                    src="/jumpshot-star.svg"
-                    alt="logo"
-                    width={125}
-                    height={75}
-                  />
+                 ATHLETES®
               </Link>
               <MainNav className="mx-6" />
               <div className="ml-auto flex items-center space-x-4">

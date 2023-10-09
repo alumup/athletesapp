@@ -1,6 +1,6 @@
 
 
-import PageArea from './components/page-area'
+import PageArea from './page-area'
 
 function App() {
   return (

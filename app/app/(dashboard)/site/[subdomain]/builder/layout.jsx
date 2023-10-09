@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 import { PageProvider } from "@/providers/page-provider";
-import { FormProvider}  from "@/providers/form-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -15,47 +14,50 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 
-import Sitebar from './components/sitebar'
-import Toolbar from './components/toolbar';
+import Sitebar from './sitebar'
+import Toolbar from './toolbar';
 import LinkButton from "@/components/modal-buttons/link-button";
 import CreatePageModal from "@/components/modal/create-page-modal";
 import PageSelector from '@/components/page-selector';
 
+import { useParams } from 'next/navigation';
+import { getSiteId } from '@/lib/fetchers/client';
 
 
 export default function BuilderLayout({ children }) {
 
   const [pages, setPages] = useState([])
+  const [siteId, setSiteId] = useState(null)
   const supabase = createClientComponentClient();
+  const params = useParams()
+
+
+  const fetchPages = async () => {
+    const { data, error } = await supabase
+      .from('pages')
+      .select('*')
+      .eq('site_id', siteId)
+    if (error) {
+      console.error('fetchPages - BuilderLayout:', error);
+    } else {
+      setPages(data);
+    }
+  };
+
+  useEffect(() => {
+    console.log("PARAMS:", params.subdomain)
+    const findSiteId = async () => {
+      const site = await getSiteId(params.subdomain)
+      console.log("SITE ID: ", site)
+      setSiteId(site)
+    }
+
+    findSiteId();
+  },[params.subdomain])
 
 
   useEffect(() => {
-    const fetchPages = async () => {
-      const { data, error } = await supabase.from('pages').select('*');
-      if (error) {
-        console.error('Error fetching pages:', error);
-      } else {
-        setPages(data);
-      }
-    };
-    fetchPages();
-  },[])
-
-  
-
-  useEffect(() => {
-    const fetchPages = async () => {
-      const { data, error } = await supabase.from('pages').select('*');
-      if (error) {
-        console.error('Error fetching pages:', error);
-      } else {
-        setPages(data);
-      }
-    };
-
-
-
-
+    fetchPages()
     const channel = supabase
     .channel('pages')
     .on("postgres_changes",
@@ -64,19 +66,18 @@ export default function BuilderLayout({ children }) {
         schema: 'public',
         table: 'pages'
       },
-      fetchPages
+      fetchPages()
     )
     .subscribe();
 
   return () => {
     supabase.removeChannel(channel);
   };
-  }, [supabase]);
+  }, [siteId, supabase]);
   
   return (
     <ThemeProvider>
       <PageProvider> 
-        <FormProvider>
           <DndProvider backend={HTML5Backend}>
             <div className="w-full flex space-x-5">
               <div className="fixed w-[300px] h-screen bg-gray-50 p-3 border border-gray-300 rounded-md">
@@ -109,7 +110,6 @@ export default function BuilderLayout({ children }) {
               </div>
             </div>
           </DndProvider>
-        </FormProvider>
       </PageProvider> 
     </ThemeProvider>
 

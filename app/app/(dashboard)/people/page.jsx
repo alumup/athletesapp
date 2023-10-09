@@ -6,7 +6,7 @@ import CreatePersonModal from "@/components/modal/create-person-modal";
 
 import { DataTableDemo } from './table'
 
-import { getAccount } from "@/lib/fetchers/client";
+import { getAccount, getPrimaryContact } from "@/lib/fetchers/client";
 import { useEffect, useState } from "react";
 
 
@@ -30,7 +30,15 @@ export default function PeoplePage() {
     }
 
     if (people) {
-      setPeople(people)
+      const peopleWithPrimaryEmailPromises = people.map(async (person) => {
+        const primaryPerson = await getPrimaryContact(person);
+        return {
+          ...person,
+          primary_contact: primaryPerson,
+        };
+      });
+      const peopleWithPrimaryEmail = await Promise.all(peopleWithPrimaryEmailPromises);
+      setPeople(peopleWithPrimaryEmail)
     }
   }
 

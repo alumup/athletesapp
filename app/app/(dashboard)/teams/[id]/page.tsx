@@ -1,0 +1,102 @@
+
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
+
+import { getPrimaryContact } from "@/lib/fetchers/server";
+
+
+import { TeamTable } from './table'
+
+export default async function TeamPage({
+  params
+}: {
+  params: { id: string }
+}) {
+
+  const supabase = createServerComponentClient({cookies})
+
+
+    async function fetchTeam() {
+      const { data: team, error } = await supabase
+        .from("teams")
+        .select("*")
+        .eq("id", params.id)
+        .single()
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      
+      return team
+    }
+
+    async function fetchRoster() {
+      const { data, error } = await supabase
+        .from("rosters")
+        .select("*, people(*)")
+        .eq("team_id", params.id)
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    if (data) {
+      console.log(data)
+    }
+    
+    return data
+    }
+
+
+
+
+    const team = await fetchTeam()
+    const roster = await fetchRoster();
+
+    // const account = await getAccount();
+
+    const people = roster?.map(r => r.people) || [];
+  
+  const peopleWithPrimaryEmailPromises = people.map(async (person) => {
+    const primaryPerson = await getPrimaryContact(person);
+    return {
+      ...person,
+      primary_contact: primaryPerson,
+    };
+  });
+
+  const peopleWithPrimaryEmail = await Promise.all(peopleWithPrimaryEmailPromises);
+
+  console.log("PRIMARY", peopleWithPrimaryEmail)
+  
+  return (
+    <div className="flex flex-col space-y-12">
+    <div className="flex flex-col space-y-6">
+      <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
+        <div className="flex flex-col space-y-0.5">
+          <h1 className="truncate font-cal text-base md:text-3xl font-bold dark:text-white sm:w-auto sm:text-2xl">
+            {team.name}
+          </h1>
+          <p className="text-sm text-gray-700">
+            {team.coach}
+          </p> 
+
+        </div>
+        {/* <GenericButton cta="Edit Person">
+          <EditPersonModal person={person} account={account} />
+        </GenericButton> */}
+
+      </div>
+      <div className="mt-10">
+        <h2 className="mb-3 font-bold text-zinc-500 text-xs uppercase">Roster</h2>
+        
+          <TeamTable data={peopleWithPrimaryEmail} team={team} />
+      </div>
+    </div>
+  </div>
+  
+  )
+}

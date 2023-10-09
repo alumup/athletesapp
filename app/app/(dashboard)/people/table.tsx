@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+
 import {
   TrashIcon,
   ListBulletIcon,
@@ -41,10 +42,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-// import SendEmailModal from "@/components/modal/send-email-modal";
-// import AddToListModal from "@/components/modal/add-to-list-modal";
-// import SendButton from "@/components/modal-buttons/send-button";
-// import IconButton from "@/components/modal-buttons/icon-button";
+import SendEmailModal from "@/components/modal/send-email-modal";
+import AddToTeamModal from "@/components/modal/add-to-team-modal";
+import SendButton from "@/components/modal-buttons/send-button";
+import IconButton from "@/components/modal-buttons/icon-button";
 
 
 
@@ -57,6 +58,7 @@ export type Person = {
   tags: any;
   email: string;
   phone: string;
+  primary_contact: any,
 };
 
 const columns: ColumnDef<Person>[] = [
@@ -80,16 +82,6 @@ const columns: ColumnDef<Person>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "first_name",
-    header: "First Name",
-    cell: ({ row }) => <div>{row.getValue("first_name")}</div>,
-  },
-  {
-    accessorKey: "last_name",
-    header: "Last Name",
-    cell: ({ row }) => <div>{row.getValue("last_name")}</div>,
-  },
-  {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => <div>{row.getValue("name")}</div>,
@@ -108,9 +100,15 @@ const columns: ColumnDef<Person>[] = [
     )
   },
   {
-    accessorKey: "email",
+    accessorKey: "primary_contact.email",
     header: "Email",
-    cell: ({ row }) => <div>{row.getValue("email")}</div>,
+    cell: ({ row }) => (
+      <div>
+        <Link href={`/people/${row.original.primary_contact?.id}`} className="px-2 py-1 rounded-full bg-gray-100 border border-gray-300 lowercase cursor-pointer">
+          {row.original.primary_contact?.email}
+        </Link>
+      </div>
+    ),
   },
   {
     accessorKey: "phone",
@@ -246,12 +244,12 @@ export function DataTableDemo({data}: {data: Person[]}) {
       {isAnyRowSelected && (
         <div className="flex justify-between space-x-4 py-2 mb-2">
           <div className="flex items-center space-x-2"> 
-            {/* <SendButton channel="email" cta="Send Email">
+            <SendButton channel="email" cta="Send Email">
               <SendEmailModal people={people} />
             </SendButton>
-            <IconButton icon={<ListBulletIcon className="mr-2" />} cta="Add to List" >
-              <AddToListModal people={people} />
-            </IconButton> */}
+            <IconButton icon={<ListBulletIcon className="mr-2" />} cta="Add to Team" >
+              <AddToTeamModal people={people} />
+            </IconButton>
           </div>
           <Button onClick={handleDeleteSelected} variant="outline" className="text-red-500">
             <TrashIcon className="mr-2 h-4 w-4" /> Delete

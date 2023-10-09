@@ -9,7 +9,7 @@ import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
 
 
-export default function CreatePageModal({account}: {account: any}) {
+export default function CreateEventModal({account}: {account: any}) {
   const {refresh}= useRouter();
   const params = useParams();
   const modal = useModal();

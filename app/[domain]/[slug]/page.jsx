@@ -2,9 +2,8 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-
-import Banner from "@/app/app/(dashboard)/site/[subdomain]/builder/components/sections/banner"
-import HtmlBlock from "@/app/app/(dashboard)/site/[subdomain]/builder/components/sections/html-block";
+import Banner from "@/app/app/(dashboard)/site/[subdomain]/builder/sections/banner"
+import HtmlBlock from "@/app/app/(dashboard)/site/[subdomain]/builder/sections/html-block";
 
 
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';

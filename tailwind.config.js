@@ -30,6 +30,8 @@ module.exports = {
         'primary-foreground': 'var(--primary-foreground)',
         'secondary': 'var(--secondary)',
         'secondary-foreground': 'var(--secondary-foreground)',
+        'tertiary': 'var(--tertiary)',
+        'tertiary-foreground': 'var(--tertiary-foreground)',
         'muted': 'var(--muted)',
         'muted-foreground': 'var(--muted-foreground)',
         'accent': 'var(--accent)',

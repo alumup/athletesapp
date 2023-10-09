@@ -83,6 +83,7 @@ export default function CreateRegModal({ event }) {
     // Insert the relationships into the 'relationships' table
     const relationships = childPeopleIds.map((id) => ({
       name: 'Parent',
+      primary: true,
       person_id: selfId,
       relation_id: id
     }));
