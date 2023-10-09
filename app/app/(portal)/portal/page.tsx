@@ -5,9 +5,12 @@ import Link from 'next/link';
 import { fullName } from "@/lib/utils";
 import CreatePaymentModal from '@/components/modal/create-payment-modal';
 import GenericButton from "@/components/modal-buttons/generic-button";
-import { getTimestamp } from 'swr/_internal';
 import { getAccount } from '@/lib/fetchers/server';
 import { CheckBadgeIcon } from '@heroicons/react/24/outline';
+
+
+export const dynamic = 'force-dynamic'
+
 const PortalPage = async () => {
 
   const supabase = createServerComponentClient({cookies})
