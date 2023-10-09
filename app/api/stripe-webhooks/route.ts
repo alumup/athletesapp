@@ -75,9 +75,46 @@ export async function POST(req: any) {
     case 'payment_intent.succeeded':
       updateSupabase(event)
       break;
+    case 'charge.captured':
+      updateSupabase(event)
+      break;
+    case 'charge.dispute.closed':
+      updateSupabase(event)
+      break;
+    case 'charge.dispute.created':
+      updateSupabase(event)
+      break;
+    case 'charge.dispute.funds_reinstated':
+      updateSupabase(event)
+      break;
+    case 'charge.dispute.funds_withdrawn':
+      updateSupabase(event)
+      break;
+    case 'charge.dispute.updated':
+      updateSupabase(event)
+      break;
+    case 'charge.expired':
+      updateSupabase(event)
+      break;
+    case 'charge.failed':
+      updateSupabase(event)
+      break;
+    case 'charge.pending':
+      updateSupabase(event)
+      break;
+    case 'charge.refund.updated':
+      updateSupabase(event)
+      break;
+    case 'charge.refunded':
+      updateSupabase(event)
+      break;
     case 'charge.succeeded':
       updateSupabase(event)
       break;
+    case 'charge.updated':
+      updateSupabase(event)
+      break;
+    
     default:
       console.log(`Unhandled event type ${event.type}`);
       return NextResponse.json(
@@ -86,5 +123,6 @@ export async function POST(req: any) {
       );
   }
 
+  return NextResponse.json({ error: 'There should have been an event' }, { status: 500 })
  
 }
