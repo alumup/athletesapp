@@ -1,5 +1,4 @@
 import "@/styles/globals.css";
-import "@/styles/videojs.css";
 import "@/styles/slick.css";
 import "@/styles/slick-theme.css";
 
