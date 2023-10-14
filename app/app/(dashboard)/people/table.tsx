@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
@@ -46,6 +46,7 @@ import SendEmailModal from "@/components/modal/send-email-modal";
 import AddToTeamModal from "@/components/modal/add-to-team-modal";
 import SendButton from "@/components/modal-buttons/send-button";
 import IconButton from "@/components/modal-buttons/icon-button";
+
 
 
 
@@ -148,10 +149,9 @@ const columns: ColumnDef<Person>[] = [
 
 
 
-export function DataTableDemo({data}: {data: Person[]}) {
+export function PeopleTable({ data, account }: { data: Person[], account: any}) {
 
   const supabase = createClientComponentClient();
-
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
@@ -182,6 +182,13 @@ export function DataTableDemo({data}: {data: Person[]}) {
       rowSelection,
     },
   });
+
+  useEffect(() => {
+    // Set the initial page size
+    table.setPageSize(30);
+  }, []); //
+
+
 
   
   const handleDeleteSelected = async () => {
@@ -245,7 +252,7 @@ export function DataTableDemo({data}: {data: Person[]}) {
         <div className="flex justify-between space-x-4 py-2 mb-2">
           <div className="flex items-center space-x-2"> 
             <SendButton channel="email" cta="Send Email">
-              <SendEmailModal people={people} />
+              <SendEmailModal people={people} account={account} />
             </SendButton>
             <IconButton icon={<ListBulletIcon className="mr-2" />} cta="Add to Team" >
               <AddToTeamModal people={people} />

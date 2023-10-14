@@ -17,7 +17,7 @@ export default function SendButton({
   const modal = useModal();
   return (
     <Button
-      variant="outline"
+      variant="default"
       onClick={() => modal?.show(children)}
     >
       {channel === 'email' ?

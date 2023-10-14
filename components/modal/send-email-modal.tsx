@@ -1,8 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from 'react-hook-form';
-import { useRouter } from "next/navigation";
-import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
@@ -10,12 +8,16 @@ import { toast } from "sonner";
 
 
 
-export default function SendEmailModal({people} : {people: any}) {
+export default function SendEmailModal({people, account} : {people: any, account: any}) {
 
     const [emailIsSending, setEmailIsSending] = useState(false);
     const [emailError, setEmailError] = useState(false);
     const modal = useModal();
     const { register, handleSubmit, formState: { errors } } = useForm();
+
+    useEffect(() => {
+      console.log("ACCOUNT", account)
+    },[])
 
     // Functions to handle actions
     const handleSendEmail = ({data} : {data: any}) => {
@@ -26,6 +28,7 @@ export default function SendEmailModal({people} : {people: any}) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          account: account,
           people: people,
           subject: data.subject,
           message: data.message

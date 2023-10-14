@@ -1,7 +1,7 @@
 
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
-
+import { getAccount } from "@/lib/fetchers/server";
 import { getPrimaryContact } from "@/lib/fetchers/server";
 
 
@@ -15,6 +15,7 @@ export default async function TeamPage({
 
   const supabase = createServerComponentClient({cookies})
 
+  const account = await getAccount();
 
     async function fetchTeam() {
       const { data: team, error } = await supabase
@@ -93,7 +94,7 @@ export default async function TeamPage({
       <div className="mt-10">
         <h2 className="mb-3 font-bold text-zinc-500 text-xs uppercase">Roster</h2>
         
-          <TeamTable data={peopleWithPrimaryEmail} team={team} />
+          <TeamTable data={peopleWithPrimaryEmail} team={team} account={account} />
       </div>
     </div>
   </div>

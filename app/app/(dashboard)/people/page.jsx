@@ -1,10 +1,9 @@
 'use client'
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { redirect } from "next/navigation";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreatePersonModal from "@/components/modal/create-person-modal";
 
-import { DataTableDemo } from './table'
+import { PeopleTable } from './table'
 
 import { getAccount, getPrimaryContact } from "@/lib/fetchers/client";
 import { useEffect, useState } from "react";
@@ -86,7 +85,7 @@ export default function PeoplePage() {
           </GenericButton>
         </div>
         <div className="mt-10">
-          <DataTableDemo data={people} />
+          <PeopleTable data={people} account={account} />
         </div>
       </div>
     </div>

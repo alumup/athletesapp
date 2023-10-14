@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
@@ -136,7 +136,7 @@ const columns: ColumnDef<Person>[] = [
 
 
 
-export function TeamTable({data, team}: {data: Person[], team: any}) {
+export function TeamTable({data, team, account}: {data: Person[], team: any, account: any}) {
 
   const supabase = createClientComponentClient();
 
@@ -171,7 +171,10 @@ export function TeamTable({data, team}: {data: Person[], team: any}) {
     },
   });
 
-  
+  useEffect(() => {
+    // Set the initial page size
+    table.setPageSize(30);
+  }, []); //
 
     const handleDeleteSelected = () => {
       const people = selectedRows.map((row) => row.original);
@@ -244,9 +247,9 @@ export function TeamTable({data, team}: {data: Person[], team: any}) {
       {isAnyRowSelected && (
         <div className="flex justify-between space-x-4 py-2 mb-2">
           <div className="flex items-center space-x-2"> 
-              <SendButton channel="email" cta="Send Email">
-                <SendEmailModal people={people} />
-              </SendButton>
+            <SendButton channel="email" cta="Send Email">
+              <SendEmailModal people={people} account={account} />
+            </SendButton>
           </div>
           <Button onClick={handleRemoveSelected} variant="outline" className="text-red-500">
             <TrashIcon className="mr-2 h-4 w-4" /> Remove
