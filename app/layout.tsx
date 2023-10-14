@@ -6,7 +6,7 @@ import { Metadata } from "next";
 import { cn } from "@/lib/utils";
 
 const title =
-  "Jumpshot®";
+  "Athletes® App";
 const description =
   "The CRM that helps high school coaches win.";
 const image = "";
@@ -25,9 +25,9 @@ export const metadata: Metadata = {
     title,
     description,
     images: [image],
-    creator: "@vercel",
+    creator: "@cmcollin41",
   },
-  metadataBase: new URL("https://jumpshot.app"),
+  metadataBase: new URL("https://athletes.app"),
 };
 
 export default function RootLayout({
