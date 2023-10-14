@@ -79,7 +79,7 @@ export default function Login() {
       </div>
 
       <div className="flex justify-center w-full mt-5">
-        <span className="text-xs text-gray-500 font-semibold">Powered by Gigg®</span>
+        <span className="text-xs text-gray-500 font-semibold">Powered by Athletes® App</span>
       </div>
     </div>
   )

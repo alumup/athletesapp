@@ -46,7 +46,7 @@ function Navbar({ site, pages }) {
                   <Image
                     src={site.logo}
                     alt={site.name}
-                    width={75}
+                    width={50}
                     height={50}
                   />
                 </Link>
@@ -57,11 +57,19 @@ function Navbar({ site, pages }) {
                   <Link key={page.id} href={`/${page.slug}`} className="text-foreground text-xs uppercase">
                     {page.name}
                   </Link>
-                ))
-                }
+                ))}
+                <Link href="/roster" className="text-foreground text-xs uppercase">
+                  Roster
+                </Link>
+                <Link href="/schedule" className="text-foreground text-xs uppercase">
+                  Schedule
+                </Link>
               </div>
 
-              <div className="col-span-1 flex items-center justify-end">
+              <div className="col-span-1 flex items-center justify-end space-x-2">
+                <a href="app.athletes.app/login" className="bg-primary text-primary-foreground shadow px-3 py-1.5 text-sm rounded">
+                  Donate
+                </a>
                 <Suspense fallback={<OpenCart />}>
                   <Cart />
                 </Suspense>

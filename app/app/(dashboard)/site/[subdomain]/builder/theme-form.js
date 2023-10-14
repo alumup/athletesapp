@@ -88,6 +88,23 @@ function ThemeForm() {
                     </select>
                   </div>
                 );
+              case 'navbar':
+                return (
+                  <div className="w-full flex flex-col rounded" key={variable}>
+                    <label htmlFor={variable} className="text-xs mb-2 text-gray-700">{variable}</label>
+                    <select
+                      id={variable}
+                      name={`${category}.${variable}`}
+                      value={value}
+                      onChange={handleChange}
+                      className="bg-white border border-gray-200 rounded flex justify-between text-sm w-full mt-2"
+                    >
+                      {['default', 'primary', 'inverted', 'tinted', 'secondary'].map((font, i) => (
+                        <option key={i} value={font}>{font}</option>
+                      ))}
+                    </select>
+                  </div>
+                );
               default:
                 return null;
             }

@@ -38,7 +38,7 @@ export async function generateMetadata({ params }) {
       card: "summary_large_image",
       title: page.name,
       description: page.description,
-      creator: "@gigg",
+      creator: "@athletesapp",
       images: [`${page.image}`],
     },
   };

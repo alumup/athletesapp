@@ -1,49 +1,48 @@
 /** @type {import('tailwindcss').Config} */
+
 module.exports = {
-  darkMode: ["class"],
+  darkMode: "class",
   content: [
     './components/**/*.{js,ts,jsx,tsx,json}',
-    './app/**/*.{js,ts,jsx,tsx,json}', 
-	],
-  theme: {
-    container: {
-      center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
+    './app/**/*.{js,ts,jsx,tsx,json}',
+
+  ],
+  safelist: [
+    'relative',
+    'absolute',
+    {
+      pattern: /(bg|text|border)-./
     },
+
+    {
+      pattern: /(p|px|py)-./
+    },
+    {
+      pattern: /(w|h)-./
+    },
+    {
+      pattern: /text-+./,
+      variants: ['sm', 'md', 'lg']
+    },
+  ],
+  theme: {
     extend: {
+      colors: {
+        'primary': {
+          'DEFAULT': 'var(--primary)',
+          100: 'var(--color-primary-100)',
+          200: 'var(--color-primary-200)',
+          300: 'var(--color-primary-300)',
+          400: 'var(--color-primary-400)',
+        },
+        'foreground': 'var(--foreground)',
+        'background': 'var(--background)',
+        'primary-foreground': 'var(--color-primary-text)'
+      },
       fontFamily: {
         'primary': 'var(--font-primary)',
         'secondary': 'var(--font-secondary)',
         'tertiary': 'var(--font-tertiary)',
-      },
-      colors: {
-        'background': 'var(--background)',
-        'foreground': 'var(--foreground)',
-        'card': 'var(--card)',
-        'card-foreground': 'var(--card-foreground)',
-        'popover': 'var(--popover)',
-        'popover-foreground': 'var(--popover-foreground)',
-        'primary': 'var(--primary)',
-        'primary-foreground': 'var(--primary-foreground)',
-        'secondary': 'var(--secondary)',
-        'secondary-foreground': 'var(--secondary-foreground)',
-        'tertiary': 'var(--tertiary)',
-        'tertiary-foreground': 'var(--tertiary-foreground)',
-        'muted': 'var(--muted)',
-        'muted-foreground': 'var(--muted-foreground)',
-        'accent': 'var(--accent)',
-        'accent-foreground': 'var(--accent-foreground)',
-        'destructive': 'var(--destructive)',
-        'destructive-foreground': 'var(--destructive-foreground)',
-        'border': 'var(--border)',
-        'input': 'var(--input)',
-        'ring': 'var(--ring)',
-      },
-      borderRadius: {
-        'default': 'var(--radius)',
       },
       keyframes: {
         "accordion-down": {
@@ -55,11 +54,18 @@ module.exports = {
           to: { height: 0 },
         },
       },
+      transitionProperty: {
+        'height': 'height'
+      },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-      },
+      }
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("@tailwindcss/typography"),
+    require("@tailwindcss/forms"),
+    require("tailwindcss-animate"),
+  ],
 }
