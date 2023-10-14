@@ -1,34 +1,35 @@
-'use client';
+"use client";
 
-import { PlusIcon } from '@radix-ui/react-icons';
-import clsx from 'clsx';
-import { addItem } from '@/components/cart/actions';
-import LoadingDots from '@/components/loading-dots';
-import { ProductVariant } from '@/lib/shopify/types';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useTransition } from 'react';
+import { PlusIcon } from "@radix-ui/react-icons";
+import clsx from "clsx";
+import { addItem } from "@/components/cart/actions";
+import LoadingDots from "@/components/loading-dots";
+import { ProductVariant } from "@/lib/shopify/types";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useTransition } from "react";
 
 export function AddToCart({
   variants,
-  availableForSale
+  availableForSale,
 }: {
   variants: ProductVariant[];
   availableForSale: boolean;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const params = useParams();
   const [isPending, startTransition] = useTransition();
   const defaultVariantId = variants.length === 1 ? variants[0]?.id : undefined;
   const variant = variants.find((variant: ProductVariant) =>
     variant.selectedOptions.every(
-      (option) => option.value === searchParams.get(option.name.toLowerCase())
-    )
+      (option) => option.value === searchParams.get(option.name.toLowerCase()),
+    ),
   );
   const selectedVariantId = variant?.id || defaultVariantId;
   const title = !availableForSale
-    ? 'Out of stock'
+    ? "Out of stock"
     : !selectedVariantId
-    ? 'Please select options'
+    ? "Please select options"
     : undefined;
 
   return (
@@ -41,7 +42,10 @@ export function AddToCart({
         if (!availableForSale || !selectedVariantId) return;
 
         startTransition(async () => {
-          const error = await addItem(selectedVariantId);
+          const error = await addItem(
+            selectedVariantId,
+            params.domain as string,
+          );
 
           if (error) {
             // Trigger the error boundary in the root error.js
@@ -52,17 +56,22 @@ export function AddToCart({
         });
       }}
       className={clsx(
-        'relative flex w-full items-center justify-center rounded-full bg-primary p-4 tracking-wide text-primary-foreground hover:opacity-90',
+        "theme primary relative flex w-full items-center justify-center rounded-full bg-background p-4 tracking-wide text-foreground hover:opacity-90",
         {
-          'cursor-not-allowed opacity-60 hover:opacity-60': !availableForSale || !selectedVariantId,
-          'cursor-not-allowed': isPending
-        }
+          "cursor-not-allowed opacity-60 hover:opacity-60":
+            !availableForSale || !selectedVariantId,
+          "cursor-not-allowed": isPending,
+        },
       )}
     >
       <div className="absolute left-0 ml-4">
-        {!isPending ? <PlusIcon className="h-5" /> : <LoadingDots className="mb-3 bg-white" />}
+        {!isPending ? (
+          <PlusIcon className="h-5" />
+        ) : (
+          <LoadingDots className="mb-3 bg-white" />
+        )}
       </div>
-      <span>{availableForSale ? 'Add To Cart' : 'Out Of Stock'}</span>
+      <span>{availableForSale ? "Add To Cart" : "Out Of Stock"}</span>
     </button>
   );
 }

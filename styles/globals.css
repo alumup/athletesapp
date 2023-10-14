@@ -1,69 +1,60 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
-
 
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --tertiary: 240 4.8% 95.9%;
-    --tertiary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0.3rem;
+    --background: #fafafa;
+    --foreground: #212121;
+    --primary: #53d000;
+    --secondary: #700123;
 
-    --font-sans: 'Nunito', sans-serif;
-    --font-serif: 'Playfair', serif;
+    --color-primary-900: hsla(96, 100%, 31%, 1);
+    --color-primary-800: hsla(96, 100%, 36%, 1);
+    --color-primary-700: hsla(96, 100%, 41%, 1);
+    --color-primary-600: hsla(96, 100%, 46%, 1);
+    --color-primary-500: hsla(96, 100%, 51%, 1); /* This is your base color */
+    --color-primary-400: hsla(96, 100%, 56%, 1);
+    --color-primary-300: hsla(96, 100%, 61%, 1);
+    --color-primary-200: hsla(96, 100%, 66%, 1);
+    --color-primary-100: hsla(96, 100%, 71%, 1);
 
-    --font-primary: 'Nunito', sans-serif;
-    --font-secondary: 'Open Sans', sans-serif;
-    --font-tertiary: 'Lato', sans-serif;
-    
+    --color-neutral-900: #171717;
+    --color-neutral-800: #1c1c1c;
+    --color-neutral-700: #212121;
+    --color-neutral-600: #3c3c3c;
+    --color-neutral-500: #717171;
+    --color-neutral-400: #a2a2a2;
+    --color-neutral-300: #dbdbdb;
+    --color-neutral-200: #ededed;
+    --color-neutral-100: #f6f6f6;
+
+    --color-primary-text: #212121;
+    --color-secondary-800: #1c1c1c;
+    --color-secondary-700: #212121;
+    --color-secondary-500: #717171;
+
+    /* Border Radius */
+    --radius: 1rem;
+
+    /* Typography Sizes */
+    --title-sm-size: 4rem;
+    --title-md-size: 5rem;
+    --title-lg-size: 6rem;
+
+    --subtitle-sm-size: 2rem;
+    --subtitle-md-size: 3rem;
+    --subtitle-lg-size: 4rem;
+
+    --paragraph-sm-size: 1rem;
+    --paragraph-md-size: 1.5rem;
+    --paragraph-lg-size: 1.75rem;
+
+    /* Fonts */
+    --font-primary: "Inter", sans-serif;
+    --font-secondary: "Open Sans", sans-serif;
+    --font-tertiary: "Lato", sans-serif;
   }
- 
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --tertiary: 240 4.8% 95.9%;
-    --tertiary-foreground: 240 5.9% 10%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-  }
-
 
 }
-
-

@@ -1,4 +1,4 @@
-import { ReadonlyURLSearchParams } from 'next/navigation';
+import { ReadonlyURLSearchParams } from "next/navigation";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -60,15 +60,75 @@ export const random = (min: number, max: number) => {
 };
 
 export const fullName = (person: any) => {
-  return `${person.first_name} ${person.last_name}`
-}
+  return `${person.first_name} ${person.last_name}`;
+};
 
-export const createUrl = (pathname: string, params: URLSearchParams | ReadonlyURLSearchParams) => {
+export const createUrl = (
+  pathname: string,
+  params: URLSearchParams | ReadonlyURLSearchParams,
+) => {
   const paramsString = params.toString();
-  const queryString = `${paramsString.length ? '?' : ''}${paramsString}`;
+  const queryString = `${paramsString.length ? "?" : ""}${paramsString}`;
 
   return `${pathname}${queryString}`;
 };
 
 export const ensureStartsWith = (stringToCheck: string, startsWith: string) =>
-  stringToCheck.startsWith(startsWith) ? stringToCheck : `${startsWith}${stringToCheck}`;
+  stringToCheck.startsWith(startsWith)
+    ? stringToCheck
+    : `${startsWith}${stringToCheck}`;
+
+export const getSiteDomain = (url: string) => {
+  const domainMatch = url.match(/^(?:https?:\/\/)?(?:www\.)?([^\/]+)/i);
+  if (domainMatch) {
+    const domain = domainMatch[1];
+    if (typeof domain === "string") {
+      if (domain.startsWith("www.")) {
+        return domain.slice(4); // Exclude 'www'
+      }
+      return domain;
+    }
+  }
+  return null;
+};
+
+export const isSubdomain = (url: string) => {
+  const domainMatch = url.match(/^(?:https?:\/\/)?(?:[^\.]+\.)?([^\/]+)/i);
+  if (domainMatch) {
+    const domain = domainMatch[1];
+    if (typeof domain === "string") {
+      const parts = domain.split(".");
+      if (parts.length > 2 && parts[0] !== "www") {
+        return true; // It's a subdomain if it's not 'www'
+      }
+    }
+  }
+  return false;
+};
+
+export const isValidHost = (host: string) => {
+  const hostRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return hostRegex.test(host);
+};
+
+export const getDomainQuery = (domain: string) => {
+  let decodedDomain = decodeURIComponent(domain).replace(
+    `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+    "",
+  );
+
+  // Remove 'www.' from the domain if it exists
+  if (decodedDomain.startsWith("www.")) {
+    decodedDomain = decodedDomain.substring(4);
+  }
+
+  let subdomain = null;
+
+  if (!isValidHost(decodedDomain)) {
+    subdomain = decodedDomain.replace(
+      `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+      "",
+    );
+  }
+  return [subdomain ? "subdomain" : "domain", subdomain || domain];
+};

@@ -1,38 +1,38 @@
 'use client'
-import React, {useEffect} from 'react';
-import { getCollectionProducts } from '@/lib/shopify';
+import React, { useEffect } from 'react';
 import { GridTileImage } from '@/components/grid/tile';
 import Link from 'next/link';
+import { useShopify } from '@/providers/shopify-provider';
 
 function Products({ id, data }) {
-
+  const shopify = useShopify();
   const [products, setProducts] = React.useState([]);
 
   useEffect(() => {
     const getProducts = async () => {
       try {
-        const products = await getCollectionProducts({
-          collection: 'home',
+        const products = await shopify?.getCollectionProducts({
+          collection: data?.collection?.value,
           reverse: true,
           sortKey: 'CREATED_AT',
         });
-    
+
         setProducts(products);
-        console.log("PRODUCTS", products)
       } catch (error) {
         console.error('Failed to fetch products', error);
       }
     }
 
     getProducts();
-  
-  }, []);
+
+  }, [data?.collection?.value, shopify]);
 
 
 
   return (
-      <div key={id} className="py-8 px-3">
-        <h2 className="mb-4 text-2xl font-bold">{data?.collection?.value}</h2>
+    <div key={id} className={`theme ${data?.theme?.value} py-10 px-3 md:px-5`}>
+      <div className={`max-w-7xl w-full mx-auto h-full`}>
+        <h2 className="mb-4 text-2xl font-bold font-primary">{data?.collection?.value}</h2>
         <ul className="flex w-full gap-4 overflow-x-auto pt-1">
           {products && (
             products?.map((product) => (
@@ -57,8 +57,10 @@ function Products({ id, data }) {
               </li>
             )))
           }
+
         </ul>
       </div>
+    </div>
   );
 }
 

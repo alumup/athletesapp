@@ -1,5 +1,3 @@
-
-
 'use client'
 
 export function getSchema(callback) {
@@ -7,8 +5,14 @@ export function getSchema(callback) {
         theme: {
           label: 'Theme',
           type: 'select',
-          options: ['light', 'dark'],
-          value: 'light'
+          options: ['default', 'inverted', 'tinted', 'primary', 'secondary'],
+          value: 'default'
+        },
+        texture: {
+          type: 'text',
+          label: 'Texture',
+          default: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
+          value: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)'
         },
         title: {
           type: 'text',
@@ -20,8 +24,13 @@ export function getSchema(callback) {
           label: 'Subtitle',
           value: 'This is the subtitle',
         },
+        videoId: {
+          type: 'text',
+          label: 'Video ID',
+          value: 'Insert Video'
+        },
         primaryCta: {
-          type: 'button',
+          type: 'group',
           label: 'Primary CTA',
           properties: {
             text: {
@@ -30,23 +39,7 @@ export function getSchema(callback) {
               value: 'Click Me'
             },
             href: {
-              type: 'input',
-              label: 'Link',
-              value: '/this-is-a-link'
-            }
-          },
-        },
-        secondaryCta: {
-          type: 'button',
-          label: 'Secondary CTA',
-          properties: {
-            text: {
               type: 'text',
-              label: 'CTA',
-              value: 'Click Me'
-            },
-            href: {
-              type: 'input',
               label: 'Link',
               value: '/this-is-a-link'
             }

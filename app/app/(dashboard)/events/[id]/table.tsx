@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import {
@@ -40,10 +40,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-// import SendEmailModal from "@/components/modal/send-email-modal";
-// import AddToListModal from "@/components/modal/add-to-list-modal";
-// import SendButton from "@/components/modal-buttons/send-button";
-// import IconButton from "@/components/modal-buttons/icon-button";
+import SendEmailModal from "@/components/modal/send-email-modal";
+
+import SendButton from "@/components/modal-buttons/send-button";
+import IconButton from "@/components/modal-buttons/icon-button";
 
 
 
@@ -137,7 +137,7 @@ const columns: ColumnDef<Person>[] = [
 
 
 
-export function EventTable({data}: {data: Person[]}) {
+export function EventTable({data, account}: {data: Person[], account: any}) {
 
  
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -170,6 +170,11 @@ export function EventTable({data}: {data: Person[]}) {
       rowSelection,
     },
   });
+
+  useEffect(() => {
+    // Set the initial page size
+    table.setPageSize(30);
+  }, []); //
 
   
 
@@ -227,12 +232,9 @@ export function EventTable({data}: {data: Person[]}) {
       {isAnyRowSelected && (
         <div className="flex justify-between space-x-4 py-2 mb-2">
           <div className="flex items-center space-x-2"> 
-            {/* <SendButton channel="email" cta="Send Email">
-              <SendEmailModal people={people} />
+            <SendButton channel="email" cta="Send Email">
+              <SendEmailModal people={people} account={account} />
             </SendButton>
-            <IconButton icon={<ListBulletIcon className="mr-2" />} cta="Add to List" >
-              <AddToListModal people={people} />
-            </IconButton> */}
           </div>
           <Button onClick={handleDeleteSelected} variant="outline" className="text-red-500">
             <TrashIcon className="mr-2 h-4 w-4" /> Delete

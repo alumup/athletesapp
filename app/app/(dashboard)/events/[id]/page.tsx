@@ -74,15 +74,12 @@ export default async function EventPage({
               {event.location.name}
             </p>
         </div>
-        {/* <GenericButton cta="Edit Person">
-          <EditPersonModal person={person} account={account} />
-        </GenericButton> */}
 
       </div>
       <div className="mt-10">
         <h2 className="mb-3 font-bold text-zinc-500 text-xs uppercase">Participants</h2>
         
-        <EventTable data={people} />
+        <EventTable data={people} account={account} />
       </div>
     </div>
   </div>

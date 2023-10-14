@@ -1,4 +1,5 @@
-import { useRouter } from "next/navigation";
+'use client'
+import { useParams, useRouter } from "next/navigation";
 import { useTransition } from "react";
 
 import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
@@ -15,6 +16,7 @@ export default function EditItemQuantityButton({
   type: "plus" | "minus";
 }) {
   const router = useRouter();
+  const params = useParams();
   const [isPending, startTransition] = useTransition();
 
   return (
@@ -26,12 +28,13 @@ export default function EditItemQuantityButton({
         startTransition(async () => {
           const error =
             type === "minus" && item.quantity - 1 === 0
-              ? await removeItem(item.id)
+              ? await removeItem(item.id, params.domain as string)
               : await updateItemQuantity({
                   lineId: item.id,
                   variantId: item.merchandise.id,
                   quantity:
                     type === "plus" ? item.quantity + 1 : item.quantity - 1,
+                  domain: params.domain as string,
                 });
 
           if (error) {

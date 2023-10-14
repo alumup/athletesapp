@@ -10,6 +10,27 @@ function updateNestedObject(obj, path, value) {
 
 function renderInput(name, value, type, label, options, handleInputChange) {
   switch (type) {
+    // case 'group':
+    //   console.log("LABEL", label)
+    //   return (
+    //     <div className="border p-3 rounded">
+    //       <label className="text-gray-700">{label}</label>
+    //       {Object.keys(value.properties).map((propertyKey) => {
+    //         const property = value.properties[propertyKey];
+    //         return renderInput(`${name}.${propertyKey}`, property.value, property.type, property.label, property.options, handleInputChange);
+    //       })}
+    //     </div>
+    //   );
+    case 'group':
+      return (
+        <fieldset className="border p-3 rounded">
+          <legend className="text-gray-700">{label}</legend>
+          {Object.keys(value.properties).map((propertyKey) => {
+            const property = value.properties[propertyKey];
+            return renderInput(`${name}.${propertyKey}`, property.value, property.type, property.label, property.options, handleInputChange);
+          })}
+        </fieldset>
+      );
     case 'text':
       return (
         <div className="flex flex-col">
@@ -72,7 +93,7 @@ function renderInput(name, value, type, label, options, handleInputChange) {
               onChange={handleInputChange}
               className="w-full rounded border border-gray-300 bg-white text-gray-700 p-3"
             >
-              {options.map((option, index) => (
+              {options?.map((option, index) => (
                 <option key={index} value={option}>
                   {option}
                 </option>
@@ -95,9 +116,34 @@ function renderInput(name, value, type, label, options, handleInputChange) {
             />
           </div>
         );
-    // Add more cases for other types as needed
-    default:
-      return null;
+        case 'checkbox':
+          return (
+            <div>
+              {options.map(option => (
+                <label key={option}>
+                  <input
+                    type="checkbox"
+                    value={option}
+                    checked={value.includes(option)}
+                    onChange={e => {
+                      if (e.target.checked) {
+                        // Add the selected option to the field value
+                        value.push(option);
+                      } else {
+                        // Remove the selected option from the field value
+                        value = value.filter(val => val !== option);
+                      }
+                      // Update the state
+                      handleInputChange({ target: { name, value } });
+                    }}
+                  />
+                  {option}
+                </label>
+              ))}
+            </div>
+          );
+      default:
+        return null;
   }
 }
 
