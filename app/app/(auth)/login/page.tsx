@@ -1,86 +1,142 @@
 'use client'
+import {useState, useEffect} from 'react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import Messages from './messages'
+import { useSearchParams } from 'next/navigation'
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+
 
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const router = useRouter()
-  const supabase = createClientComponentClient()
 
-  // const handleSignUp = async () => {
-  //   await supabase.auth.signUp({
-  //     email,
-  //     password,
-  //     options: {
-  //       emailRedirectTo: `${location.origin}/auth/callback`,
-  //     },
-  //   })
-  //   router.refresh()
-  // }
+  const searchParams = useSearchParams()
+  const supabase = createClientComponentClient();
 
-  const handleSignIn = async () => {
-   const {error} = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-    if (error) {
-      alert(error.message)
-      return
+  const account_id = searchParams.get('account_id')
+  const people_id = searchParams.get('people_id')
+  const email = searchParams.get('email')
+  const sign_up = searchParams.get('sign_up')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+
+  useEffect(() => {
+    const fetchPersonData = async () => {
+      if (people_id) {
+        const { data, error } = await supabase
+          .from('people')
+          .select('first_name, last_name')
+          .eq('id', people_id)
+          .single()
+
+        if (error) {
+          console.error('Error: ', error)
+        } else {
+          setFirstName(data.first_name)
+          setLastName(data.last_name)
+        }
+      }
     }
+    fetchPersonData()
+  }, [people_id])
 
-    
-    router.refresh()
-  }
-
-  // const handleSignOut = async () => {
-  //   await supabase.auth.signOut()
-  //   router.refresh()
-  // }
+  const signUp = sign_up === 'true' ? true : false
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center">
-      <div className="max-w-md mx-3 w-full border border-gray-100 shadow rounded p-5">
-        <div className="relative w-full h-[150px] bg-black rounded overflow-hidden">
-          
-        </div>
-        <div className="flex justify-center mt-5">
-          <h1 className="text-3xl font-bold text-gray-700 dark:text-gray-300">
-            Sign In
-          </h1>
-        </div>
-        <div>
-          <input 
-            name="email" 
-            title='email' 
-            placeholder='email' 
-            className="mt-5 border border-gray-200 rounded p-2 w-full"
-            onChange={(e) => setEmail(e.target.value)} 
-            value={email} />
-        </div>
-        <div>
+    <Tabs defaultValue={signUp ? 'signUp' : 'signIn'} className="w-[300px] md:w-[400px]">
+      <TabsList className="grid w-full grid-cols-2 gap-2 bg-gray-100 rounded p-1">
+        <TabsTrigger value="signIn" className="rounded data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 bg-gray-100 text-zinc-900">Sign In</TabsTrigger>
+        <TabsTrigger value="signUp" className="rounded data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 bg-gray-100 text-zinc-900">Sign Up</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="signIn">
+        <Messages />
+        <form
+          className="flex-1 flex flex-col w-full justify-center gap-2 text-foreground"
+          action="api/auth/sign-in"
+          method="POST"
+        >
+          <label className="text-md" htmlFor="email">
+            Email
+          </label>
           <input
-            type="password"
-            title='password'
-            placeholder='password'
-            name="password"
-            className="border border-gray-200 rounded p-2 w-full mt-5"
-            onChange={(e) => setPassword(e.target.value)}
-            value={password}
+            className="rounded-md px-4 py-2 bg-inherit border mb-6"
+            name="email"
+            placeholder="you@example.com"
+            required
           />
-        </div>
-        <div className="mt-5 flex flex-col space-y-2">
-          {/* <button onClick={handleSignUp} className="bg-indigo-400 textt-white rounded px-4 py-2">Sign up</button> */}
-          <button type="button" onClick={handleSignIn} className="bg-black  text-white rounded px-4 py-2 uppercase text-sm">Sign In</button>
-        </div>
+          <label className="text-md" htmlFor="password">
+            Password
+          </label>
+          <input
+            className="rounded-md px-4 py-2 bg-inherit border mb-6"
+            type="password"
+            name="password"
+            placeholder="••••••••"
+            required
+          />
+          <button className="bg-[#77dd77] rounded shadow px-4 py-2 text-black mb-2">
+            Sign In
+          </button>
+        </form>
+      </TabsContent>
 
-      </div>
-
-      <div className="flex justify-center w-full mt-5">
-        <span className="text-xs text-gray-500 font-semibold">Powered by Athletes® App</span>
-      </div>
-    </div>
+      <TabsContent value="signUp">
+        <Messages />
+        <form
+          className="flex-1 flex flex-col w-full justify-center gap-2 text-foreground"
+          action="api/auth/sign-up"
+          method="POST"
+        >
+          <input
+            className="rounded-md px-4 py-2 bg-inherit border mb-6 hidden"
+            name="first_name"
+            value={firstName || ''}
+            required
+          />
+          <input
+            className="rounded-md px-4 py-2 bg-inherit border mb-6 hidden"
+            name="last_name"
+            value={lastName || ''}
+            required
+          />
+          <input
+            className="rounded-md px-4 py-2 bg-inherit border mb-6 hidden"
+            name="account_id"
+            value={account_id || ''}
+            required
+          />
+          <input
+            className="rounded-md px-4 py-2 bg-inherit border mb-6 hidden"
+            name="people_id"
+            value={people_id || ''}
+            required
+          />
+          <label className="text-md" htmlFor="email">
+            Email
+          </label>
+          <input
+            className="rounded-md px-4 py-2 bg-inherit border mb-6"
+            name="email"
+            placeholder="you@example.com"
+            value={email || ''}
+            required
+          />
+          <label className="text-md" htmlFor="password">
+            Password
+          </label>
+          <input
+            className="rounded-md px-4 py-2 bg-inherit border mb-6"
+            type="password"
+            name="password"
+            placeholder="••••••••"
+            required
+          />
+         <button className="bg-[#77dd77] rounded shadow px-4 py-2 text-black mb-2">
+            Sign Up
+          </button>
+        
+        </form>
+      </TabsContent>
+    </Tabs>
   )
 }

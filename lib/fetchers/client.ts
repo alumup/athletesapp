@@ -2,12 +2,10 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { getDomainQuery } from "../utils";
 import Shopify, { createShopify } from "../shopify";
 
-export async function getAccount(domain: string) {
+export async function getAccountWithDomain(domain: string) {
   const supabase = createClientComponentClient();
 
   const [domainKey, domainValue] = getDomainQuery(domain);
-
-  console.log("DOMAIN FROM GET ACCOUNT", domainValue)
 
   const {
     data: { user },
@@ -44,6 +42,31 @@ export async function getAccount(domain: string) {
   }
 }
 
+export async function getAccount() {
+  const supabase = createClientComponentClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  try {
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("*, accounts(*)")
+      .eq("id", user?.id)
+      .single();
+
+    if (profileError) throw profileError;
+
+    return profile.accounts;
+  } catch (error: any) {
+    return {
+      error: error.message,
+    };
+  }
+}
+
+
 export async function getCollectionClient(collection_id: string) {
   const supabase = createClientComponentClient();
   const { data: collection, error } = await supabase
@@ -62,7 +85,7 @@ export async function getCollectionClient(collection_id: string) {
 
 export async function getCollectionByNameClient(name: string, domain: string) {
   const supabase = createClientComponentClient();
-  const account = await getAccount(domain);
+  const account = await getAccountWithDomain(domain);
   const { data: collection, error } = await supabase
     .from("collections")
     .select("*, playlists(*, media(*))")
@@ -228,7 +251,7 @@ export async function getShopifyToken(account_id: string) {
 }
 
 export async function getAccountShopify(domain: string) {
-  const account = await getAccount(domain);
+  const account = await getAccountWithDomain(domain);
   const shopifyToken = await getShopifyToken(account.id);
 
   return createShopify(shopifyToken) as Shopify;

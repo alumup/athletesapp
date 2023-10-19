@@ -35,26 +35,30 @@ export default async function middleware(req: NextRequest) {
 
     // Check user role and redirect if role is 'general'
     const { data: { user } } = await supabase.auth.getUser();
-    console.log('USERRRR', user)
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user?.id)
-      .single();
 
-    if (profileError) {
-      console.log("ERROR IN MIDDLEWARE: ", profileError.message);
+    if (user) {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user?.id)
+        .single();
+  
+      if (profileError) {
+        console.log("ERROR IN MIDDLEWARE: ", profileError.message);
+      }
+  
+      const role = profile?.role;
+
+      if (role === 'general' && path !== '/portal') {
+        const redirectUrl = process.env.NODE_ENV === 'production'
+          ? `https://app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/portal`
+          : `http://localhost:3000/portal`;
+
+        return NextResponse.redirect(redirectUrl);
+      }
     }
-
-    const role = profile?.role;
     
-    if (role === 'general' && path !== '/portal') {
-      const redirectUrl = process.env.NODE_ENV === 'production'
-        ? `https://app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/portal`
-        : `http://localhost:3000/portal`;
 
-      return NextResponse.redirect(redirectUrl);
-    }
 
     return NextResponse.rewrite(
       new URL(`/app${path === "/" ? "" : path}`, req.url),

@@ -60,7 +60,7 @@ export const random = (min: number, max: number) => {
 };
 
 export const fullName = (person: any) => {
-  return `${person.first_name} ${person.last_name}`;
+  return `${person?.first_name} ${person?.last_name}`;
 };
 
 export const createUrl = (
