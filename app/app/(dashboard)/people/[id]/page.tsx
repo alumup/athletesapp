@@ -8,7 +8,7 @@ import GenericButton from "@/components/modal-buttons/generic-button";
 import EditPersonModal from "@/components/modal/edit-person-modal";
 import { fullName } from "@/lib/utils";
 import { toast } from 'sonner';
-import LoadingDots from '@/components/loading-dots';
+import LoadingDots from '@/components/icons/loading-dots';
 
 
 
@@ -132,7 +132,7 @@ export default function PersonPage({
         <div className="flex items-center space-x-2">
           {!person?.dependent && (
               <button onClick={() => invitePerson({ person, account })} className="px-3 py-1.5 bg-primary text-primary-foreground text-sm rounded">
-                {emailIsSending ? <LoadingDots className="bg-lime-100" /> : <span>Invite to Portal</span>}
+                {emailIsSending ? <LoadingDots color='#808080' /> : <span>Invite to Portal</span>}
             </button>
           )}
 

@@ -1,10 +1,10 @@
 'use client'
-import {useState, useEffect} from 'react'
+import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Messages from './messages'
 import { useSearchParams } from 'next/navigation'
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
-import LoadingDots from '@/components/loading-dots'
+import LoadingDots from '@/components/icons/loading-dots'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 
@@ -62,7 +62,7 @@ export default function Login() {
     }
 
     if (response.ok) {
-      router.push('/dashboard')
+      router.push('/')
     }
   };
 
@@ -121,7 +121,7 @@ export default function Login() {
             required
           />
           <button className="bg-[#77dd77] rounded shadow px-4 py-2 text-black mb-2 w-full">
-            {emailIsSending ? <LoadingDots className="bg-lime-100" /> : <span>Sign In</span>}
+            {emailIsSending ? <LoadingDots color='#808080' /> : <span>Sign In</span>}
           </button>
         </form>
       </TabsContent>
@@ -176,10 +176,10 @@ export default function Login() {
             placeholder="••••••••"
             required
           />
-         <button className="bg-[#77dd77] rounded shadow px-4 py-2 text-black mb-2 w-full">
-            {emailIsSending ? <LoadingDots className="bg-lime-100" /> : <span>Create Account</span>}
+          <button className="bg-[#77dd77] rounded shadow px-4 py-2 text-black mb-2 w-full">
+            {emailIsSending ? Dots color='#808080' /> : <span>Create Account</span>}
           </button>
-        
+
         </form>
       </TabsContent>
       <div className="mt-5 flex justify-center p-2 text-xs">

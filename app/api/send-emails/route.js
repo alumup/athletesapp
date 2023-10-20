@@ -13,19 +13,22 @@ export async function POST(req) {
   console.log("EMAILLLLLLL ->", data)
 
   try {
-    // loop through the people array and send an email to each person
-    people.forEach(async (person) => {
-      const data = await resend.emails.send({
+    // Create an array of promises for each person
+    const emailPromises = people.map((person) => {
+      return resend.emails.send({
         from: `${account.name} <${account.email}>`,
         to: person.primary_contact.email,
         subject: subject,
         react: BasicTemplate({ message: message }),
       });
-
-      console.log("EMAIL DATA", data)
     });
 
-    return NextResponse.json(data);
+    // Wait for all emails to be sent
+    const emailResponses = await Promise.all(emailPromises);
+
+    console.log("EMAIL DATA", emailResponses)
+
+    return NextResponse.json(emailResponses);
   } catch (error) {
     console.log("send-emails error", error);
     return NextResponse.json({ error });
