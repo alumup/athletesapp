@@ -48,9 +48,6 @@ import SendButton from "@/components/modal-buttons/send-button";
 import IconButton from "@/components/modal-buttons/icon-button";
 
 
-
-
-
 export type Person = {
   id: string;
   first_name: string;

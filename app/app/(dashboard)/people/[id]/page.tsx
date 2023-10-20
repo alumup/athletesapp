@@ -8,24 +8,9 @@ import GenericButton from "@/components/modal-buttons/generic-button";
 import EditPersonModal from "@/components/modal/edit-person-modal";
 import { fullName } from "@/lib/utils";
 import { toast } from 'sonner';
+import LoadingDots from '@/components/loading-dots';
 
-const invitePerson = async ({ person, account }: { person: any, account: any }) => {
-  const response = await fetch('/api/invite-person', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ person: person, account: account, subject: `You've Been Invited to Athletes App!` }),
-  });
 
-  if (!response.ok) {
-   toast.error('Invite did not work')
-  }
-
-  if (response.ok) {
-    toast.success(`${person.first_name} has been invited!`)
-  }
-};
 
 export default function PersonPage({
   params
@@ -40,6 +25,29 @@ export default function PersonPage({
     const [toRelationships, setToRelationships] = useState<any>(null);
     const [fromRelationships, setFromRelationships] = useState<any>(null);
     const [account, setAccount] = useState<any>(null);
+  const [emailIsSending, setEmailIsSending] = useState<any>(false)
+  
+
+  const invitePerson = async ({ person, account }: { person: any, account: any }) => {
+    setEmailIsSending(true)
+    const response = await fetch('/api/invite-person', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ person: person, account: account, subject: `You've Been Invited to Athletes App!` }),
+    });
+
+    if (!response.ok) {
+      setEmailIsSending(false)
+      toast.error('Invite did not work')
+    }
+
+    if (response.ok) {
+      setEmailIsSending(false)
+      toast.success(`${person.first_name} has been invited!`)
+    }
+  };
 
     useEffect(() => {
       async function fetchData() {
@@ -124,7 +132,7 @@ export default function PersonPage({
         <div className="flex items-center space-x-2">
           {!person?.dependent && (
               <button onClick={() => invitePerson({ person, account })} className="px-3 py-1.5 bg-primary text-primary-foreground text-sm rounded">
-              Invite to Portal
+                {emailIsSending ? <LoadingDots className="bg-lime-100" /> : <span>Invite to Portal</span>}
             </button>
           )}
 
