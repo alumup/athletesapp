@@ -10,6 +10,8 @@ export async function POST(req) {
   const subject = data?.subject;
   const message = data?.message;
 
+  console.log("EMAILLLLLLL ->", data)
+
   try {
     // loop through the people array and send an email to each person
     people.forEach(async (person) => {
