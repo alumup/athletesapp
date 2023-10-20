@@ -177,7 +177,7 @@ export default function Login() {
             required
           />
           <button className="bg-[#77dd77] rounded shadow px-4 py-2 text-black mb-2 w-full">
-            {emailIsSending ? Dots color='#808080' /> : <span>Create Account</span>}
+            {emailIsSending ? <LoadingDots color='#808080' /> : <span>Create Account</span>}
           </button>
 
         </form>
