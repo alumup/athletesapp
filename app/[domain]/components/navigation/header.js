@@ -67,7 +67,7 @@ function Navbar({ site, pages }) {
               </div>
 
               <div className="col-span-1 flex items-center justify-end space-x-2">
-                <a href="app.athletes.app/login" className="bg-primary text-primary-foreground shadow px-3 py-1.5 text-sm rounded">
+                <a href="https://donate.stripe.com/7sI03A0Qrb7NaPu28c" className="bg-primary text-primary-foreground shadow px-3 py-1.5 text-sm rounded">
                   Donate
                 </a>
                 <Suspense fallback={<OpenCart />}>

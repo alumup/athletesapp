@@ -8,6 +8,6 @@ export const BasicTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
   message,
 }) => (
   <div>
-    {message}
+    <div dangerouslySetInnerHTML={{ __html: message }} />
   </div>
 );

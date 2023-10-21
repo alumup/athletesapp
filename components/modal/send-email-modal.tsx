@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
 import { toast } from "sonner";
+import { Editor } from "novel";
 
 
 
@@ -13,14 +14,14 @@ export default function SendEmailModal({people, account} : {people: any, account
     const [emailIsSending, setEmailIsSending] = useState(false);
     const [emailError, setEmailError] = useState(false);
     const modal = useModal();
-    const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, control, formState: { errors } } = useForm();
 
     useEffect(() => {
       console.log("ACCOUNT", account)
     },[])
 
     // Functions to handle actions
-    const handleSendEmail = ({data} : {data: any}) => {
+  const handleSendEmail = ({ data }: { data: any }) => {
       setEmailIsSending(true);
       fetch('/api/send-emails', {
         method: 'POST',
@@ -31,7 +32,7 @@ export default function SendEmailModal({people, account} : {people: any, account
           account: account,
           people: people,
           subject: data.subject,
-          message: data.message
+          message: data.message.getHTML()
         }),
       })
         .then((response) => response.json())
@@ -84,19 +85,34 @@ export default function SendEmailModal({people, account} : {people: any, account
               className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
               {...register("subject", { required: true })}
             />
-            {errors.last_name && <span className="text-sm text-red-500">This field is required</span>}
+            {errors.subject && <span className="text-sm text-red-500">This field is required</span>}
         </div>
         <div className="flex flex-col space-y-2">
+          <div className="flex flex-col space-y-2">
             <label htmlFor="message" className="text-sm font-medium text-gray-700 dark:text-stone-300">
-             Message
+              Message
             </label>
-            <textarea
-              rows={5}
-              id="message"
-              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
-              {...register("message", { required: true })}
-            />
-            {errors.last_name && <span className="text-sm text-red-500">This field is required</span>}
+            {modal?.isModalOpen && (
+              <>
+                <Controller
+                  name="message"
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <Editor
+                      defaultValue="Type message"
+                      onUpdate={(value: any) => field.onChange(value)}
+                      disableLocalStorage={true}
+                      className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600  focus:outline-none focus:border-blue-300"
+                    />
+                  )}
+                />
+                {errors.message && <span className="text-sm text-red-500">This field is required</span>}
+              </>
+ 
+            )}
+ 
+          </div>
         </div>
         
       </div>

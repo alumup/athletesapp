@@ -6,6 +6,7 @@ import { ReactNode, createContext, useContext, useState } from "react";
 interface ModalContextProps {
   show: (content: ReactNode) => void;
   hide: () => void;
+  isModalOpen: boolean;
 }
 
 const ModalContext = createContext<ModalContextProps | undefined>(undefined);
@@ -27,7 +28,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <ModalContext.Provider value={{ show, hide }}>
+    <ModalContext.Provider value={{ show, hide, isModalOpen: showModal }}>
       {children}
       {showModal && (
         <Modal showModal={showModal} setShowModal={setShowModal}>

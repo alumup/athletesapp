@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreateTeamModal from "@/components/modal/create-team-modal"
-
+import { TeamTable } from "./table";
 import { getAccount } from "@/lib/fetchers/server";
 
 export default async function TeamsPage() {
@@ -40,17 +40,8 @@ export default async function TeamsPage() {
             <CreateTeamModal account={account} />
           </GenericButton>
         </div>
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-4">
-          {teams.map((team) => (
-            <Link href={`/teams/${team.id}`} key={team.id} className="col-span-1 border border-gray-100 px-3 rounded shadow flex space-x-5">
-             <div className="flex flex-col space-y-1">
-                <h2 className="font-cal text-lg font-bold dark:text-white sm:w-auto sm:text-2xl">
-                  {team.name}
-                </h2>
-             </div>
-            </Link>
-          ))}
-
+        <div className="mt-10">
+          <TeamTable data={teams} account={account} />
         </div>
       </div>
     </div>
