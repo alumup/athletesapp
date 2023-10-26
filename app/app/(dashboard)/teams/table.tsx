@@ -74,6 +74,11 @@ const columns: ColumnDef<Person>[] = [
     cell: ({ row }) => <div>{row.getValue("name")}</div>,
   },
   {
+    accessorKey: "coach",
+    header: "Coach",
+    cell: ({ row }) => <div>{row.getValue("coach")}</div>,
+  },
+  {
   accessorKey: "actions",
   header: "",
   cell: ({ row }) => 
