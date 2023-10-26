@@ -9,17 +9,17 @@ export async function POST(req) {
   const people = data?.people;
   const subject = data?.subject;
   const message = data?.message;
+  const preview = data?.preview;
 
-  console.log("EMAILLLLLLL ->", data)
 
   try {
     // Create an array of promises for each person
     const emailPromises = people.map((person) => {
       return resend.emails.send({
         from: `${account.name} <${account.email}>`,
-        to: person.primary_contact.email,
+        to: person.email,
         subject: subject,
-        react: BasicTemplate({ message: message }),
+        react: BasicTemplate({ message: message, account: account, person: person, preview }),
       });
     });
 
