@@ -7,7 +7,8 @@ import {
   TrashIcon,
   MixerHorizontalIcon,
   DotsHorizontalIcon,
-  Pencil1Icon
+  Pencil1Icon,
+  ArrowRightIcon
 } from "@radix-ui/react-icons";
 
 import {
@@ -81,29 +82,15 @@ const columns: ColumnDef<Person>[] = [
   {
   accessorKey: "actions",
   header: "",
-  cell: ({ row }) => 
+    cell: ({ row }) => 
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild className="cursor">
-          <DotsHorizontalIcon width={18}/>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="p-2">
-      
-            <Link href={`/teams/${row.original.id}`} className="cursor hover:bg-gray-100 rounded">
-              <span className="flex items-center space-x-2 text-sm text-gray-700">
-                <Pencil1Icon className="mr-2 h-4 w-4" /> Visit
-              </span>
-            </Link>
-      
-            <Link href={`/teams/${row.original.id}`} className="cursor hover:bg-gray-100 rounded">
-            <span className="flex items-center space-x-2 text-sm text-gray-700">
-                <TrashIcon className="mr-2 h-4 w-4" /> Delete
-              </span>
-            </Link>
-        
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Link href={`/teams/${row.original.id}`} className="cursor hover:bg-gray-100 rounded">
+        <span className="flex items-center space-x-2 text-sm text-gray-700">
+          <ArrowRightIcon className="h-5 w-5" />
+        </span>
+      </Link>
     </>
+
   }
 ];
 

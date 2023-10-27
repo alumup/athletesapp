@@ -5,7 +5,7 @@ import CreatePersonModal from "@/components/modal/create-person-modal";
 
 import { PeopleTable } from './table'
 
-import { getAccount, getPrimaryContact } from "@/lib/fetchers/client";
+import { getAccount, getPrimaryContacts } from "@/lib/fetchers/client";
 import { useEffect, useState } from "react";
 
 
@@ -30,10 +30,10 @@ export default function PeoplePage() {
 
     if (people) {
       const peopleWithPrimaryEmailPromises = people.map(async (person) => {
-        const primaryPerson = await getPrimaryContact(person);
+        const primaryPeople = await getPrimaryContacts(person);
         return {
           ...person,
-          primary_contact: primaryPerson,
+          primary_contacts: primaryPeople,
         };
       });
       const peopleWithPrimaryEmail = await Promise.all(peopleWithPrimaryEmailPromises);
@@ -85,7 +85,9 @@ export default function PeoplePage() {
           </GenericButton>
         </div>
         <div className="mt-10">
-          <PeopleTable data={people} account={account} />
+          {people && (
+            <PeopleTable data={people} account={account} />
+          )}
         </div>
       </div>
     </div>

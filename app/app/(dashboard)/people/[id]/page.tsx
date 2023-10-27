@@ -3,12 +3,13 @@
 import {useState, useEffect, Key} from 'react'
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Link from "next/link";
-import { getAccount, getPrimaryContact } from "@/lib/fetchers/client";
+import { getAccount, getPrimaryContacts } from "@/lib/fetchers/client";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import EditPersonModal from "@/components/modal/edit-person-modal";
 import { fullName } from "@/lib/utils";
 import { toast } from 'sonner';
 import LoadingDots from '@/components/icons/loading-dots';
+import { CheckBadgeIcon } from '@heroicons/react/24/outline';
 
 
 
@@ -53,11 +54,11 @@ export default function PersonPage({
       async function fetchData() {
         const fetchedPerson = await fetchPerson();
         // Fetch primary contact for the person
-        const primaryPerson = await getPrimaryContact(fetchedPerson);
+        const primaryPeople = await getPrimaryContacts(fetchedPerson);
 
         setPerson({
           ...fetchedPerson,
-          primary_contact: primaryPerson
+          primary_contacts: primaryPeople
         });
 
         const fetchedToRelationships = await fetchToRelationships();
@@ -141,7 +142,7 @@ export default function PersonPage({
           </GenericButton>
         </div>
       </div>
-      <div className="mt-10">
+      <div className="mt-10 space-y-5">
         <h2 className="mb-3 font-bold text-zinc-500 text-xs uppercase">Relationships</h2>
         {toRelationships?.map((relation: any, i: Key | null | undefined) => (
           <div key={i}>
@@ -157,9 +158,14 @@ export default function PersonPage({
         {fromRelationships?.map((relation: any, i: Key | null | undefined) => (
           <div key={i}>
             <div className="border border-stone-200 px-3 py-2 rounded flex items-center space-x-1">
-              <div className="flex flex-col">
-                <span>{relation.name} is</span>
-                <Link href={`/people/${relation.from.id}`} className="font-bold text-sm">{relation.from.name || fullName(relation.to)}</Link>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex flex-col">
+                  <span>{relation.name} is</span>
+                  <Link href={`/people/${relation.from.id}`} className="font-bold text-sm">{relation.from.name || fullName(relation.to)}</Link>
+                </div>
+                <div>
+                  {relation.primary ? <CheckBadgeIcon className="w-8 h-8 text-lime-500" /> : ""}
+                </div>
               </div>
             </div>
           </div>

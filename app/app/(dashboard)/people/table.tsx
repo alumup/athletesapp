@@ -7,8 +7,7 @@ import {
   TrashIcon,
   ListBulletIcon,
   MixerHorizontalIcon,
-  DotsHorizontalIcon,
-  Pencil1Icon
+  ArrowRightIcon
 } from "@radix-ui/react-icons";
 
 import {
@@ -46,6 +45,8 @@ import SendEmailModal from "@/components/modal/send-email-modal";
 import AddToTeamModal from "@/components/modal/add-to-team-modal";
 import SendButton from "@/components/modal-buttons/send-button";
 import IconButton from "@/components/modal-buttons/icon-button";
+import LoadingDots from "@/components/icons/loading-dots";
+
 
 
 export type Person = {
@@ -56,7 +57,7 @@ export type Person = {
   tags: any;
   email: string;
   phone: string;
-  primary_contact: any,
+  primary_contacts: any,
 };
 
 const columns: ColumnDef<Person>[] = [
@@ -85,6 +86,23 @@ const columns: ColumnDef<Person>[] = [
     cell: ({ row }) => <div>{row.getValue("name")}</div>,
   },
   {
+    accessorKey: "dependent",
+    header: "Dependent of",
+    cell: ({ row }) => (
+      <div className="space-x-2">
+        {row.getValue("dependent") && row.original.primary_contacts.map((contact: any, index: any) => (
+          <Link
+            key={index}
+            href={`/people/${contact?.id}`}
+            className="titlecase px-2 py-1 rounded-full bg-gray-100 border border-gray-300 lowercase cursor-pointer"
+          >
+            {contact?.name}
+          </Link>
+        ))}
+      </div>
+    ),
+  },
+  {
     accessorKey: "tags",
     header: "Tags",
     cell: ({ row }) => (
@@ -98,13 +116,19 @@ const columns: ColumnDef<Person>[] = [
     )
   },
   {
-    accessorKey: "primary_contact.email",
+    accessorKey: "primary_contacts",
     header: "Email",
     cell: ({ row }) => (
-      <div>
-        <Link href={`/people/${row.original.primary_contact?.id}`} className="px-2 py-1 rounded-full bg-gray-100 border border-gray-300 lowercase cursor-pointer">
-          {row.original.primary_contact?.email}
-        </Link>
+      <div className="space-x-2">
+        {row.original.primary_contacts.map((contact: any, index: any) => (
+          <Link
+            key={index}
+            href={`/people/${contact?.id}`}
+            className="px-2 py-1 rounded-full bg-gray-100 border border-gray-300 lowercase cursor-pointer"
+          >
+            {contact?.email}
+          </Link>
+        ))}
       </div>
     ),
   },
@@ -118,26 +142,11 @@ const columns: ColumnDef<Person>[] = [
   header: "",
   cell: ({ row }) => 
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild className="cursor">
-          <DotsHorizontalIcon width={18}/>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="p-2">
-      
-            <Link href={`/people/${row.original.id}`} className="cursor hover:bg-gray-100 rounded">
-              <span className="flex items-center space-x-2 text-sm text-gray-700">
-                <Pencil1Icon className="mr-2 h-4 w-4" /> Visit
-              </span>
-            </Link>
-      
-            <Link href={`/people/${row.original.id}`} className="cursor hover:bg-gray-100 rounded">
-            <span className="flex items-center space-x-2 text-sm text-gray-700">
-                <TrashIcon className="mr-2 h-4 w-4" /> Delete
-              </span>
-            </Link>
-        
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Link href={`/people/${row.original.id}`} className="cursor hover:bg-gray-100 rounded">
+        <span className="flex items-center space-x-2 text-sm text-gray-700">
+          <ArrowRightIcon className="h-5 w-5" />
+        </span>
+      </Link>
     </>
   }
 ];
@@ -158,6 +167,8 @@ export function PeopleTable({ data, account }: { data: Person[], account: any}) 
   const [columnVisibility, setColumnVisibility] =
     useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+
+  const [tableReady, setTableReady] = useState(false);
 
 
 
@@ -186,7 +197,11 @@ export function PeopleTable({ data, account }: { data: Person[], account: any}) 
   }, []); //
 
 
-
+  useEffect(() => {
+    if (data.length > 0 && table.getRowModel().rows.length > 0) {
+      setTableReady(true);
+    }
+  }, [data, table]);
   
   const handleDeleteSelected = async () => {
     const selectedRows = table.getSelectedRowModel().rows;
@@ -261,54 +276,60 @@ export function PeopleTable({ data, account }: { data: Person[], account: any}) 
         </div>
       )}
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
+        {!tableReady ? (
+          <div className="w-full p-10 flex items-center justify-center">
+           <LoadingDots color="#808080" />
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
                             header.column.columnDef.header,
                             header.getContext()
                           )}
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                      </TableHead>
+                    )
+                  })}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+              <TableBody>
+                {data.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No results.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+        )}
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">

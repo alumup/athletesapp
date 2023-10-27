@@ -2,7 +2,7 @@
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { getAccount } from "@/lib/fetchers/server";
-import { getPrimaryContact } from "@/lib/fetchers/server";
+import { getPrimaryContacts } from "@/lib/fetchers/server";
 
 
 import { TeamTable } from './table'
@@ -62,10 +62,10 @@ export default async function TeamPage({
     const people = roster?.map(r => r.people) || [];
   
   const peopleWithPrimaryEmailPromises = people.map(async (person) => {
-    const primaryPerson = await getPrimaryContact(person);
+    const primaryPeople = await getPrimaryContacts(person);
     return {
       ...person,
-      primary_contact: primaryPerson,
+      primary_contacts: primaryPeople,
     };
   });
 

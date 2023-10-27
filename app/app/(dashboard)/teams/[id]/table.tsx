@@ -8,7 +8,8 @@ import {
   ListBulletIcon,
   MixerHorizontalIcon,
   DotsHorizontalIcon,
-  Pencil1Icon
+  Pencil1Icon,
+  ArrowRightIcon
 } from "@radix-ui/react-icons";
 
 import {
@@ -56,7 +57,7 @@ export type Person = {
   grade: string,
   birthdate: string,
   phone: string;
-  primary_contact: any
+  primary_contacts: any
 };
 
 const columns: ColumnDef<Person>[] = [
@@ -95,13 +96,19 @@ const columns: ColumnDef<Person>[] = [
     cell: ({ row }) => <div>{row.getValue("birthdate")}</div>,
   },
   {
-    accessorKey: "primary_contact.email",
-    header: "Primary Contact",
+    accessorKey: "primary_contacts",
+    header: "Email",
     cell: ({ row }) => (
-      <div>
-        <Link href={`/people/${row.original.primary_contact.id}`} className="px-2 py-1 rounded-full bg-gray-100 border border-gray-300 lowercase cursor-pointer">
-          {row.original.primary_contact.email}
-        </Link>
+      <div className="space-x-2">
+        {row.original.primary_contacts.map((contact: any, index: any) => (
+          <Link
+            key={index}
+            href={`/people/${contact?.id}`}
+            className="px-2 py-1 rounded-full bg-gray-100 border border-gray-300 lowercase cursor-pointer"
+          >
+            {contact?.email}
+          </Link>
+        ))}
       </div>
     ),
   },
@@ -115,20 +122,11 @@ const columns: ColumnDef<Person>[] = [
   header: "",
   cell: ({ row }) => 
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild className="cursor">
-          <DotsHorizontalIcon width={18}/>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="p-2">
-      
-            <Link href={`/people/${row.original.id}`} className="cursor hover:bg-gray-100 rounded">
-              <span className="flex items-center space-x-2 text-sm text-gray-700">
-                <Pencil1Icon className="mr-2 h-4 w-4" /> Visit
-              </span>
-            </Link>
-        
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Link href={`/people/${row.original.id}`} className="cursor hover:bg-gray-100 rounded">
+        <span className="flex items-center space-x-2 text-sm text-gray-700">
+          <ArrowRightIcon className="h-5 w-5" />
+        </span>
+      </Link>
     </>
   }
 ];

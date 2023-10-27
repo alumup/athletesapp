@@ -22,6 +22,7 @@ export default function SendEmailModal({ people, account }: { people: any, accou
 
   // Functions to handle actions
   const handleSendEmail = ({ data }: { data: any }) => {
+    console.log('handleSendEmail called', data);
     setEmailIsSending(true);
     fetch('/api/send-emails', {
       method: 'POST',
@@ -56,9 +57,8 @@ export default function SendEmailModal({ people, account }: { people: any, accou
 
 
   const onSubmit = async (data: any) => {
-
+    console.log('onSubmit called', data);
     handleSendEmail({ data });
-
   };
 
   return (

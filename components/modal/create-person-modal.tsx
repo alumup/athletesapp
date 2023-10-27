@@ -66,6 +66,7 @@ export default function CreatePersonModal({account} : {account: any}) {
       .insert([
         {
           account_id: account.id,
+          name: data.name,
           first_name: data.first_name,
           last_name: data.last_name,
           email: data.email,
@@ -92,6 +93,8 @@ export default function CreatePersonModal({account} : {account: any}) {
           {
             person_id: newPerson.id,
             relation_id: relationship.id,
+            name: relationship.name,
+            primary: relationship.primary,
           }
         ]);
   
@@ -112,7 +115,18 @@ export default function CreatePersonModal({account} : {account: any}) {
       <div className="relative flex flex-col space-y-4 p-5 md:p-10">
         <h2 className="font-cal text-2xl dark:text-white">New Person</h2>
 
-
+        <div className="flex flex-col space-y-2">
+          <label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+            Name
+          </label>
+          <input
+            type="text"
+            id="name"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            {...register("name", { required: true })}
+          />
+          {errors.phone && <span className="text-sm text-red-500">This field is required</span>}
+        </div>
 
 
         <div className="grid grid-cols-2 gap-4">
@@ -249,6 +263,13 @@ export default function CreatePersonModal({account} : {account: any}) {
 
                 defaultValue={field.id} // make sure to set up defaultValue
               />
+              <label>
+                <input
+                  type="checkbox"
+                  {...register(`relationships.${index}.primary`)}
+                />
+                Primary Contact
+              </label>
             </div>
           ))}
           <button 

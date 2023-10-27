@@ -299,3 +299,50 @@ export async function getPrimaryContact(person: any) {
     return person;
   }
 }
+
+export async function getPrimaryContacts(person: any) {
+  const supabase = createClientComponentClient();
+
+  if (person.dependent) {
+    try {
+      // Fetch the primary relationships
+      const { data: relationships, error: relationshipError } = await supabase
+        .from('relationships')
+        .select('*')
+        .eq('relation_id', person.id)
+        .eq('primary', true);
+
+      if (relationshipError) {
+        console.error(relationshipError);
+        return null;
+      }
+
+      // Fetch the primary persons
+      const primaryPersons = await Promise.all(
+        relationships.map(async (relationship: any) => {
+          const { data: primaryPerson, error: primaryPersonError } = await supabase
+            .from('people')
+            .select('*')
+            .eq('id', relationship.person_id)
+            .single();
+
+          if (primaryPersonError) {
+            console.error(primaryPersonError);
+            return null;
+          }
+
+          return primaryPerson;
+        })
+      );
+
+      // Filter out any null values (in case of errors)
+      return primaryPersons.filter(person => person !== null);
+    } catch (error) {
+      console.error('Error fetching primary contacts:', error);
+      return null;
+    }
+  } else {
+    // If the person is not a dependent, return the person itself in an array
+    return [person];
+  }
+}

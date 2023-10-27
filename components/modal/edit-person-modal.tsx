@@ -86,6 +86,8 @@ export default function EditPersonModal({person, account} : {person: any, accoun
           {
             person_id: person.id,
             relation_id: relation.id,
+            name: relation.name,
+            primary: relation.primary,
           }
         ]);
   
@@ -309,14 +311,32 @@ export default function EditPersonModal({person, account} : {person: any, accoun
           ))}
 
           {fields.map((field, index) => (
-            <input
-              key={field.id}
-              placeholder="Relationship ID"
-              {...register(`relationships.${index}.id`, { required: true })}
-              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            <div className="w-full flex flex-col mt-2">
+              <select
+                id="name"
+                className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+                {...register(`relationships.${index}.name`, { required: true })}
+              >
+                <option value="Parent">Parent</option>
+                <option value="Guardian">Guardian</option>
+              </select>
+              <input
+                key={field.id}
+                placeholder="Relationship ID"
+                {...register(`relationships.${index}.id`, { required: true })}
+                className="mt-2 rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
 
-              defaultValue={field.id} // make sure to set up defaultValue
-            />
+                defaultValue={field.id} // make sure to set up defaultValue
+              />
+              <label>
+                <input
+                  type="checkbox"
+                  {...register(`relationships.${index}.primary`)}
+                />
+                Primary Contact
+              </label>
+            </div>
+
           ))}
           <button 
             type="button" 

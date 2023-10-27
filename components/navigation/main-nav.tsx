@@ -13,31 +13,31 @@ export function MainNav({
     >
       <Link
         href="/"
-        className="text-sm font-medium transition-colors hover:text-primary"
+        className="text-sm font-medium transition-colors hover:text-zinc-900"
       >
         Overview
       </Link>
       <Link
         href="/people"
-        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+        className="text-sm font-medium text-muted-foreground transition-colors hover:text-zinc-900"
       >
         People
       </Link>
       <Link
         href="/teams"
-        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+        className="text-sm font-medium text-muted-foreground transition-colors hover:text-zinc-900"
       >
         Teams
       </Link>
       <Link
         href="/sites"
-        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+        className="text-sm font-medium text-muted-foreground transition-colors hover:text-zinc-900"
       >
         Sites
       </Link>
       <Link
         href="/events"
-        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+        className="text-sm font-medium text-muted-foreground transition-colors hover:text-zinc-900"
       >
         Events
       </Link>
