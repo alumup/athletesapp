@@ -117,7 +117,7 @@ const columns: ColumnDef<Person>[] = [
   },
   {
     accessorKey: "primary_contacts",
-    header: "Email",
+    header: "Primary Contacts",
     cell: ({ row }) => (
       <div className="space-x-2">
         {row.original.primary_contacts.map((contact: any, index: any) => (
