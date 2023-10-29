@@ -2,7 +2,7 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import Shopify, { createShopify } from "../shopify";
 import { getDomainQuery } from "../utils";
-import Collection from "@/types/collection";
+
 
 export async function getAccount() {
   const supabase = createServerComponentClient({ cookies });
