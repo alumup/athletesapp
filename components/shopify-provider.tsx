@@ -1,6 +1,6 @@
 "use client";
 
-import { getAccount } from "@/lib/fetchers/client";
+import { getAccountWithDomain } from "@/lib/fetchers/client";
 import Shopify, { createShopify } from "@/lib/shopify";
 import { getCookie } from "cookies-next";
 import { useParams } from "next/navigation";
@@ -14,7 +14,7 @@ export function ShopifyProvider({ children }: { children: React.ReactNode }) {
   const params = useParams();
   useEffect(() => {
     const getShopify = async () => {
-      const account = await getAccount(
+      const account = await getAccountWithDomain(
         (params.domain as string) || (params.subdomain as string),
       );
       if (account?.shopify_storefront_access_token) {

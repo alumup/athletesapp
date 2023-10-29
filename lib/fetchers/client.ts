@@ -2,7 +2,7 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { getDomainQuery } from "../utils";
 import Shopify, { createShopify } from "../shopify";
 
-export async function getAccount(domain: string) {
+export async function getAccountWithDomain(domain: string) {
   const supabase = createClientComponentClient();
 
   const [domainKey, domainValue] = getDomainQuery(domain);
@@ -31,6 +31,7 @@ export async function getAccount(domain: string) {
 
       if (siteError) throw siteError;
       account = site?.accounts;
+      console.log("ACCOUNT", account)
     }
 
     return account;
@@ -41,6 +42,29 @@ export async function getAccount(domain: string) {
   }
 }
 
+export async function getAccount() {
+  const supabase = createClientComponentClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  try {
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("*, accounts(*)")
+      .eq("id", user?.id)
+      .single();
+
+    if (profileError) throw profileError;
+
+    return profile.accounts;
+  } catch (error: any) {
+    return {
+      error: error.message,
+    };
+  }
+}
 
 export async function getSiteId(domain: string) {
   const supabase = createClientComponentClient();
@@ -87,7 +111,7 @@ export async function getShopifyToken(account_id: string) {
 }
 
 export async function getAccountShopify(domain: string) {
-  const account = await getAccount(domain);
+  const account = await getAccountWithDomain(domain);
   const shopifyToken = await getShopifyToken(account.id);
 
   return createShopify(shopifyToken) as Shopify;

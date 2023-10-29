@@ -135,25 +135,25 @@ export default function Login() {
           <input
             className="rounded-md px-4 py-2 bg-inherit border mb-6 hidden"
             name="first_name"
-            value={firstName || ''}
+            defaultValue={firstName || ''}
             required
           />
           <input
             className="rounded-md px-4 py-2 bg-inherit border mb-6 hidden"
             name="last_name"
-            value={lastName || ''}
+            defaultValue={lastName || ''}
             required
           />
           <input
             className="rounded-md px-4 py-2 bg-inherit border mb-6 hidden"
             name="account_id"
-            value={account_id || ''}
+            defaultValue={account_id || ''}
             required
           />
           <input
             className="rounded-md px-4 py-2 bg-inherit border mb-6 hidden"
             name="people_id"
-            value={people_id || ''}
+            defaultValue={people_id || ''}
             required
           />
           <label className="text-md" htmlFor="email">
@@ -163,7 +163,7 @@ export default function Login() {
             className="rounded-md px-4 py-2 bg-inherit border mb-6"
             name="email"
             placeholder="you@example.com"
-            value={email || ''}
+            defaultValue={email || ''}
             required
           />
           <label className="text-md" htmlFor="password">

@@ -1,9 +1,9 @@
 'use client'
-import { getAccount } from "@/lib/fetchers/client";
+import { getAccountWithDomain } from "@/lib/fetchers/client";
 import { createShopify } from "@/lib/shopify";
 
 export async function getSchema(callback, domain) {
-  const account = await getAccount(domain);
+  const account = await getAccountWithDomain(domain);
   if (account?.shopify_storefront_access_token) {
     const shopify = createShopify(account.shopify_storefront_access_token);
 
