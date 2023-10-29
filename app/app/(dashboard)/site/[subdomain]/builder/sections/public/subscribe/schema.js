@@ -11,7 +11,7 @@ export async function getSchema(callback) {
         title: {
             label: 'Title',
             type: 'text',
-            value: 'Subscribe and Stay Awhile',
+            value: 'Subscribe',
         },
         subtitle: {
             label: 'Subtitle',

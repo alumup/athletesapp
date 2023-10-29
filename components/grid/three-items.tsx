@@ -50,7 +50,7 @@ export async function ThreeItemGrid() {
   // Collections that start with `hidden-*` are hidden from the search page.
   const shopify = useShopify();
   const homepageItems = await shopify?.getCollectionProducts({
-    collection: "hidden-homepage-featured-items",
+    collection: "featured",
   });
 
   if (!homepageItems[0] || !homepageItems[1] || !homepageItems[2]) return null;

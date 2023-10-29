@@ -31,7 +31,15 @@ function ThemeForm() {
     try {
       const { data, error } = await supabase
         .from('sites')
-        .update({ theme: theme })
+        .update({
+          theme: {
+            ...theme,
+            [category]: {
+              ...theme[category],
+              [variable]: value,
+            },
+          }
+        })
         .eq('subdomain', params.subdomain)
         .single(); // replace 'siteId' with the actual ID of the site
 
@@ -84,23 +92,6 @@ function ThemeForm() {
                       {/* Replace ['Roboto', 'Open Sans'] with your list of fonts */}
                       {[bricolageGrotesque, cal, raleway, playfair, inter, fira, lora].map((font, i) => (
                         <option key={i} value={font.style.fontFamily} className={`${font.className}`}>{fontMapper[font.className]}</option>
-                      ))}
-                    </select>
-                  </div>
-                );
-              case 'navbar':
-                return (
-                  <div className="w-full flex flex-col rounded" key={variable}>
-                    <label htmlFor={variable} className="text-xs mb-2 text-gray-700">{variable}</label>
-                    <select
-                      id={variable}
-                      name={`${category}.${variable}`}
-                      value={value}
-                      onChange={handleChange}
-                      className="bg-white border border-gray-200 rounded flex justify-between text-sm w-full mt-2"
-                    >
-                      {['default', 'primary', 'inverted', 'tinted', 'secondary'].map((font, i) => (
-                        <option key={i} value={font}>{font}</option>
                       ))}
                     </select>
                   </div>

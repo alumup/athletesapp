@@ -34,7 +34,14 @@ function Footer({ site }) {
         <div>
           <span className="text-foreground font-bold text-xs">Powered By</span>
         </div>
-       
+        <a href="/" className="relative h-10 w-10 flex justify-start items-center">
+          <Image
+            alt="gigg"
+            src="/gigg.png"
+            fill
+            className="object-center object-contain"
+          />
+        </a>
       </div>
     </div>
   )

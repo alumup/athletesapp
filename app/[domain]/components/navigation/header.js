@@ -39,42 +39,34 @@ function Navbar({ site, pages }) {
           <div className="mx-auto flex h-full max-w-7xl items-center space-x-5 py-3 px-3 md:px-0">
             <div className="w-full grid grid-cols-2 md:grid-cols-3 gap-5">
               <div className="col-span-1 flex items-center justify-start">
-                <Link
+                <a
                   href="/"
                   className="font-semibold text-xl tracking-tight"
                 >
                   <Image
                     src={site.logo}
                     alt={site.name}
-                    width={50}
+                    width={100}
                     height={50}
                   />
-                </Link>
+                </a>
               </div>
 
               <div className="col-span-1 hidden md:flex justify-center items-center space-x-2">
                 {pages?.map((page) => (
-                  <Link key={page.id} href={`/${page.slug}`} className="text-foreground text-xs uppercase">
+                  <a key={page.id} href={`/${page.slug}`} className="text-foreground text-xs uppercase">
                     {page.name}
-                  </Link>
-                ))}
-                <Link href="/roster" className="text-foreground text-xs uppercase">
-                  Roster
-                </Link>
-                <Link href="/schedule" className="text-foreground text-xs uppercase">
-                  Schedule
-                </Link>
+                  </a>
+                ))
+                }
               </div>
 
-              <div className="col-span-1 flex items-center justify-end space-x-2">
-                <a href="https://donate.stripe.com/7sI03A0Qrb7NaPu28c" className="bg-primary text-primary-foreground shadow px-3 py-1.5 text-sm rounded">
-                  Donate
-                </a>
+              <div className="col-span-1 flex items-center justify-end">
                 <Suspense fallback={<OpenCart />}>
                   <Cart />
                 </Suspense>
-               
-            
+
+
               </div>
             </div>
           </div>

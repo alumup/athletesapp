@@ -1,5 +1,4 @@
 'use client'
-import Link from "next/link";
 
 
 function Banner({ id, data }) {
@@ -10,14 +9,14 @@ function Banner({ id, data }) {
       <div className={`relative max-w-7xl z-20 w-full mx-auto h-full`}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
           <div className="order-1 md:order-0 col-span-1 space-y-5">
-            <div dangerouslySetInnerHTML={{__html: data?.title?.value}} />
+            <div dangerouslySetInnerHTML={{ __html: data?.title?.value }} />
             <h2 className={`drop-shadow-lg text-xs md:text-sm font-light text-muted md:text-lg mt-2 font-secondary ${data?.theme?.value === 'dark' ? 'text-base-200 dark:text-base-100' : 'text-base-700 dark:text-base-500'} font-light`}>{data?.subtitle?.value}</h2>
             <div className="mt-8 flex items-center space-x-2">
               {data?.primaryCta && (
-                <Link href={data?.primaryCta?.properties?.href.value} className="btn-primary text-primary-foreground text-sm uppercase font-primary">{data?.primaryCta?.properties?.text.value}</Link>
+                <a href={data?.primaryCta?.properties?.href.value} className="btn-primary text-primary-foreground text-sm uppercase font-primary">{data?.primaryCta?.properties?.text.value}</a>
               )}
               {data?.secondaryCta && (
-                <Link href={data?.secondaryCta?.properties?.href.value} className="btn-outline-primary text-primary text-sm font-primary uppercase">{data?.secondaryCta?.properties?.text.value}</Link>
+                <a href={data?.secondaryCta?.properties?.href.value} className="btn-outline-primary text-primary text-sm font-primary uppercase">{data?.secondaryCta?.properties?.text.value}</a>
               )}
             </div>
             <div className="mt-8">
@@ -38,12 +37,8 @@ function Banner({ id, data }) {
               </div>
             </div>
           </div>
-          <div className="relative order-0 md:order-1 col-span-1 flex justify-center items-center w-full">
-            
-          
-          </div>
         </div>
-       
+
       </div>
     </div>
   );

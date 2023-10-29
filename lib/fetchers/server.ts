@@ -2,6 +2,7 @@ import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import Shopify, { createShopify } from "../shopify";
 import { getDomainQuery } from "../utils";
+import Collection from "@/types/collection";
 
 export async function getAccount() {
   const supabase = createServerComponentClient({ cookies });
@@ -26,6 +27,100 @@ export async function getAccount() {
     };
   }
 }
+
+export async function getShopifyToken(account_id: string) {
+  const supabase = createServerComponentClient({ cookies });
+
+  const { data, error } = await supabase
+    .from("accounts")
+    .select("shopify_storefront_access_token")
+    .eq("id", account_id)
+    .single();
+
+  if (error) throw error;
+
+  return data?.shopify_storefront_access_token;
+}
+
+export async function getSiteData(domain: string) {
+  const supabase = createServerComponentClient({ cookies });
+
+  const [domainKey, domainValue] = getDomainQuery(domain);
+
+  const { data, error } = await supabase
+    .from("sites")
+    .select("*")
+    .eq(domainKey, domainValue)
+    .single();
+
+  return data;
+}
+
+export async function getAccountId(domain: string) {
+  const supabase = createServerComponentClient({ cookies });
+
+  const [domainKey, domainValue] = getDomainQuery(domain);
+
+  const { data, error } = await supabase
+    .from("sites")
+    .select("account_id")
+    .eq(domainKey, domainValue)
+    .single();
+
+  if (error) console.log("ERROR IN THE getAccountId FETCHER", error);
+
+  if (data) {
+    console.log("DATA FROM GET ACCOUNT ID", data);
+  }
+  return data?.account_id;
+}
+
+export async function getSiteTheme(domain: string) {
+  const supabase = createServerComponentClient({ cookies });
+
+  const [domainKey, domainValue] = getDomainQuery(domain);
+
+  try {
+    const { data } = await supabase
+      .from("sites")
+      .select("theme")
+      .eq(domainKey, domainValue)
+      .single();
+
+    return data?.theme;
+  } catch (error) {
+    console.log("ERROR IN THE getSiteTheme FETCHER", error);
+    return {};
+  }
+}
+
+
+export async function getAccountShopify(domain: string) {
+  const accountId = await getAccountId(domain);
+  const shopifyToken = await getShopifyToken(accountId);
+
+  return createShopify(shopifyToken) as Shopify;
+}
+
+
+
+export async function getPageDataBySiteAndSlug(site_id: string, slug: string) {
+  const supabase = createServerComponentClient({ cookies });
+  const { data, error } = await supabase
+    .from("pages")
+    .select("*")
+    .eq("slug", slug)
+    .eq("site_id", site_id)
+    .single();
+
+  if (error) {
+    console.log("ERROR IN getPageDataBySiteAndSlug FETCHER");
+    return;
+  }
+
+  return data;
+}
+
 
 export async function getPrimaryContact(person: any) {
   const supabase = createServerComponentClient({ cookies }); // replace with your Supabase client
@@ -116,97 +211,4 @@ export async function getPrimaryContacts(person: any) {
     // If the person is not a dependent, return the person itself in an array
     return [person];
   }
-}
-
-export async function getShopifyToken(account_id: string) {
-  const supabase = createServerComponentClient({ cookies });
-
-  const { data, error } = await supabase
-    .from("accounts")
-    .select("shopify_storefront_access_token")
-    .eq("id", account_id)
-    .single();
-
-  if (error) throw error;
-
-  return data?.shopify_storefront_access_token;
-}
-
-export async function getSiteData(domain: string) {
-  const supabase = createServerComponentClient({ cookies });
-
-  const [domainKey, domainValue] = getDomainQuery(domain);
-
-  const { data, error } = await supabase
-    .from("sites")
-    .select("*")
-    .eq(domainKey, domainValue)
-    .single();
-
-  if (error) {
-    console.log("ERROR IN GET SITE DATA", error);
-  }
-
-  return data;
-}
-
-export async function getAccountId(domain: string) {
-  const supabase = createServerComponentClient({ cookies });
-
-  const [domainKey, domainValue] = getDomainQuery(domain);
-
-  const { data, error } = await supabase
-    .from("sites")
-    .select("account_id")
-    .eq(domainKey, domainValue)
-    .single();
-
-  if (error) console.log("ERROR IN THE getAccountId FETCHER", error);
-
-  if (data) {
-    console.log("DATA FROM GET ACCOUNT ID", data);
-  }
-  return data?.account_id;
-}
-
-export async function getSiteTheme(domain: string) {
-  const supabase = createServerComponentClient({ cookies });
-
-  const [domainKey, domainValue] = getDomainQuery(domain);
-
-  try {
-    const { data } = await supabase
-      .from("sites")
-      .select("theme")
-      .eq(domainKey, domainValue)
-      .single();
-
-    return data?.theme;
-  } catch (error) {
-    console.log("ERROR IN THE getSiteTheme FETCHER", error);
-    return {};
-  }
-}
-
-export async function getCollectionClient(collection_id: string) {
-  const supabase = createServerComponentClient({ cookies });
-  const { data: collection, error } = await supabase
-    .from("collections")
-    .select("*")
-    .eq("id", collection_id)
-    .single();
-
-  if (error) {
-    console.log("ERROR IN THE getCollection FETCHER");
-    return;
-  }
-
-  return collection;
-}
-
-export async function getAccountShopify(domain: string) {
-  const accountId = await getAccountId(domain);
-  const shopifyToken = await getShopifyToken(accountId);
-
-  return createShopify(shopifyToken) as Shopify;
 }

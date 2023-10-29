@@ -18,10 +18,12 @@ const allSections = [
 
 
   // add private ones here
+  { name: 'ad-banner', access: 'private'},
+  { name: 'basic-hero', access: 'private' },
+  { name: 'brag-board', access: 'private' },
+  { name: 'collection-videos', access: 'private'},
   { name: 'hero-image', access: 'private' },
   { name: 'pricing-table', access: 'private' },
-  { name: 'basic-hero', access: 'private' },
-  { name: 'brag-board', access: 'private' }
 
 ];
 

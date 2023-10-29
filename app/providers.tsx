@@ -4,6 +4,8 @@
 import { Toaster } from "sonner";
 import { ModalProvider } from "@/components/modal/provider";
 import { Next13ProgressBar } from "next13-progressbar";
+import { ShopifyProvider } from "@/components/shopify-provider";
+
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <>
@@ -15,7 +17,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         options={{ showSpinner: false }}
         showOnShallow
       />
-      <ModalProvider>{children}</ModalProvider>
+      <ShopifyProvider>
+        <ModalProvider>{children}</ModalProvider>
+      </ShopifyProvider>
     </>
   );
 }

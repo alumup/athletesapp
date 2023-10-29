@@ -284,9 +284,10 @@ export default class Shopify {
         return undefined;
       }
 
-      return Shopify.reshapeCart(res.body.data.cart);
+      return Promise.resolve(Shopify.reshapeCart(res.body.data.cart));
     } catch (error) {
       console.error(error);
+      Promise.reject(error)
       throw error; // or handle the error as you see fit
     }
   }
@@ -322,9 +323,15 @@ export default class Shopify {
       },
     });
 
+    console.log("SHOPIFY COLLECTION RETURN ----->", res.body.data.collection);
+
     if (!res.body.data.collection) {
       console.log(`No collection found for \`${collection}\``);
       return [];
+    }
+
+    if (res.body.data.collection) {
+      console.log("SHOPIFY COLLECTION RETURN ----->", res.body.data.collection);
     }
 
     return Shopify.reshapeProducts(

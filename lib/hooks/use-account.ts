@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAccountWithDomain } from "../fetchers/client";
+import { getAccount } from "../fetchers/client";
 import { useParams } from "next/navigation";
 
 const useAccount = () => {
@@ -7,7 +7,7 @@ const useAccount = () => {
   const params = useParams();
 
   useEffect(() => {
-    getAccountWithDomain(params.domain as string).then((account) => {
+    getAccount(params.domain as string).then((account) => {
       setAccount(account);
     });
   }, [params.domain]);

@@ -7,7 +7,6 @@ import { Gallery } from "@/components/product/gallery";
 import { ProductDescription } from "@/components/product/product-description";
 import { HIDDEN_PRODUCT_TAG } from "@/lib/constants";
 import { Image } from "@/lib/shopify/types";
-import Link from "next/link";
 import { getAccountShopify } from "@/lib/fetchers/server";
 
 // export const runtime = 'edge';
@@ -39,15 +38,15 @@ export async function generateMetadata({
     },
     openGraph: url
       ? {
-        images: [
-          {
-            url,
-            width,
-            height,
-            alt,
-          },
-        ],
-      }
+          images: [
+            {
+              url,
+              width,
+              height,
+              alt,
+            },
+          ],
+        }
       : null,
   };
 }
@@ -88,7 +87,7 @@ export default async function ProductPage({
           __html: JSON.stringify(productJsonLd),
         }}
       />
-      <div className="theme mx-auto max-w-screen-2xl px-4">
+      <div className="theme primary mx-auto max-w-screen-2xl px-4">
         <div className="flex flex-col bg-white p-8 md:p-12 lg:flex-row lg:gap-8">
           <div className="h-full w-full basis-full lg:basis-4/6">
             <Gallery
@@ -127,7 +126,7 @@ async function RelatedProducts({ id, domain }: { id: string; domain: string }) {
             key={product.handle}
             className="aspect-square w-full flex-none min-[475px]:w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5"
           >
-            <Link
+            <a
               className="relative h-full w-full"
               href={`/products/${product.handle}`}
             >
@@ -142,7 +141,7 @@ async function RelatedProducts({ id, domain }: { id: string; domain: string }) {
                 fill
                 sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, (min-width: 475px) 50vw, 100vw"
               />
-            </Link>
+            </a>
           </li>
         ))}
       </ul>

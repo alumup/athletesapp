@@ -60,90 +60,90 @@ function renderInput(name, value, type, label, options, handleInputChange) {
             className="w-10 h-10 rounded bg-white"
           />
         </div>
-      
+
       );
-      case 'radio':
-        return (
-          <fieldset className="flex flex-col">
-            <legend>{label}</legend>
-            {['true', 'false'].map((option, index) => (
-              <label key={index}>
-                <input
-                  type="radio"
-                  name={name}
-                  value={option}
-                  checked={value === option}
-                  onChange={handleInputChange}
-                  className="text-gray-700"
-                />
-                {option}
-              </label>
+    case 'radio':
+      return (
+        <fieldset className="flex flex-col">
+          <legend>{label}</legend>
+          {['true', 'false'].map((option, index) => (
+            <label key={index}>
+              <input
+                type="radio"
+                name={name}
+                value={option}
+                checked={value === option}
+                onChange={handleInputChange}
+                className="text-gray-700"
+              />
+              {option}
+            </label>
+          ))}
+        </fieldset>
+      );
+    case 'select':
+      return (
+        <div className="flex flex-col">
+          <label className="text-gray-700">
+            {label}
+          </label>
+          <select
+            name={name}
+            value={value}
+            onChange={handleInputChange}
+            className="w-full rounded border border-gray-300 bg-white text-gray-700 p-3"
+          >
+            {options?.map((option, index) => (
+              <option key={options.value || index} value={option.value || option}>
+                {option.label || option}
+              </option>
             ))}
-          </fieldset>
-        );
-        case 'select':
-        return (
-          <div className="flex flex-col">
-            <label className="text-gray-700">
-              {label}
+          </select>
+        </div>
+      );
+    case 'html':
+      return (
+        <div className="flex flex-col">
+          <label className="text-gray-700">
+            {label}
+          </label>
+          <textarea
+            name={name}
+            value={value}
+            onChange={handleInputChange}
+            rows={10}
+            className="w-full rounded border border-gray-300 bg-white text-gray-700 p-3"
+          />
+        </div>
+      );
+    case 'checkbox':
+      return (
+        <div>
+          {options.map(option => (
+            <label key={option}>
+              <input
+                type="checkbox"
+                value={option}
+                checked={value.includes(option)}
+                onChange={e => {
+                  if (e.target.checked) {
+                    // Add the selected option to the field value
+                    value.push(option);
+                  } else {
+                    // Remove the selected option from the field value
+                    value = value.filter(val => val !== option);
+                  }
+                  // Update the state
+                  handleInputChange({ target: { name, value } });
+                }}
+              />
+              {option}
             </label>
-            <select
-              name={name}
-              value={value}
-              onChange={handleInputChange}
-              className="w-full rounded border border-gray-300 bg-white text-gray-700 p-3"
-            >
-              {options?.map((option, index) => (
-                <option key={index} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
-        );
-        case 'html': 
-        return (
-          <div className="flex flex-col">
-            <label className="text-gray-700">
-              {label}
-            </label>
-            <textarea 
-              name={name}
-              value={value}
-              onChange={handleInputChange}
-              rows={10}
-              className="w-full rounded border border-gray-300 bg-white text-gray-700 p-3"
-            />
-          </div>
-        );
-        case 'checkbox':
-          return (
-            <div>
-              {options.map(option => (
-                <label key={option}>
-                  <input
-                    type="checkbox"
-                    value={option}
-                    checked={value.includes(option)}
-                    onChange={e => {
-                      if (e.target.checked) {
-                        // Add the selected option to the field value
-                        value.push(option);
-                      } else {
-                        // Remove the selected option from the field value
-                        value = value.filter(val => val !== option);
-                      }
-                      // Update the state
-                      handleInputChange({ target: { name, value } });
-                    }}
-                  />
-                  {option}
-                </label>
-              ))}
-            </div>
-          );
-      default:
-        return null;
+          ))}
+        </div>
+      );
+    default:
+      return null;
   }
 }
 
@@ -187,10 +187,10 @@ function CustomComponentEditor({ componentData, setComponentData, componentType,
     const prompt = e.target.elements.prompt.value;
     generateHtml(prompt);
   }
-  
+
   async function generateHtml(prompt) {
     console.log("PROMPT", prompt)
-  
+
     try {
       const response = await fetch('/api/generate', {
         method: 'POST',
@@ -199,12 +199,12 @@ function CustomComponentEditor({ componentData, setComponentData, componentType,
         },
         body: JSON.stringify({ prompt })
       });
-  
+
       if (!response.ok) {
         console.error('Response status:', response.status, response.statusText);
         return;
       }
-  
+
       // Read the response body as a stream
       const reader = response.body.getReader();
       let chunks = '';
@@ -227,7 +227,7 @@ function CustomComponentEditor({ componentData, setComponentData, componentType,
       console.error('Fetch error:', error);
     }
   }
-  
+
 
   return (
     <div>

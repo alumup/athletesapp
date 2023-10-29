@@ -2,18 +2,16 @@
 import { useEffect, useState, useRef } from "react";
 import { useDrop } from "react-dnd";
 
-import Banner from "./sections/public/banner";
 import Hero from './sections/public/hero/index';
 import HtmlBlock from './sections/public/html-block/index'
 import Products from './sections/public/products/index'
 import Subscribe from './sections/public/subscribe/index'
 
-// import Subscribe from "./sections/public/subscribe/index";
-
 // PRIVATE
-
+import AdBanner from './sections/private/ad-banner/index'
 import HeroImage from './sections/private/hero-image/index'
 import BasicHero from './sections/private/basic-hero/index'
+
 
 // EDITABLE
 import EditableComponent from './editor/editable';
@@ -116,11 +114,11 @@ export default function PageArea() {
         {pageState?.components?.map((component, index) => {
           let Component;
           switch (component.name) {
+            case "ad-banner":
+              Component = AdBanner;
+              break;
             case "hero":
               Component = Hero;
-              break;
-            case "banner":
-              Component = Banner;
               break;
             case "products":
               Component = Products;

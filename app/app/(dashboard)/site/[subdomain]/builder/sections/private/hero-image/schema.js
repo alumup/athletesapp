@@ -1,70 +1,41 @@
-
-
 'use client'
+import { getAccount } from "@/lib/fetchers/client";
+import { createShopify } from "@/lib/shopify";
 
-export function getSchema(callback) {
-      const schema = {
-        theme: {
-          label: 'Theme',
-          type: 'select',
-          options: ['default', 'inverted', 'tinted', 'primary', 'secondary'],
-          value: 'default'
-        },
-        backgroundImage: {
+export async function getSchema(callback, domain) {
+  const account = await getAccount(domain);
+  if (account?.shopify_storefront_access_token) {
+    const shopify = createShopify(account.shopify_storefront_access_token);
+
+    shopify.getCollections()
+      .then(collections => {
+ 
+        const schema = {
+          theme: {
+            label: 'Theme',
+            type: 'select',
+            options: ['default', 'inverted', 'tinted', 'primary', 'secondary'],
+            value: 'default'
+          },
+        featuredVideo: {
           type: 'text',
-          label: 'Background Image',
-          default: '',
-          value: ''
-        },
-        title: {
-          type: 'html',
-          label: 'Title',
-          value: 'Example Banner Text',
-        },
-        subtitle: {
-          type: 'text',
-          label: 'Subtitle',
-          value: 'This is the subtitle',
-        },
-        videoId: {
-          type: 'text',
-          label: 'Video ID',
+          label: 'Featured Video',
           value: 'Insert Video'
         },
-        primaryCta: {
-          type: 'group',
-          label: 'Primary CTA',
-          properties: {
-            text: {
-              type: 'text',
-              label: 'Primary CTA',
-              value: 'Click Me'
-            },
-            href: {
-              type: 'text',
-              label: 'Link',
-              value: '/this-is-a-link'
-            }
-          },
-        },
-        secondaryCta: {
-          type: 'group',
-          label: 'Secondary CTA',
-          properties: {
-            text: {
-              type: 'text',
-              label: 'Secondary CTA',
-              value: 'Click Me'
-            },
-            href: {
-              type: 'text',
-              label: 'Link',
-              value: '/this-is-a-link'
-            }
-          },
-        },
-      };
+          featuredProducts: {
+            type: 'select',
+            label: 'Product Collection',
+            options: collections.map(collection => collection.title),
+            value: 'All',
+          }
+        };
 
-      callback(schema);
-    
+        callback(schema);
+      })
+      .catch(error => {
+        console.error('Failed to fetch collections', error);
+      });
+  } else {
+    console.error('No Shopify access token found');
+  }
 }
