@@ -60,7 +60,7 @@ export const random = (min: number, max: number) => {
 };
 
 export const fullName = (person: any) => {
-  return `${person?.first_name} ${person?.last_name}`;
+  return `${person.first_name} ${person.last_name}`;
 };
 
 export const createUrl = (
@@ -117,7 +117,6 @@ export const getDomainQuery = (domain: string) => {
     "",
   );
 
-  // Remove 'www.' from the domain if it exists
   if (decodedDomain.startsWith("www.")) {
     decodedDomain = decodedDomain.substring(4);
   }
@@ -132,3 +131,17 @@ export const getDomainQuery = (domain: string) => {
   }
   return [subdomain ? "subdomain" : "domain", subdomain || domain];
 };
+
+export function getCookie(name: string) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    const lastPart = parts.pop();
+    if (lastPart) {
+      const splitParts = lastPart.split(";");
+      if (splitParts.length > 0) {
+        return splitParts.shift();
+      }
+    }
+  }
+}

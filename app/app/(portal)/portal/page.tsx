@@ -115,7 +115,7 @@ const PortalPage = async () => {
               
               <h3 className="mt-5 font-bold text-xs">Fees</h3>
               {rosters?.filter(roster => roster.person_id === relation.to.id).map((roster, i) => (
-                <div className="py-2 divide-y divide-solid">
+                <div className="py-2 divide-y divide-solid space-y-2">
                   <div key={i} className="flex justify-between items-center">
                     <Link href={`/rosters/${roster.id}`} className="text-sm">{roster.teams.name} ({roster.fees.name})</Link>
                     <div>
