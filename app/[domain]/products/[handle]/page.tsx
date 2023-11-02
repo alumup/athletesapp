@@ -9,7 +9,7 @@ import { HIDDEN_PRODUCT_TAG } from "@/lib/constants";
 import { Image } from "@/lib/shopify/types";
 import { getAccountShopify } from "@/lib/fetchers/server";
 
-// export const runtime = 'edge';
+export const runtime = 'edge';
 
 export async function generateMetadata({
   params,
@@ -19,6 +19,8 @@ export async function generateMetadata({
   const shopify = await getAccountShopify(params.domain);
 
   const product = await shopify.getProduct(params.handle);
+
+  console.log("product", product)
 
   if (!product) return notFound();
 

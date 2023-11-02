@@ -3,7 +3,7 @@
 import { PlusIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
 import { addItem } from "@/components/cart/actions";
-import LoadingDots from "@/components/loading-dots";
+import LoadingDots from "@/components/icons/loading-dots";
 import { ProductVariant } from "@/lib/shopify/types";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
@@ -68,7 +68,7 @@ export function AddToCart({
         {!isPending ? (
           <PlusIcon className="h-5" />
         ) : (
-          <LoadingDots className="mb-3 bg-white" />
+          <LoadingDots color="#808080" />
         )}
       </div>
       <span>{availableForSale ? "Add To Cart" : "Out Of Stock"}</span>
