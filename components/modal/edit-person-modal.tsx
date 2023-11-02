@@ -68,6 +68,7 @@ export default function EditPersonModal({person, account} : {person: any, accoun
           phone: data.phone,
           birthdate: data.birthdate || null,
           grade: data.grade,
+          aau_number: data.aau_number,
           tags: selectedTags,
         }
       ])
@@ -245,6 +246,19 @@ export default function EditPersonModal({person, account} : {person: any, accoun
             {...register("birthdate")}
           />
           {errors.birthdate && <span className="text-sm text-red-500">This field is required</span>}
+        </div>
+
+        <div className="flex flex-col space-y-2">
+          <label htmlFor="aau_number" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+            AAU Number
+          </label>
+          <input
+            type="text"
+            id="aau_number"
+            defaultValue={person?.aau_number}
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            {...register("aau_number", { required: person?.dependent })}
+          />
         </div>
 
         <div className="flex flex-col space-y-2">

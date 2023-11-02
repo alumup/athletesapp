@@ -6,7 +6,15 @@ import { fullName } from "@/lib/utils";
 import CreatePaymentModal from '@/components/modal/create-payment-modal';
 import GenericButton from "@/components/modal-buttons/generic-button";
 import { getAccount } from '@/lib/fetchers/server';
-import { CheckBadgeIcon } from '@heroicons/react/24/outline';
+import { CheckBadgeIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import EditPersonModal from '@/components/modal/edit-person-modal';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { ExternalLinkIcon } from '@radix-ui/react-icons';
 
 
 export const dynamic = 'force-dynamic'
@@ -65,24 +73,51 @@ const PortalPage = async () => {
 
   
   return (
-    <div>
+    <>
+    
+      
+    <div className="max-w-4xl mx-auto py-10 px-5 border border-gray-300 rounded-xl shadow bg-white">
       <div className="flex items-center justify-between border-b border-gray-300 w-full pb-3">
         <h1 className="text-2xl font-bold">{profile?.name || fullName(profile)}</h1>
       </div>
+
+
 
       <div className="mt-10">
         {toRelationships?.map((relation, i) => (
           <div key={i} className="divide-y divide-gray-300">
             <div className="px-3 py-2 flex flex-col">
-              <div className="flex flex-col">
-                <Link href={`/people/${relation.to.id}`} className="font-bold text-sm">{relation.to.name || fullName(relation.to)}</Link>
-              </div>              
-
+              <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center space-x-2">
+                  <span>
+                    {relation.to.aau_number === null || relation.to.aau_number === "" ? (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <ExclamationCircleIcon className="w-6 h-6 text-red-500" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{relation.to.first_name} is missing their AAU Number.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : null}
+                  </span>
+                  <Link href={`/people/${relation.to.id}`} className="font-bold text-sm">
+                    {relation.to.name || fullName(relation.to)}
+                  </Link>
+                </div>
+           
+                <GenericButton cta={`Update ${relation.to.first_name}`}>
+                  <EditPersonModal person={relation.to} account={account} />
+                </GenericButton> 
+              </div>
+              
               <h3 className="mt-5 font-bold text-xs">Fees</h3>
               {rosters?.filter(roster => roster.person_id === relation.to.id).map((roster, i) => (
                 <div className="py-2 divide-y divide-solid">
                   <div key={i} className="flex justify-between items-center">
-                    <Link href={`/rosters/${roster.id}`} className="text-sm">{roster.teams.name}({roster.fees.name})</Link>
+                    <Link href={`/rosters/${roster.id}`} className="text-sm">{roster.teams.name} ({roster.fees.name})</Link>
                     <div>
                       {roster.fees.payments.some((payment: { status: string }) => payment.status === "succeeded") ? (
                         <CheckBadgeIcon className="w-7 h-6 text-green-500" />
@@ -111,7 +146,21 @@ const PortalPage = async () => {
 
       </div>
      
-    </div>
+      </div>
+
+      <div className="mt-10 max-w-4xl mx-auto flex items-center justify-between border border-gray-300 rounded-xl shadow bg-white overflow-hidden">
+        <div className="flex flex-col p-3">
+          <h3 className="text-md font-bold">Provo Bulldog Youth Uniform</h3>
+          <h6 className="text-sm font-light">Buy your ProLook Reversible jersey.</h6>
+        </div>
+        <div className="flex flex-col p-3">
+          <a href="https://www.provobasketball.com/products/provo-bulldog-youth-uniform" className="px-2 py-1 bg-lime-500 text-black rounded tetxt-xs flex flex-shrink items-center space-x-2">
+            Buy Now
+            <ExternalLinkIcon className="w-4 h-4" />
+          </a>
+        </div>
+      </div>
+    </>
   );
 };
 

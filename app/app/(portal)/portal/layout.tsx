@@ -6,7 +6,7 @@ export default async function PorttalLayout({ children }: { children: ReactNode 
       <div className="py-5 flex justify-center items-center">
         <img src="https://zkoxnmdrhgbjovfvparc.supabase.co/storage/v1/object/public/logos/provo-bulldog.svg" alt="bulldog" width="75" height="75"/>
       </div>
-      <div className="max-w-5xl mx-auto py-10 px-5 border border-gray-300 rounded-xl shadow bg-white">
+      <div>
         {children}
       </div>
     </div>  

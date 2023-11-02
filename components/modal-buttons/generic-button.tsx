@@ -14,7 +14,7 @@ export default function GenericButton({
   return (
     <button
       onClick={() => modal?.show(children)}
-      className="rounded bg-black px-4 py-1.5 text-sm font-medium text-white transition-all"
+      className="rounded bg-black px-3 py-1.5 text-sm font-medium text-white transition-all"
     >
      {cta}
     </button>
