@@ -25,7 +25,7 @@ function Footer({ site }) {
           <Image
             src={site.logo}
             alt={site.name}
-            width={125} height={50}
+            width={100} height={50}
           />
         </div>
         <div className="col-span-1"></div>
@@ -34,14 +34,7 @@ function Footer({ site }) {
         <div>
           <span className="text-foreground font-bold text-xs">Powered By</span>
         </div>
-        <a href="/" className="relative h-10 w-10 flex justify-start items-center">
-          <Image
-            alt="gigg"
-            src="/gigg.png"
-            fill
-            className="object-center object-contain"
-          />
-        </a>
+        <span className="font-bold">Athletes App®</span>
       </div>
     </div>
   )

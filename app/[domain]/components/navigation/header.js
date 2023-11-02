@@ -46,7 +46,7 @@ function Navbar({ site, pages }) {
                   <Image
                     src={site.logo}
                     alt={site.name}
-                    width={100}
+                    width={50}
                     height={50}
                   />
                 </a>

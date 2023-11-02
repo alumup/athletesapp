@@ -77,7 +77,7 @@ export default function BuilderLayout({ children }) {
       <PageProvider>
         <DndProvider backend={HTML5Backend}>
           <div className="flex w-full space-x-5">
-            <div className="fixed h-screen w-[300px] rounded-md border border-gray-300 bg-gray-50 p-3">
+            <div className="fixed h-screen min-w-[300px] max-w-[300px] w-full rounded-md border border-gray-300 bg-gray-50 p-3">
               <h3 className="font-bold uppercase text-gray-700">Page</h3>
               <div className="w-full">
                 <PageSelector pages={pages} />
@@ -85,8 +85,8 @@ export default function BuilderLayout({ children }) {
                   <CreatePageModal />
                 </LinkButton>
               </div>
-              <Accordion type="single" collapsible>
-                <AccordionItem value="sections">
+              <Accordion type="single" collapsible >
+                <AccordionItem value="sections" >
                   <AccordionTrigger>Sections</AccordionTrigger>
                   <AccordionContent>
                     <Toolbar />
@@ -100,7 +100,7 @@ export default function BuilderLayout({ children }) {
                 </AccordionItem>
               </Accordion>
             </div>
-            <div className="w-full bg-white pl-[325px]">{children}</div>
+            <div className="w-full bg-white ml-[325px]">{children}</div>
           </div>
         </DndProvider>
       </PageProvider>
