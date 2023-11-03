@@ -103,7 +103,7 @@ const PortalPage = async () => {
                       </TooltipProvider>
                     ) : null}
                   </span>
-                  <Link href={`/people/${relation.to.id}`} className="font-bold text-sm">
+                  <Link href={`/people/${relation.to.id}`} className="font-bold text-md">
                     {relation.to.name || fullName(relation.to)}
                   </Link>
                 </div>
