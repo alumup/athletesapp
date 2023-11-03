@@ -115,7 +115,7 @@ const PortalPage = async () => {
 
               <div className="mt-2 w-full flex items-center justify-between border border-gray-300 rounded-xl bg-white overflow-hidden">
                 <div className="flex flex-col p-3">
-                  <h3 className="text-sm font-bold">{`${relation.to.first_name}`} needs an AAA Number</h3>
+                  <h3 className="text-sm font-bold">{`${relation.to.first_name}`} needs an AAU Number</h3>
                   <h6 className="text-sm font-light">After you get the number you can update {`${relation.to.first_name}`}'s profile.</h6>
                 </div>
                 <div className="flex flex-col p-3">
