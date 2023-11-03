@@ -10,6 +10,7 @@ import { fullName } from "@/lib/utils";
 import { toast } from 'sonner';
 import LoadingDots from '@/components/icons/loading-dots';
 import { CheckBadgeIcon } from '@heroicons/react/24/outline';
+import LoadingCircle from '@/components/icons/loading-circle';
 
 
 
@@ -76,9 +77,6 @@ export default function PersonPage({
       fetchData();
     }, []);
   
-  useEffect(() => {
-    console.log("PERSONNNNNNNNN: ", person)
-  },[person])
 
     async function fetchPerson() {
       const { data, error } = await supabase
@@ -123,6 +121,13 @@ export default function PersonPage({
       return data;
     }
 
+  if (!person) {
+    return (
+      <div className="w-full h-screen flex justify-center items-center">
+        <LoadingCircle />
+      </div>
+    )
+  }
   
   return (
     <div className="flex flex-col space-y-12">
