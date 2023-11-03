@@ -71,7 +71,6 @@ export default async function TeamPage({
 
   const peopleWithPrimaryEmail = await Promise.all(peopleWithPrimaryEmailPromises);
 
-  console.log("PRIMARY", peopleWithPrimaryEmail)
   
   return (
     <div className="flex flex-col space-y-12">

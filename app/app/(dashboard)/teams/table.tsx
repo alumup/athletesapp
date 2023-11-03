@@ -1,8 +1,8 @@
 "use client"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-
+import { toast } from "sonner";
 import {
   TrashIcon,
   MixerHorizontalIcon,
@@ -41,12 +41,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getPrimaryContact } from "@/lib/fetchers/client";
+import SendEmailModal from "@/components/modal/send-email-modal";
+import SendButton from "@/components/modal-buttons/send-button";
 
 import { useRouter } from "next/navigation";
 
 export type Person = {
   id: string;
   name: string;
+  rosters: any;
 };
 
 const columns: ColumnDef<Person>[] = [
@@ -100,9 +104,11 @@ const columns: ColumnDef<Person>[] = [
 
 export function TeamTable({ data, account }: { data: Person[], account: any}) {
 
-  const router = useRouter();
+  const {refresh} = useRouter();
   const supabase = createClientComponentClient();
   const [sorting, setSorting] = useState<SortingState>([]);
+
+
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
   );
@@ -139,9 +145,9 @@ export function TeamTable({ data, account }: { data: Person[], account: any}) {
   }, []); //
 
 
-  const navigateTo = (id: any) => {
-    router.push(`/teams/${id}`)
-  }
+  // const navigateTo = (id: any) => {
+  //   router.push(`/teams/${id}`)
+  // }
 
 
   
@@ -154,14 +160,40 @@ export function TeamTable({ data, account }: { data: Person[], account: any}) {
         .delete()
         .eq("id", row.original.id)
     }));
+
+    // Show a toast notification
+    refresh();
+    toast.success('Selected teams have been deleted successfully.');
   };
   
-    // Check if any row is selected
-    const isAnyRowSelected = table.getSelectedRowModel().rows.length > 0;
+  // Check if any row is selected
+   const isAnyRowSelected = table.getSelectedRowModel().rows.length > 0;
 
-    // const selectedRows = table.getSelectedRowModel().rows;
+  const selectedRows = table.getSelectedRowModel().rows;
+  
+  const [primaryContacts, setPrimaryContacts] = useState<any>([]);
 
-    // const teams = selectedRows.map((row) => row.original);
+  useEffect(() => {
+    const fetchPrimaryContacts = async () => {
+      const selectedPeople = selectedRows.flatMap(team => team.original.rosters);
+      const people = selectedPeople.flatMap(roster => roster.people);
+      const primaryContactsPromises = people.map(async (person) => {
+        const primaryContact = await getPrimaryContact(person);
+        return {
+          ...person,
+          primary_contacts: primaryContact,
+        };
+      });
+      const primaryContacts = await Promise.all(primaryContactsPromises);
+      console.log(primaryContacts)
+      setPrimaryContacts(primaryContacts);
+    };
+    fetchPrimaryContacts();
+  }, [selectedRows]);
+
+
+
+  // const teams = selectedRows.map((row) => row.original);
 
   return (
     <div className="w-full">
@@ -205,6 +237,13 @@ export function TeamTable({ data, account }: { data: Person[], account: any}) {
       {isAnyRowSelected && (
         <div className="flex justify-between space-x-4 py-2 mb-2">
           <div className="flex items-center space-x-2"> 
+            <SendButton channel="email" cta="Send Email">
+              <SendEmailModal
+                people={primaryContacts}
+                account={account}
+                onClose={() => table.toggleAllPageRowsSelected(false)}
+              />
+            </SendButton>
           </div>
           <Button onClick={handleDeleteSelected} variant="outline" className="text-red-500">
             <TrashIcon className="mr-2 h-4 w-4" /> Delete
@@ -235,7 +274,7 @@ export function TeamTable({ data, account }: { data: Person[], account: any}) {
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                  onClick={() => navigateTo(row.original.id)}
+                  // onClick={() => navigateTo(row.original.id)}
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className={"hover:bg-gray-50 cursor-pointer"}

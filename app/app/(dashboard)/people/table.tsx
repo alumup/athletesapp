@@ -46,6 +46,8 @@ import AddToTeamModal from "@/components/modal/add-to-team-modal";
 import SendButton from "@/components/modal-buttons/send-button";
 import IconButton from "@/components/modal-buttons/icon-button";
 import LoadingDots from "@/components/icons/loading-dots";
+import { toast } from "sonner";
+import LoadingSpinner from "@/components/form/loading-spinner";
 
 
 
@@ -212,6 +214,7 @@ export function PeopleTable({ data, account }: { data: Person[], account: any}) 
         .delete()
         .eq("id", row.original.id)
     }));
+
   };
   
     // Check if any row is selected
@@ -264,10 +267,17 @@ export function PeopleTable({ data, account }: { data: Person[], account: any}) 
         <div className="flex justify-between space-x-4 py-2 mb-2">
           <div className="flex items-center space-x-2"> 
             <SendButton channel="email" cta="Send Email">
-              <SendEmailModal people={people} account={account} />
+              <SendEmailModal
+                people={people}
+                account={account}
+                onClose={() => table.toggleAllPageRowsSelected(false)}
+              />
             </SendButton>
             <IconButton icon={<ListBulletIcon className="mr-2" />} cta="Add to Team" >
-              <AddToTeamModal people={people} />
+              <AddToTeamModal 
+                people={people} 
+                onClose={() => table.toggleAllPageRowsSelected(false)}
+              />
             </IconButton>
           </div>
           <Button onClick={handleDeleteSelected} variant="outline" className="text-red-500">
@@ -278,7 +288,7 @@ export function PeopleTable({ data, account }: { data: Person[], account: any}) 
       <div className="rounded-md border">
         {!tableReady ? (
           <div className="w-full p-10 flex items-center justify-center">
-           <LoadingDots color="#808080" />
+            <LoadingSpinner />
           </div>
         ) : (
           <Table>

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-
+import { toast } from "sonner";
 import {
   TrashIcon,
   ListBulletIcon,
@@ -44,7 +44,7 @@ import {
 
 import SendEmailModal from "@/components/modal/send-email-modal";
 import SendButton from "@/components/modal-buttons/send-button";
-
+import { useRouter } from "next/navigation";
 
 
 export type Person = {
@@ -135,7 +135,7 @@ const columns: ColumnDef<Person>[] = [
 
 
 export function TeamTable({data, team, account}: {data: Person[], team: any, account: any}) {
-
+  const { refresh } = useRouter();
   const supabase = createClientComponentClient();
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -174,14 +174,13 @@ export function TeamTable({data, team, account}: {data: Person[], team: any, acc
     table.setPageSize(30);
   }, []); //
 
-    const handleDeleteSelected = () => {
-      const people = selectedRows.map((row) => row.original);
-      // Logic to delete selected rows
-    };
+    // const handleDeleteSelected = () => {
+    //   const people = selectedRows.map((row) => row.original);
+    //   // Logic to delete selected rows
+    // };
   
   const handleRemoveSelected = async () => {
     const people = selectedRows.map((row) => row.original);
-    
 
     people.forEach(async (person: any) => {
       const { error } = await supabase
@@ -194,6 +193,11 @@ export function TeamTable({data, team, account}: {data: Person[], team: any, acc
         console.log("ERROR REMOVING PERSON", error)
       }
     })
+
+    // Show a toast notification
+
+    refresh();
+    toast.success('Selected teams have been deleted successfully.');
   };
   
     // Check if any row is selected
@@ -246,7 +250,11 @@ export function TeamTable({data, team, account}: {data: Person[], team: any, acc
         <div className="flex justify-between space-x-4 py-2 mb-2">
           <div className="flex items-center space-x-2"> 
             <SendButton channel="email" cta="Send Email">
-              <SendEmailModal people={people} account={account} />
+              <SendEmailModal
+                people={people}
+                account={account}
+                onClose={() => table.toggleAllPageRowsSelected(false)}
+              />
             </SendButton>
           </div>
           <Button onClick={handleRemoveSelected} variant="outline" className="text-red-500">

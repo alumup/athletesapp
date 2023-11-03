@@ -20,7 +20,7 @@ interface Fee {
 }
 
 
-export default function AddToTeamModal({people} : {people: any}) {
+export default function AddToTeamModal({people, onClose} : {people: any, onClose: any}) {
 
 
   const {refresh}= useRouter();
@@ -81,6 +81,7 @@ export default function AddToTeamModal({people} : {people: any}) {
         console.log("FORM ERRORS: ", error)
       } else {
         modal?.hide();
+        onClose();
         refresh()
       }
     })

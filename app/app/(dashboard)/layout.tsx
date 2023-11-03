@@ -33,7 +33,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <Profile />
         </Suspense>
       </Nav> */}
-      <div className="hidden sticky top-0 bg-gray-50 z-50 flex-col md:flex">
+      <div className="sticky top-0 bg-gray-50 z-50 flex-col md:flex">
         <div className="border-b">
           <div className="max-w-screen-2xl mx-auto">
             <div className="flex h-16 items-center px-4">

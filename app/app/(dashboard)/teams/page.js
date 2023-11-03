@@ -22,9 +22,9 @@ export default async function TeamsPage() {
 
   const {data: teams, error} = await supabase
     .from('teams')
-    .select('*')
+    .select('*, rosters(*, people(*)))')
     .eq('account_id', account.id)
-
+  
 
 
   return(

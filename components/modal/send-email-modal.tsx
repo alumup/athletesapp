@@ -6,19 +6,15 @@ import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
 import { toast } from "sonner";
 import { Editor } from "novel";
+import { useRouter } from "next/navigation";
 
 
-
-export default function SendEmailModal({ people, account }: { people: any, account: any }) {
-
+export default function SendEmailModal({ people, account, onClose }: { people: any, account: any, onClose: any }) {
+  const { refresh } = useRouter()
   const [emailIsSending, setEmailIsSending] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const modal = useModal();
   const { register, handleSubmit, control, formState: { errors } } = useForm();
-
-  useEffect(() => {
-    console.log("ACCOUNT", account)
-  }, [])
 
   // Functions to handle actions
   const handleSendEmail = ({ data }: { data: any }) => {
@@ -41,6 +37,8 @@ export default function SendEmailModal({ people, account }: { people: any, accou
       .then((data) => {
         setEmailIsSending(false);
         modal?.hide();
+        onClose();
+        refresh();
         toast.success(`Successfully sent email!`);
         console.log('Success:', data);
       })
@@ -134,12 +132,12 @@ export default function SendEmailModal({ people, account }: { people: any, accou
           className={cn(
             "flex h-10 w-full items-center justify-center space-x-2 rounded-md border text-sm transition-all focus:outline-none",
             emailIsSending
-              ? "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
-              : "border-black bg-black text-white hover:bg-white hover:text-black dark:border-stone-700 dark:hover:border-stone-200 dark:hover:bg-black dark:hover:text-white dark:active:bg-stone-800",
+              ? "cursor-not-allowed border-stone-200 bg-stone-300 text-stone-400"
+              : "border-black bg-black text-white hover:bg-white hover:text-black",
           )}
           disabled={emailIsSending}
         >
-          {emailIsSending ? <LoadingDots color="#808080" /> : <p>Send Email</p>}
+          {emailIsSending ? <LoadingDots color="#212121" /> : <p>Send Email</p>}
         </button>
       </div>
     </form>
