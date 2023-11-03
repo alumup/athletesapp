@@ -233,7 +233,11 @@ export function EventTable({data, account}: {data: Person[], account: any}) {
         <div className="flex justify-between space-x-4 py-2 mb-2">
           <div className="flex items-center space-x-2"> 
             <SendButton channel="email" cta="Send Email">
-              <SendEmailModal people={people} account={account} />
+              <SendEmailModal
+                people={people}
+                account={account}
+                onClose={() => table.toggleAllPageRowsSelected(false)}
+              />
             </SendButton>
           </div>
           <Button onClick={handleDeleteSelected} variant="outline" className="text-red-500">
