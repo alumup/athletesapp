@@ -87,11 +87,11 @@ export default async function ProductsPage({
       /> */}
       <div className="theme">
         <div className="w-full h-[300px] bg-black"></div>
-        <Products />
-        {/* <div className="mt-10 mx-auto max-w-7xl w-full px-3 md:px-5">
+        <div className="mt-10 mx-auto max-w-7xl w-full px-3 md:px-5">
           <h1>Products</h1>
+          <Products />
  
-        </div> */}
+        </div>
       </div>
     </>
   );
