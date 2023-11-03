@@ -112,6 +112,19 @@ const PortalPage = async () => {
                   <EditPersonModal person={relation.to} account={account} />
                 </GenericButton> 
               </div>
+
+              <div className="mt-2 w-full flex items-center justify-between border border-gray-300 rounded-xl bg-white overflow-hidden">
+                <div className="flex flex-col p-3">
+                  <h3 className="text-sm font-bold">{`${relation.to.first_name}`} needs an AAA Number</h3>
+                  <h6 className="text-sm font-light">After you get the number you can update {`${relation.to.first_name}`}'s profile.</h6>
+                </div>
+                <div className="flex flex-col p-3">
+                  <a href="https://play.aausports.org/JoinAAU/MembershipApplication.aspx" className="px-2 py-1 bg-lime-400 text-black rounded text-xs flex flex-shrink items-center space-x-2">
+                    Get AAU Number
+                    <ExternalLinkIcon className="w-4 h-4" />
+                  </a>
+                </div>
+              </div>
               
               <h3 className="mt-5 font-bold text-xs">Fees</h3>
               {rosters?.filter(roster => roster.person_id === relation.to.id).map((roster, i) => (
@@ -148,13 +161,13 @@ const PortalPage = async () => {
      
       </div>
 
-      <div className="mt-10 max-w-4xl mx-auto flex items-center justify-between border border-gray-300 rounded-xl shadow bg-white overflow-hidden">
-        <div className="flex flex-col p-3">
+      <div className="mt-10 px-8 py-3 max-w-4xl mx-auto flex items-center justify-between border border-gray-300 rounded-xl shadow bg-white overflow-hidden">
+        <div className="flex flex-col">
           <h3 className="text-md font-bold">Provo Bulldog Youth Uniform</h3>
           <h6 className="text-sm font-light">Buy your ProLook Reversible jersey.</h6>
         </div>
-        <div className="flex flex-col p-3">
-          <a href="https://www.provobasketball.com/products/provo-bulldog-youth-uniform" className="px-2 py-1 bg-lime-500 text-black rounded tetxt-xs flex flex-shrink items-center space-x-2">
+        <div className="flex flex-col">
+          <a href="https://www.provobasketball.com/products/provo-bulldog-youth-uniform" className="px-3 py-1 bg-lime-400 text-black rounded text-md flex flex-shrink items-center space-x-2">
             Buy Now
             <ExternalLinkIcon className="w-4 h-4" />
           </a>
