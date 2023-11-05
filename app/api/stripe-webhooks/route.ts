@@ -51,51 +51,7 @@ export async function POST(req: any) {
   };
 
   switch (event.type) {
-    case 'payment_intent.amount_capturable_updated':
-      updateSupabase(event)
-      break;
-    case 'payment_intent.canceled':
-      updateSupabase(event)
-      break;
-    case 'payment_intent.created':
-      updateSupabase(event)
-      break;
-    case 'payment_intent.partially_funded':
-      updateSupabase(event)
-      break;
-    case 'payment_intent.payment_failed':
-      updateSupabase(event)
-      break;
-    case 'payment_intent.processing':
-      updateSupabase(event)
-      break;
-    case 'payment_intent.requires_action':
-      updateSupabase(event)
-      break;
-    case 'payment_intent.succeeded':
-      updateSupabase(event)
-      break;
-    case 'charge.captured':
-      updateSupabase(event)
-      break;
-    case 'charge.dispute.closed':
-      updateSupabase(event)
-      break;
-    case 'charge.dispute.created':
-      updateSupabase(event)
-      break;
-    case 'charge.dispute.funds_reinstated':
-      updateSupabase(event)
-      break;
-    case 'charge.dispute.funds_withdrawn':
-      updateSupabase(event)
-      break;
-    case 'charge.dispute.updated':
-      updateSupabase(event)
-      break;
-    case 'charge.expired':
-      updateSupabase(event)
-      break;
+  
     case 'charge.failed':
       updateSupabase(event)
       break;
