@@ -64,7 +64,7 @@ export default function SendEmailModal({ people, account, onClose }: { people: a
       onSubmit={handleSubmit(onSubmit)}
       className="w-full rounded-md bg-white dark:bg-black md:max-w-md md:border md:border-stone-200 md:shadow dark:md:border-stone-700"
     >
-      <div className="relative flex flex-col space-y-4 p-5 md:p-10">
+      <div className="relative flex flex-col space-y-4 p-5 md:p-10 max-h-[700px] overflow-y-scroll">
         <div className="w-full flex items-center">
           <h2 className="font-cal text-2xl dark:text-white mr-2">Send Email</h2>
           <span className="font-bold bg-blue-100 text-blue-900 px-2 py-0.5 rounded-full text-sm">

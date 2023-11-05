@@ -162,6 +162,7 @@ export default function EditPersonModal({person, account} : {person: any, accoun
     >
       <div className="relative flex flex-col space-y-4 p-5 md:p-10">
         <h2 className="font-cal text-2xl dark:text-white">Edit {person?.name || fullName(person)}</h2>
+        <div className="max-h-[700px] overflowy-auto">
         <div className="flex flex-col space-y-2">
           <label htmlFor="phone" className="text-sm font-medium text-gray-700 dark:text-stone-300">
             Name
@@ -361,10 +362,14 @@ export default function EditPersonModal({person, account} : {person: any, accoun
           </button>
         </div>
         
+        </div>
+
       </div>
+     
       <div className="flex items-center justify-end rounded-b-lg border-t border-stone-200 bg-stone-50 p-3 dark:border-stone-700 dark:bg-stone-800 md:px-10">
         <CreateSiteFormButton />
       </div>
+        
     </form>
   );
 }

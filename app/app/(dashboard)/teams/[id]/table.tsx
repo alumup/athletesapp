@@ -5,10 +5,7 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { toast } from "sonner";
 import {
   TrashIcon,
-  ListBulletIcon,
   MixerHorizontalIcon,
-  DotsHorizontalIcon,
-  Pencil1Icon,
   ArrowRightIcon
 } from "@radix-ui/react-icons";
 
@@ -49,6 +46,7 @@ import { useRouter } from "next/navigation";
 
 export type Person = {
   id: string;
+  fee: any;
   first_name: string;
   last_name: string;
   name: string;
@@ -79,6 +77,11 @@ const columns: ColumnDef<Person>[] = [
     ),
     enableSorting: true,
     enableHiding: false,
+  },
+  {
+    accessorKey: "fee",
+    header: "Fee",
+    cell: ({ row }) => <span className="px-2 py-1 rounded bg-gray-50 text-gray-500">${row.getValue("fee")}</span>,
   },
   {
     accessorKey: "name",
@@ -197,7 +200,8 @@ export function TeamTable({data, team, account}: {data: Person[], team: any, acc
     // Show a toast notification
 
     refresh();
-    toast.success('Selected teams have been deleted successfully.');
+    table.toggleAllPageRowsSelected(false)
+    toast.success('Selected players have been removed successfully.');
   };
   
     // Check if any row is selected

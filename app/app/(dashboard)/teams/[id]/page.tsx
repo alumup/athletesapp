@@ -36,7 +36,7 @@ export default async function TeamPage({
     async function fetchRoster() {
       const { data, error } = await supabase
         .from("rosters")
-        .select("*, people(*)")
+        .select("*, fees(*),people(*)")
         .eq("team_id", params.id)
 
     if (error) {
@@ -55,21 +55,23 @@ export default async function TeamPage({
 
 
     const team = await fetchTeam()
-    const roster = await fetchRoster();
+    const roster = await fetchRoster() || [];
 
     // const account = await getAccount();
 
-    const people = roster?.map(r => r.people) || [];
   
-  const peopleWithPrimaryEmailPromises = people.map(async (person) => {
-    const primaryPeople = await getPrimaryContacts(person);
+  const peopleWithPrimaryEmailPromises = roster?.map(async (r) => {
+    const primaryPeople = await getPrimaryContacts(r.people);
+    console.log("FEE", r.fees?.amount)
     return {
-      ...person,
+      ...r.people,
       primary_contacts: primaryPeople,
+      fee: r.fees?.amount || "NEEDS FEE",
     };
   });
 
   const peopleWithPrimaryEmail = await Promise.all(peopleWithPrimaryEmailPromises);
+
 
   
   return (
