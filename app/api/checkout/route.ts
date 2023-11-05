@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   const supabase = createRouteHandlerClient({ cookies })
   const body = await req.json()
   const {account, profile, person, fee } = body;
-console.log("PROFILE IN CHECKOUT", profile)
+  console.log("PROFILE IN CHECKOUT", profile)
   let customer = null;
 
   // search for customer

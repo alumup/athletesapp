@@ -33,7 +33,7 @@ export async function POST(req: any) {
       .from("payments")
       .update({
         status: event.data.object.status,
-        data: event.data
+        data: event.data.object
       })
       .eq("payment_intent_id", event.data.object.id)
       .single();

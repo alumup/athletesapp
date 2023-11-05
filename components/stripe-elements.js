@@ -61,7 +61,7 @@ export const StripeElements = ({modal}) => {
       elements,
       redirect: "if_required",
       confirmParams: {
-        return_url: "http://provo.athletes.app",
+        return_url: "https://app.athletes.app",
       },
     });
 
