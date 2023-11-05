@@ -29,13 +29,15 @@ export async function POST(req: any) {
   }
 
   const updateSupabase = async (event: any) => {
+
+    console.log("EVENT: ", event)
     const { error } = await supabase
       .from("payments")
       .update({
         status: event.data.object.status,
         data: event.data.object
       })
-      .eq("payment_intent_id", event.data.object.id)
+      .eq("payment_intent_id", event.data.object.object.payment_intent ? event.data.object.id : event.data.object.payment_intent)
       .single();
     
     if (error) {
