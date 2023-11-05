@@ -148,7 +148,7 @@ export default function PersonPage({
             </button>
           )}
 
-          <GenericButton cta="Edit Person">
+          <GenericButton cta="Edit Person" size="default" variant="default">
             <EditPersonModal person={person} account={account} />
           </GenericButton>
         </div>

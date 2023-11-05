@@ -1,8 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useForm } from 'react-hook-form';
-import { useRouter } from "next/navigation";
+
 
 
 import { useModal } from "./provider";
@@ -17,12 +15,9 @@ import LoadingSpinner from "../form/loading-spinner";
 // This is your test publishable API key.
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
-export default function CreatePaymentModal({account, profile, person, fee}: {account: any, profile: any, person: any, fee: any}) {
-  const { refresh }= useRouter();
+export default function CreatePaymentModal({account, profile, person, fee, roster}: {account: any, profile: any, person: any, fee: any, roster:any}) {
+ 
   const modal = useModal();
-
-  const supabase = createClientComponentClient();
-  const { register, handleSubmit, formState: { errors }, } = useForm();
 
   const [clientSecret, setClientSecret] = useState("");
   const [hasRendered, setHasRendered] = useState(false);
@@ -45,6 +40,7 @@ export default function CreatePaymentModal({account, profile, person, fee}: {acc
           account: account,
           profile: profile,
           person: person,
+          roster: roster,
           fee: fee
         }),
       })
@@ -76,17 +72,21 @@ export default function CreatePaymentModal({account, profile, person, fee}: {acc
 
         <div className="flex flex-col space-y-2">
           <div className="flex justify-between">
-            <p className="font-cal text-base dark:text-white">Fee Name:</p>
-            <p className="font-cal text-base dark:text-white">{fee?.name}</p>
+            <p className="font-cal text-base">Team:</p>
+            <p className="font-cal text-base">{roster?.teams.name}</p>
           </div>
           <div className="flex justify-between">
-            <p className="font-cal text-base dark:text-white">Fee Amount:</p>
-            <p className="font-cal text-base dark:text-white">${fee?.amount}</p>
+            <p className="font-cal text-base">Fee Name:</p>
+            <p className="font-cal text-base">{fee?.name}</p>
+          </div>
+          <div className="flex justify-between">
+            <p className="font-cal text-base">Fee Amount:</p>
+            <p className="font-cal text-base">${fee?.amount}</p>
           </div>
 
           <div className="flex justify-between">
-            <p className="font-cal text-base dark:text-white">On behalf of:</p>
-            <p className="font-cal text-base dark:text-white">{person?.name}</p>
+            <p className="font-cal text-base">On behalf of:</p>
+            <p className="font-cal text-base">{person?.name}</p>
           </div>
         </div>
 

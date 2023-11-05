@@ -6,7 +6,7 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 export async function POST(req: NextRequest) {
   const supabase = createRouteHandlerClient({ cookies })
   const body = await req.json()
-  const {account, profile, person, fee } = body;
+  const {roster, profile, person, fee } = body;
   console.log("PROFILE IN CHECKOUT", profile)
   let customer = null;
 
@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
     },
     metadata: {
       fee_id: fee.id,
+      roster_id: roster.id,
       profile_id: profile.id,
       person_id: person.id,
     },
@@ -60,6 +61,7 @@ export async function POST(req: NextRequest) {
         person_id: person.id,
         profile_id: profile.id,
         payment_intent_id: paymentIntent.id,
+        roster_id: roster.id,
         fee_id: fee.id,
         amount: fee.amount,
         status: 'pending',

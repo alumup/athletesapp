@@ -37,7 +37,7 @@ export async function POST(req: any) {
         status: event.data.object.status,
         data: event.data.object
       })
-      .eq("payment_intent_id", event.data.object.object.payment_intent ? event.data.object.id : event.data.object.payment_intent)
+      .eq("payment_intent_id", event.data.object.id)
       .single();
     
     if (error) {
@@ -55,19 +55,10 @@ export async function POST(req: any) {
 
   switch (event.type) {
   
-    case 'charge.failed':
+    case 'payment_intent.payment_failed':
       updateSupabase(event)
       break;
-    case 'charge.pending':
-      updateSupabase(event)
-      break;
-    case 'charge.refunded':
-      updateSupabase(event)
-      break;
-    case 'charge.succeeded':
-      updateSupabase(event)
-      break;
-    case 'charge.updated':
+    case 'payment_intent.succeeded':
       updateSupabase(event)
       break;
     

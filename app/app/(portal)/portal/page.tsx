@@ -6,7 +6,8 @@ import { fullName } from "@/lib/utils";
 import CreatePaymentModal from '@/components/modal/create-payment-modal';
 import GenericButton from "@/components/modal-buttons/generic-button";
 import { getAccount } from '@/lib/fetchers/server';
-import { CheckBadgeIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import EditPersonModal from '@/components/modal/edit-person-modal';
 import {
   Tooltip,
@@ -62,8 +63,7 @@ const PortalPage = async () => {
     const { data: roster, error } = await supabase
       .from('rosters')
       .select('*, teams(*), fees(*, payments(*))')
-    
-    console.log("FEES", roster)
+  
     return roster
   }
 
@@ -71,6 +71,19 @@ const PortalPage = async () => {
  
   const rosters = await fetchRosters();
 
+
+  function hasPaidFee(relation: any, roster: any) {
+    // Check if the person in the relation is the same as the person in the roster
+    if (roster.person_id !== relation.to.id) {
+      return false;
+    }
+
+    // Check if there is a payment for the fee in the roster
+    const paymentForFee = roster.fees.payments.find((payment: { person_id: any; }) => payment.person_id === relation.to.id);
+
+    // If there is a payment, return true, otherwise return false
+    return !!paymentForFee;
+  }
   
   return (
     <div className="py-5">
@@ -108,49 +121,44 @@ const PortalPage = async () => {
                   </Link>
                 </div>
            
-                <GenericButton cta={`Edit`}>
+                <GenericButton cta={`Edit`} size="default" variant="default">
                   <EditPersonModal person={relation?.to} account={account} />
                 </GenericButton> 
               </div>
 
-              <div className="mt-2 w-full flex flex-col md:flex-row items-center justify-between border border-gray-300 rounded-xl bg-white overflow-hidden">
-                <div className="flex flex-col p-3">
-                  <h3 className="text-sm font-bold">{`${relation.to.first_name}`} needs an AAU Number</h3>
-                  <h6 className="text-sm font-light">After you get the number you can update {`${relation.to.first_name}`}'s profile.</h6>
+              {relation.to.aau_number === null || relation.to.aau_number === "" ? (
+                <div className="mt-2 w-full flex flex-col md:flex-row items-center justify-between border border-gray-300 rounded-xl bg-white overflow-hidden">
+                  <div className="flex flex-col p-3">
+                    <h3 className="text-sm font-bold">{`${relation.to.first_name}`} needs an AAU Number</h3>
+                    <h6 className="text-sm font-light">After you get the number you can update {`${relation.to.first_name}`}'s profile.</h6>
+                  </div>
+                  <div className="flex flex-col p-3">
+                    <a href="https://play.aausports.org/JoinAAU/MembershipApplication.aspx" className="px-2 py-1 bg-lime-400 text-black rounded text-xs flex flex-shrink items-center space-x-2">
+                      Get AAU Number
+                      <ExternalLinkIcon className="w-4 h-4" />
+                    </a>
+                  </div>
                 </div>
-                <div className="flex flex-col p-3">
-                  <a href="https://play.aausports.org/JoinAAU/MembershipApplication.aspx" className="px-2 py-1 bg-lime-400 text-black rounded text-xs flex flex-shrink items-center space-x-2">
-                    Get AAU Number
-                    <ExternalLinkIcon className="w-4 h-4" />
-                  </a>
-                </div>
-              </div>
+              ) : null }
               
               <h3 className="mt-5 font-bold text-xs">Fees</h3>
-              {rosters?.filter(roster => roster.person_id === relation.to.id).map((roster, i) => (
-                <div className="py-2 divide-y divide-solid space-y-2">
-                  <div key={i} className="flex flex-col md:flex-row justify-between items-center">
-                    <Link href={`/rosters/${roster.id}`} className="text-sm">{roster.teams?.name} ({roster.fees?.name})</Link>
-                    <div className="mt-5 md:mt-0 flex justify-end">
-                      {roster.fees.payments.some((payment: { status: string }) => payment.status === "succeeded") ? (
-                        <CheckBadgeIcon className="w-7 h-6 text-green-500" />
-                      ): (
-                        <GenericButton cta = {`Pay $${roster.fees?.amount}`}>
-                          <CreatePaymentModal account={account} profile={profile} fee={roster.fees} person={relation.to} />
+              <div className="py-2 divide-y divide-solid space-y-2">
+                {rosters?.filter(roster => roster.person_id === relation.to.id).map((roster, i) => (
+                  <div key={i} className="last:pt-2 grid grid-cols-2 items-center gap-3">
+                    <div className="col-span-1">
+                      <span className="text-sm">{roster.teams?.name} ({roster.fees?.name})</span>
+                    </div>
+                    <div className="col-span-1 mt-5 md:mt-0 flex items-center justify-end">  
+                      {hasPaidFee(relation, roster) ? 
+                        <CheckCircleIcon className="w-6 h-6 text-lime-500" /> :
+                        <GenericButton size="sm" variant="default" cta={`Pay $${roster.fees?.amount}`}>
+                          <CreatePaymentModal account={account} profile={profile} roster={roster} fee={roster.fees} person={relation.to} />
                         </GenericButton>
-                      )}
+                      }  
                     </div>
                   </div>
-                  <div className="flex flex-col divide-y divide-dashed">
-                    {roster.fees.payments?.map((payment: { amount: string, status: string }) => (
-                      <div className="flex justify-between items-center">
-                        <div className="text-xs uppercase">Payment {payment.status}</div>
-                        <div className="text-xs">${payment.amount}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         ))}

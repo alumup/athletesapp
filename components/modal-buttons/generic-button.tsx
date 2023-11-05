@@ -2,21 +2,27 @@
 
 import { useModal } from "@/components/modal/provider";
 import { ReactNode } from "react";
+import { Button } from "../ui/button";
 
 export default function GenericButton({
   children,
+  size,
+  variant,
   cta
 }: {
-  children: ReactNode;
-  cta: string;
+    children: ReactNode;
+    size: any,
+    variant: any,
+    cta: string;
 }) {
   const modal = useModal();
   return (
-    <button
+    <Button
       onClick={() => modal?.show(children)}
-      className="rounded bg-black px-3 py-1.5 text-sm font-medium text-white transition-all"
+      size={size}
+      variant={variant}
     >
      {cta}
-    </button>
+    </Button>
   );
 }
