@@ -4,13 +4,13 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useForm } from 'react-hook-form';
 import { useRouter } from "next/navigation";
 
-import { cn } from "@/lib/utils";
-import LoadingDots from "@/components/icons/loading-dots";
+
 import { useModal } from "./provider";
 
 import { loadStripe } from "@stripe/stripe-js";
 import { StripeElements } from "@/components/stripe-elements";
 import { Elements } from "@stripe/react-stripe-js";
+import LoadingSpinner from "../form/loading-spinner";
 
 // Make sure to call loadStripe outside of a component’s render to avoid
 // recreating the Stripe object on every render.
@@ -18,7 +18,7 @@ import { Elements } from "@stripe/react-stripe-js";
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 export default function CreatePaymentModal({account, profile, person, fee}: {account: any, profile: any, person: any, fee: any}) {
-  const {refresh}= useRouter();
+  const { refresh }= useRouter();
   const modal = useModal();
 
   const supabase = createClientComponentClient();
@@ -92,13 +92,13 @@ export default function CreatePaymentModal({account, profile, person, fee}: {acc
 
         {!clientSecret && (
           <div className="w-full h-full flex justify-center items-center">
-            <h3>Loading...</h3>
+            <LoadingSpinner />
           </div>
         )}
         
         {clientSecret && (
           <Elements options={options} stripe={stripePromise}>
-            <StripeElements  />
+            <StripeElements modal={modal} />
           </Elements>
         )}
 

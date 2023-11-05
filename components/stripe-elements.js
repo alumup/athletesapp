@@ -1,12 +1,13 @@
 'use client'
 import { useEffect, useState } from "react";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { toast } from "sonner";
 
 
-export const StripeElements = () => {
+export const StripeElements = ({modal}) => {
   const stripe = useStripe();
   const elements = useElements();
-  const [message, setMessage] = useState(null);
+  const [message, setMessage] = useState({});
   const [paymentError, setPaymentError] = useState(null);
   const [paymentSuccess, setPaymentSuccess] = useState(null)
   const [isLoading, setIsLoading] = useState(false);
@@ -23,16 +24,16 @@ export const StripeElements = () => {
     stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
       switch (paymentIntent.status) {
         case "succeeded":
-          setMessage("Payment succeeded!");
+          setMessage({type: 'success', text: "Payment succeeded!"});
           break;
         case "processing":
-          setMessage("Your payment is processing.");
+          setMessage({type: 'info', text: "Your payment is processing."});
           break;
         case "requires_payment_method":
-          setMessage("Your payment was not successful, please try again.");
+          setMessage({type: 'error', text: "Your payment was not successful, please try again."});
           break;
         default:
-          setMessage("Something went wrong.");
+          setMessage({type: 'error', text: "Something went wrong."});
           break;
       }
     });
@@ -60,15 +61,17 @@ export const StripeElements = () => {
       elements,
       redirect: "if_required",
       confirmParams: {
-        return_url: "http://provo.jumpshot.app",
+        return_url: "http://provo.athletes.app",
       },
     });
 
     if (confirmError.error) {
       setMessage(confirmError.error.message);
     } else {
-      setMessage("Payment Successful!")
+      setMessage({ type: 'success', text: "Payment succeeded!" });
       setPaymentSuccess(true);
+      modal.hide()
+      toast.success("Payment successful!")
     }
 
     setIsLoading(false);
@@ -80,11 +83,6 @@ export const StripeElements = () => {
 
   return (
     <form id="payment-form" onSubmit={handleSubmit}>
-      {message && (
-        <div className="border border-gray-300 bg-gray-200 rounded p-5 text-sm mb-5">
-          <div id="payment-message">{message}</div>
-        </div>
-      )}
       {paymentError && (
         <div id="payment-errors" className="text-red-500">
           {paymentError}

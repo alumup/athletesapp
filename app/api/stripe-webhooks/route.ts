@@ -58,9 +58,6 @@ export async function POST(req: any) {
     case 'charge.pending':
       updateSupabase(event)
       break;
-    case 'charge.refund.updated':
-      updateSupabase(event)
-      break;
     case 'charge.refunded':
       updateSupabase(event)
       break;
@@ -79,6 +76,6 @@ export async function POST(req: any) {
       );
   }
 
-  return NextResponse.json({ error: 'There should have been an event' }, { status: 500 })
+  return NextResponse.json({ error: 'EVENT RECEIVED' }, { status: 200 })
  
 }
