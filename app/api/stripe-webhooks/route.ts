@@ -32,7 +32,8 @@ export async function POST(req: any) {
     const { error } = await supabase
       .from("payments")
       .update({
-        status: event.data.object.status
+        status: event.data.object.status,
+        data: event.data
       })
       .eq("payment_intent_id", event.data.object.id)
       .single();
