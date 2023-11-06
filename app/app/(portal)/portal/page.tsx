@@ -173,7 +173,7 @@ function hasPaidFee(relation: any, roster: any) {
           <h6 className="text-sm font-light">Buy your ProLook Reversible jersey.</h6>
         </div>
         <div className="flex flex-col mt-5 md:mtt-0">
-          <a href="https://www.provobasketball.com/products/provo-bulldog-youth-uniform" className="px-3 py-1 bg-lime-400 text-black rounded text-sm flex flex-shrink items-center space-x-2">
+          <a href="https://provobasketball.com/products/provo-basketball-youth-uniform" target="_blank" className="px-3 py-1 bg-lime-400 text-black rounded text-sm flex flex-shrink items-center space-x-2">
             Buy Now
             <ExternalLinkIcon className="w-4 h-4" />
           </a>
