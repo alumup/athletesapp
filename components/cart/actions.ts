@@ -1,6 +1,7 @@
 "use server";
 
 import { getAccountShopify } from "@/lib/fetchers/server";
+import { Cart } from "@/lib/shopify/types";
 import { cookies } from "next/headers";
 
 export const addItem = async (
@@ -82,3 +83,31 @@ export const updateItemQuantity = async ({
     return "Error updating item quantity";
   }
 };
+
+// Optimistic updates
+export const removeCartItemById = (id: string, cart: Cart) => {
+  const lineItemIndex = cart.lines.findIndex((item) => item.id === id);
+
+  if (lineItemIndex === -1) return cart;
+
+  const newCart = { ...cart, totalQuantity: cart.totalQuantity - 1 };
+  newCart.lines = [...newCart.lines];
+  newCart.lines.splice(lineItemIndex, 1);
+
+  return newCart;
+}
+
+export const updateCartItemQuantityById = (id: string, type: "plus" | "minus", cart: Cart) => {
+  const lineItemIndex = cart.lines.findIndex((item) => item.id === id);
+
+  if (lineItemIndex === -1) return cart;
+
+  const newCart = { ...cart };
+  newCart.lines = [...newCart.lines];
+  newCart.lines[lineItemIndex] = {
+    ...newCart.lines[lineItemIndex],
+    quantity: type === "plus" ? newCart.lines[lineItemIndex].quantity + 1 : newCart.lines[lineItemIndex].quantity - 1
+  };
+
+  return newCart;
+}
