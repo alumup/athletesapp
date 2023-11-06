@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/tooltip"
 import { ExternalLinkIcon } from '@radix-ui/react-icons';
 
-
 export const dynamic = 'force-dynamic'
 
 const PortalPage = async () => {
@@ -71,8 +70,7 @@ const PortalPage = async () => {
  
   const rosters = await fetchRosters();
 
-
-  function hasPaidFee(relation: any, roster: any) {
+function hasPaidFee(relation: any, roster: any) {
     // Check if the person in the relation is the same as the person in the roster
     if (roster.person_id !== relation.to.id) {
       return false;

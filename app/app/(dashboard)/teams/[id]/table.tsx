@@ -42,11 +42,22 @@ import {
 import SendEmailModal from "@/components/modal/send-email-modal";
 import SendButton from "@/components/modal-buttons/send-button";
 import { useRouter } from "next/navigation";
+import { CheckCircleIcon } from "@heroicons/react/24/solid";
+
+
+
+function hasPaidFee(person: any, fees: any) {
+  // Check if there is a payment for the fee by the person
+  const paymentForFee = fees.payments.find((payment: { person_id: any; }) => payment.person_id === person.id);
+
+  // If there is a payment, return true, otherwise return false
+  return !!paymentForFee;
+}
 
 
 export type Person = {
   id: string;
-  fee: any;
+  fees: any;
   first_name: string;
   last_name: string;
   name: string;
@@ -79,9 +90,35 @@ const columns: ColumnDef<Person>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "fee",
+    accessorKey: "fees",
     header: "Fee",
-    cell: ({ row }) => <span className="px-2 py-1 rounded bg-gray-50 text-gray-500">${row.getValue("fee")}</span>,
+    cell: ({ row }: { row: any }) => {
+      const fees = row.getValue("fees") as { amount: number } | undefined;
+      const amount = fees?.amount;
+      return (
+        <span className="px-2 py-1 rounded bg-gray-50 text-gray-500">
+          ${amount ?? 'N/A'}
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: "fees",
+    header: "Fee Status",
+    cell: ({ row }: { row: any }) => {
+      const person = row.original;
+      const hasPaid = hasPaidFee(person, person.fees);
+      return (
+        hasPaid ? 
+        <div className="flex items-center justify-start w-full">
+          <CheckCircleIcon className="w-5 h-5 text-lime-500" /> 
+        </div>
+        :
+        <span className="text-sm px-2 py-1 rounded bg-gray-50 text-gray-500">
+          unpaid
+        </span>
+      );
+    },
   },
   {
     accessorKey: "name",
@@ -145,6 +182,10 @@ export function TeamTable({data, team, account}: {data: Person[], team: any, acc
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
   );
+
+  useEffect(() => {
+    console.log("DATA", data)
+  },[])
 
 
   const [columnVisibility, setColumnVisibility] =

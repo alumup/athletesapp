@@ -36,7 +36,7 @@ export default async function TeamPage({
     async function fetchRoster() {
       const { data, error } = await supabase
         .from("rosters")
-        .select("*, fees(*),people(*)")
+        .select("*, fees(*, payments(*)),people(*)")
         .eq("team_id", params.id)
 
     if (error) {
@@ -62,11 +62,16 @@ export default async function TeamPage({
   
   const peopleWithPrimaryEmailPromises = roster?.map(async (r) => {
     const primaryPeople = await getPrimaryContacts(r.people);
-    console.log("FEE", r.fees?.amount)
     return {
       ...r.people,
       primary_contacts: primaryPeople,
-      fee: r.fees?.amount || "NEEDS FEE",
+      fees: r.fees || {
+        id: '',
+        name: '',
+        description: '',
+        amount: null,
+        type: ''
+      },
     };
   });
 
@@ -79,7 +84,7 @@ export default async function TeamPage({
     <div className="flex flex-col space-y-6">
       <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
         <div className="flex flex-col space-y-0.5">
-          <h1 className="truncate font-cal text-base md:text-3xl font-bold dark:text-white sm:w-auto sm:text-2xl">
+          <h1 className="truncate font-cal text-base md:text-3xl font-bold sm:w-auto sm:text-2xl">
             {team.name}
           </h1>
           <p className="text-sm text-gray-700">
