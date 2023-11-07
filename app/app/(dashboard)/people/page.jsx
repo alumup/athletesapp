@@ -1,13 +1,13 @@
 'use client'
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import GenericButton from "@/components/modal-buttons/generic-button";
-import CreatePersonModal from "@/components/modal/create-person-modal";
+
 
 import { PeopleTable } from './table'
 
 import { getAccount, getPrimaryContacts } from "@/lib/fetchers/client";
 import { useEffect, useState } from "react";
-
+import SheetModal from "@/components/modal/sheet";
+import NewPerson from "./new";
 
 export default function PeoplePage() {
 
@@ -80,9 +80,9 @@ export default function PeoplePage() {
               People
             </h1>
           </div>
-          <GenericButton cta="+ New Person">
-            <CreatePersonModal account={account} />
-          </GenericButton>
+          <SheetModal cta="+ New Person" title="New Person" description="Add a person to your database">
+            <NewPerson account={account} />
+          </SheetModal>
         </div>
         <div className="mt-10">
           {people && (

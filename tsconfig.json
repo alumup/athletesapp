@@ -23,6 +23,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "lib/fetchers/server.js", "components/profile.jsx", "components/modal/reg-modal.jsx", "app/app/(dashboard)/people/page.jsx", "app/[domain]/components/products.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "lib/fetchers/server.js", "components/profile.jsx", "components/modal/reg-modal.jsx", "app/app/(dashboard)/people/page.jsx", "app/[domain]/components/products.jsx", "components/ui/sheet.jsx"],
   "exclude": ["node_modules"]
 }

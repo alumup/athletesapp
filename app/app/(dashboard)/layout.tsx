@@ -39,8 +39,8 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             <div className="flex h-16 items-center px-4">
               <Link
                 href="/"
-                className="font-bold">
-                 ATHLETES®
+              >
+               <img src="/athletes.svg" className="w-[125px] h-auto" />
               </Link>
               <MainNav className="mx-6" />
               <div className="ml-auto flex items-center space-x-4">

@@ -12,7 +12,8 @@ import LoadingDots from '@/components/icons/loading-dots';
 import { CheckBadgeIcon } from '@heroicons/react/24/outline';
 import LoadingCircle from '@/components/icons/loading-circle';
 
-
+import SheetModal from "@/components/modal/sheet";
+import EditPerson from "./edit";
 
 export default function PersonPage({
   params
@@ -143,14 +144,14 @@ export default function PersonPage({
         </div>
         <div className="flex items-center space-x-2">
           {!person?.dependent && (
-              <button onClick={() => invitePerson({ person, account })} className="px-3 py-1.5 bg-lime-500 text-white text-sm rounded">
+              <button onClick={() => invitePerson({ person, account })} className="px-3 py-1.5 bg-lime-500 text-white text-md rounded">
                 {emailIsSending ? <LoadingDots color='#808080' /> : <span>Invite to Portal</span>}
             </button>
           )}
 
-          <GenericButton cta="Edit Person" size="default" variant="default">
-            <EditPersonModal person={person} account={account} />
-          </GenericButton>
+            <SheetModal cta={`Edit ${person?.first_name}`} title={`Edit ${person?.first_name}`} description="Edit this person">
+              <EditPerson person={person} account={account} />
+            </SheetModal>
         </div>
       </div>
       <div className="mt-10 space-y-5">

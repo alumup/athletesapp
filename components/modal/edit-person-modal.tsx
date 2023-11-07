@@ -66,7 +66,7 @@ export default function EditPersonModal({person, account} : {person: any, accoun
           last_name: data.last_name,
           email: data.email,
           phone: data.phone,
-          birthdate: data.birthdate || null,
+          birthdate: data.birthdate === '' ? null : data.birthdate,
           grade: data.grade,
           aau_number: data.aau_number,
           tags: selectedTags,
@@ -89,6 +89,7 @@ export default function EditPersonModal({person, account} : {person: any, accoun
             relation_id: relation.id,
             name: relation.name,
             primary: relation.primary,
+            
           }
         ]);
   
@@ -162,7 +163,7 @@ export default function EditPersonModal({person, account} : {person: any, accoun
     >
       <div className="relative flex flex-col space-y-4 p-5 md:p-10">
         <h2 className="font-cal text-2xl dark:text-white">Edit {person?.name || fullName(person)}</h2>
-        <div className="max-h-[700px] overflowy-auto">
+        <div className="max-h-[500px] overflow-y-auto">
         <div className="flex flex-col space-y-2">
           <label htmlFor="phone" className="text-sm font-medium text-gray-700 dark:text-stone-300">
             Name
@@ -366,9 +367,9 @@ export default function EditPersonModal({person, account} : {person: any, accoun
 
       </div>
      
-      <div className="flex items-center justify-end rounded-b-lg border-t border-stone-200 bg-stone-50 p-3 dark:border-stone-700 dark:bg-stone-800 md:px-10">
-        <CreateSiteFormButton />
-      </div>
+   
+      <CreateSiteFormButton />
+  
         
     </form>
   );
@@ -376,9 +377,10 @@ export default function EditPersonModal({person, account} : {person: any, accoun
 function CreateSiteFormButton() {
   const { pending } = useFormStatus();
   return (
+    <div className="flex items-center justify-end rounded-b-lg border-t border-stone-200 md:bg-stone-50 p-3  md:px-10">
     <button
       className={cn(
-        "flex h-10 w-full items-center justify-center space-x-2 rounded-md border text-sm transition-all focus:outline-none",
+        "fixed md:relative bottom-0 inset-x-0 flex h-10 w-full items-center justify-center space-x-2 rounded-md border text-sm transition-all focus:outline-none",
         pending
           ? "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
           : "border-black bg-black text-white hover:bg-white hover:text-black dark:border-stone-700 dark:hover:border-stone-200 dark:hover:bg-black dark:hover:text-white dark:active:bg-stone-800",
@@ -386,6 +388,7 @@ function CreateSiteFormButton() {
       disabled={pending}
     >
       {pending ? <LoadingDots color="#808080" /> : <p>Update Person</p>}
-    </button>
+      </button>
+      </div>
   );
 }

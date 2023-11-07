@@ -33,6 +33,20 @@ export default function Modal({
   );
 
   useEffect(() => {
+    // Disable scrolling when the Leaflet is open
+    if (showModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    // Clean up function to re-enable scrolling when the component unmounts
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showModal]);
+
+  useEffect(() => {
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [onKeyDown]);
@@ -40,6 +54,7 @@ export default function Modal({
   const { isMobile, isDesktop } = useWindowSize();
 
   return (
+    <div className="relative w-full h-screen">
     <AnimatePresence>
       {showModal && (
         <>
@@ -65,7 +80,7 @@ export default function Modal({
               </FocusTrap>
               <motion.div
                 key="desktop-backdrop"
-                className="fixed inset-0 z-30 bg-gray-100 bg-opacity-10 backdrop-blur"
+                className="fixed inset-0 z-30 bg-gray-100 bg-opacity-30 backdrop-blur"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -75,6 +90,7 @@ export default function Modal({
           )}
         </>
       )}
-    </AnimatePresence>
+      </AnimatePresence>
+    </div>
   );
 }
