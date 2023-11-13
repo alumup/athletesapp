@@ -64,7 +64,7 @@ export default function CreatePaymentModal({account, profile, person, fee, roste
   return (
     <div
       tabIndex={-1}
-      className="relative w-full rounded-md bg-white md:max-w-md md:border md:border-stone-200 md:shadow"
+      className="relative w-full max-h-screen h-auto overflow-y-scroll rounded-md bg-white md:max-w-md md:border md:border-stone-200 md:shadow"
     >
       <div tabIndex={1} className="relative flex flex-col space-y-4 px-3 pb-10 pt-5 md:p-10">
         <h2 className="font-cal text-xl md:text-2xl font-bold">Payment</h2>
