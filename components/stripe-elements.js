@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useRouter } from 'next/navigation'
 
 
-export const StripeElements = ({modal}) => {
+export const StripeElements = ({modal, fee, person}) => {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter()
@@ -98,7 +98,7 @@ export const StripeElements = ({modal}) => {
 
   return (
     <form id="payment-form" onSubmit={handleSubmit}>
-      {message && (
+      {message && message.text && (
         <div id="message" className={`mb-5 rounded bg-${message.type === 'error' ? 'red-50' : 'green-50'} border border-${message.type === 'error' ? 'red-100' : 'green-100'} text-center p-2 text-${message.type === 'error' ? 'red-500' : 'green-500'}`}>
           {message.text}
         </div>
@@ -109,15 +109,20 @@ export const StripeElements = ({modal}) => {
         </div>
       )}
       <PaymentElement id="payment-element" options={paymentElementOptions} />
-      <div className="fixed md:relative bottom-0 inset-x-0 flex items-center justify-end bg-white p-5 border-t border-gray-200 shadow-sm">
+      <div className="fixed bottom-0 inset-x-0 flex items-center justify-between bg-white p-5 border-t border-gray-200 shadow-sm">
+        <div>
+          <h3 className="font-bold text-base md:text-xl">{fee?.name}</h3>
+          <span className="font-light text-base">{person?.name}</span>
+        </div>
+        
         <button
           disabled={isLoading || !stripe || !elements}
           id="submit"
           type="submit"
           className="bg-black text-white px-5 py-2 rounded"
         >
-          <span id="button-text" className="whitespace-nowrap">
-            {isLoading ? "Submitting..." : "Pay now"}
+          <span id="button-text" className="whitespace-nowrap text-xl">
+            {isLoading ? "Submitting..." : `Pay $${fee?.amount}`}
           </span>
         </button>
       </div>

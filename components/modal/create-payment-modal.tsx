@@ -64,33 +64,12 @@ export default function CreatePaymentModal({account, profile, person, fee, roste
   return (
     <div
       tabIndex={-1}
-      className="w-full rounded-md bg-white md:max-w-md md:border md:border-stone-200 md:shadow"
+      className="relative w-full rounded-md bg-white md:max-w-md md:border md:border-stone-200 md:shadow"
     >
-      <div tabIndex={1} className="relative flex flex-col space-y-4 px-5 pb-20 pt-10 md:p-10">
-        <h2 className="font-cal text-2xl dark:text-white">Payment</h2>
+      <div tabIndex={1} className="relative flex flex-col space-y-4 px-3 pb-20 pt-5 md:p-10">
+        <h2 className="font-cal text-xl md:text-2xl font-bold">Payment</h2>
 
-
-        <div className="flex flex-col space-y-2 bg-gray-100 border border-gray-200 rounded p-2">
-          <div className="flex justify-between">
-            <p className="font-cal text-xs">Team:</p>
-            <p className="font-cal text-xs">{roster?.teams.name}</p>
-          </div>
-          <div className="flex justify-between">
-            <p className="font-cal text-xs">Fee Name:</p>
-            <p className="font-cal text-xs">{fee?.name}</p>
-          </div>
-          <div className="flex justify-between">
-            <p className="font-cal text-xs">Fee Amount:</p>
-            <p className="font-cal text-xs">${fee?.amount}</p>
-          </div>
-
-          <div className="flex justify-between">
-            <p className="font-cal text-xs">On behalf of:</p>
-            <p className="font-cal text-xs">{person?.name}</p>
-          </div>
-        </div>
-
-        <div className="h-[600px] md:h-full p-1">
+        <div>
           {!clientSecret && (
             <div className="w-full h-full flex justify-center items-center text-center">
               <LoadingSpinner />
@@ -99,7 +78,7 @@ export default function CreatePaymentModal({account, profile, person, fee, roste
 
           {clientSecret && (
             <Elements options={options} stripe={stripePromise}>
-              <StripeElements modal={modal} />
+              <StripeElements modal={modal} fee={fee} person={person} />
             </Elements>
           )}
         </div>
