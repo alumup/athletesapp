@@ -54,7 +54,15 @@ export async function POST(req: any) {
   };
 
   switch (event.type) {
-  
+    case 'payment_intent.created':
+      updateSupabase(event)
+      break;
+    case 'payment_intent.canceled':
+      updateSupabase(event)
+      break;
+    case 'payment_intent.processing':
+      updateSupabase(event)
+      break;
     case 'payment_intent.payment_failed':
       updateSupabase(event)
       break;

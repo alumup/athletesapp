@@ -46,12 +46,48 @@ import { CheckCircleIcon } from "@heroicons/react/24/solid";
 
 
 
-function hasPaidFee(person: any, fees: any) {
+function paymentStatus(person: any, fees: any) {
   // Check if there is a payment for the fee by the person
-  const paymentForFee = fees.payments.find((payment: { person_id: any; }) => payment.person_id === person.id);
+  const paymentsForPerson = fees.payments.filter((payment: { person_id: any; }) => payment.person_id === person.id);
 
-  // If there is a payment, return true, otherwise return false
-  return !!paymentForFee;
+  // Sort the payments by date, most recent first
+  paymentsForPerson.sort((a: { date: string; }, b: { date: string; }) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  // Check if any of the payments status are 'succeeded'
+  const succeededPayment = paymentsForPerson.find((payment: { status: string; }) => payment.status === 'succeeded');
+
+  // If there is a 'succeeded' payment, return 'succeeded'
+  if (succeededPayment) {
+    return 'succeeded';
+  }
+
+  // If there is no 'succeeded' payment, return the status of the most recent payment
+  // If there is no 'succeeded' payment, return the status of the most recent payment and the count of payments
+  return paymentsForPerson[0]?.status
+}
+
+function renderStatusSpan(status: string) {
+  let statusColor: string;
+  switch (status) {
+    case 'succeeded':
+      statusColor = "text-green-900 bg-green-100 border border-green-200";
+      break;
+    case 'incomplete':
+      statusColor = "text-yellow-900 bg-yellow-100 border border-yellow-200";
+      break;
+    case 'pending':
+      statusColor = "text-gray-900 bg-text-100 border border-text-200";
+      status
+      break;
+    case 'failed':
+      statusColor = "text-red-900 bg-red-100 border border-red-200";
+      break;
+    default:
+      statusColor = "text-gray-900 bg-gray-100 border border-gray-200";
+      status = "unpaid";
+      break;
+  }
+  return <span className={`text-[10px] px-2 py-1 rounded-md ${statusColor} uppercase`}>{status}</span>;
 }
 
 
@@ -107,17 +143,9 @@ const columns: ColumnDef<Person>[] = [
     header: "Fee Status",
     cell: ({ row }: { row: any }) => {
       const person = row.original;
-      const hasPaid = hasPaidFee(person, person.fees);
-      return (
-        hasPaid ? 
-        <div className="flex items-center justify-start w-full">
-          <CheckCircleIcon className="w-5 h-5 text-lime-500" /> 
-        </div>
-        :
-        <span className="text-sm px-2 py-1 rounded bg-gray-50 text-gray-500">
-          unpaid
-        </span>
-      );
+      const status = paymentStatus(person, person.fees);
+      const statusBadge = renderStatusSpan(status)
+      return statusBadge
     },
   },
   {
@@ -144,7 +172,7 @@ const columns: ColumnDef<Person>[] = [
           <Link
             key={index}
             href={`/people/${contact?.id}`}
-            className="px-2 py-1 rounded-full bg-gray-100 border border-gray-300 lowercase cursor-pointer"
+            className="px-2 py-1 rounded-full text-sm text-gray-900 bg-gray-100 border border-gray-200 lowercase cursor-pointer"
           >
             {contact?.email}
           </Link>

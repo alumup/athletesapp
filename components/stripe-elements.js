@@ -2,11 +2,13 @@
 import { useEffect, useState } from "react";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { toast } from "sonner";
+import { useRouter } from 'next/navigation'
 
 
 export const StripeElements = ({modal}) => {
   const stripe = useStripe();
   const elements = useElements();
+  const router = useRouter()
   const [message, setMessage] = useState({});
   const [paymentError, setPaymentError] = useState(null);
   const [paymentSuccess, setPaymentSuccess] = useState(null)
@@ -67,10 +69,12 @@ export const StripeElements = ({modal}) => {
 
     if (confirmError.error) {
       setMessage(confirmError.error.message);
+      toast.success(confirmError.error.message)
     } else {
       setMessage({ type: 'success', text: "Payment succeeded!" });
       setPaymentSuccess(true);
       modal.hide()
+      router.refresh();
       toast.success("Payment successful!")
     }
 
@@ -83,6 +87,11 @@ export const StripeElements = ({modal}) => {
 
   return (
     <form id="payment-form" onSubmit={handleSubmit}>
+      {message && (
+        <div id="message" className={`text-${message.type === 'error' ? 'red-500' : 'green-500'}`}>
+          {message.text}
+        </div>
+      )}
       {paymentError && (
         <div id="payment-errors" className="text-red-500">
           {paymentError}
@@ -97,7 +106,7 @@ export const StripeElements = ({modal}) => {
           className="bg-black text-white px-5 py-2 rounded"
         >
           <span id="button-text" className="whitespace-nowrap">
-            {isLoading ? "Loading..." : "Pay now"}
+            {isLoading ? "Submitting..." : "Pay now"}
           </span>
         </button>
       </div>

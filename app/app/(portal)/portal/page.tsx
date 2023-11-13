@@ -68,19 +68,27 @@ const PortalPage = async () => {
 
   const toRelationships = await fetchToRelationships();
  
-  const rosters = await fetchRosters();
+  let rosters = await fetchRosters();
 
-function hasPaidFee(relation: any, roster: any) {
-    // Check if the person in the relation is the same as the person in the roster
-    if (roster.person_id !== relation.to.id) {
-      return false;
+ 
+
+  function hasPaidFee(relation: any, roster: any) {
+    // Check if there is a payment for the fee by the person
+    const paymentsForPerson = roster.fees.payments.filter((payment: { person_id: any; }) => payment.person_id === relation.to.id);
+
+    // Sort the payments by date, most recent first
+    paymentsForPerson.sort((a: { date: string; }, b: { date: string; }) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    // Check if any of the payments status are 'succeeded'
+    const succeededPayment = paymentsForPerson.find((payment: { status: string; }) => payment.status === 'succeeded');
+
+    // If there is a 'succeeded' payment, return true
+    if (succeededPayment) {
+      return true;
     }
 
-    // Check if there is a payment for the fee in the roster
-    const paymentForFee = roster.fees.payments.find((payment: { person_id: any; }) => payment.person_id === relation.to.id);
-
-    // If there is a payment, return true, otherwise return false
-    return !!paymentForFee;
+    // If there is no 'succeeded' payment, return false
+    return false;
   }
   
   return (
@@ -92,14 +100,12 @@ function hasPaidFee(relation: any, roster: any) {
         <h1 className="text-2xl font-bold">{profile?.name || fullName(profile)}</h1>
       </div>
 
-
-
       <div className="mt-10">
         {toRelationships?.map((relation, i) => (
           <div key={i} className="divide-y divide-gray-300">
             <div className="px-3 py-2 flex flex-col">
               <div className="flex justify-between items-center">
-                <div className="flex justify-between items-center space-x-2">
+                <div className="flex justify-between items-center">
                   <span>
                     {relation.to.aau_number === null || relation.to.aau_number === "" ? (
                       <TooltipProvider>
@@ -114,12 +120,12 @@ function hasPaidFee(relation: any, roster: any) {
                       </TooltipProvider>
                     ) : null}
                   </span>
-                  <Link href={`/people/${relation.to.id}`} className="font-bold text-md">
+                  <span className="font-bold text-md">
                     {relation.to.name || fullName(relation.to)}
-                  </Link>
+                  </span>
                 </div>
            
-                <GenericButton cta={`Edit`} size="default" variant="default">
+                <GenericButton cta={`Edit`} size="sm" variant="outline">
                   <EditPersonModal person={relation?.to} account={account} />
                 </GenericButton> 
               </div>
