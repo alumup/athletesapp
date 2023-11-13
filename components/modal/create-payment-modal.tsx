@@ -90,7 +90,7 @@ export default function CreatePaymentModal({account, profile, person, fee, roste
           </div>
         </div>
 
-        <div className="h-full p-1">
+        <div className="h-[600px] md:h-full p-1">
           {!clientSecret && (
             <div className="w-full h-full flex justify-center items-center text-center">
               <LoadingSpinner />
