@@ -24,19 +24,30 @@ export const StripeElements = ({modal}) => {
     if (!clientSecret) return;
 
     stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
-      switch (paymentIntent.status) {
-        case "succeeded":
-          setMessage({type: 'success', text: "Payment succeeded!"});
-          break;
-        case "processing":
-          setMessage({type: 'info', text: "Your payment is processing."});
-          break;
-        case "requires_payment_method":
-          setMessage({type: 'error', text: "Your payment was not successful, please try again."});
-          break;
-        default:
-          setMessage({type: 'error', text: "Something went wrong."});
-          break;
+      if (paymentIntent.status === "succeeded") {
+        setMessage({ type: 'success', text: "Payment succeeded!" });
+      } else if (paymentIntent.status === "processing") {
+        setMessage({ type: 'info', text: "Your payment is processing." });
+      } else if (paymentIntent.status === "requires_payment_method") {
+        setMessage({ type: 'error', text: "Your payment was not successful, please try again." });
+      } else {
+        setMessage({ type: 'error', text: "Something went wrong." });
+      }
+    }).catch((e) => {
+      console.log(e);
+      if (e.type === 'StripeCardError') {
+        stripe.charges.retrieve(e.payment_intent.latest_charge)
+          .then((charge) => {
+            if (charge.outcome.type === 'blocked') {
+              console.log('Payment blocked for suspected fraud.');
+            } else if (e.code === 'card_declined') {
+              console.log('Payment declined by the issuer.');
+            } else if (e.code === 'expired_card') {
+              console.log('Card expired.');
+            } else {
+              console.log('Other card error.');
+            }
+          });
       }
     });
   }, [stripe]);
@@ -68,7 +79,7 @@ export const StripeElements = ({modal}) => {
     });
 
     if (confirmError.error) {
-      setMessage(confirmError.error.message);
+      setMessage({ type: "error", text: confirmError.error.message });
       toast.success(confirmError.error.message)
     } else {
       setMessage({ type: 'success', text: "Payment succeeded!" });
@@ -88,7 +99,7 @@ export const StripeElements = ({modal}) => {
   return (
     <form id="payment-form" onSubmit={handleSubmit}>
       {message && (
-        <div id="message" className={`text-${message.type === 'error' ? 'red-500' : 'green-500'}`}>
+        <div id="message" className={`mb-5 rounded bg-${message.type === 'error' ? 'red-50' : 'green-50'} border border-${message.type === 'error' ? 'red-100' : 'green-100'} text-center p-2 text-${message.type === 'error' ? 'red-500' : 'green-500'}`}>
           {message.text}
         </div>
       )}
