@@ -16,13 +16,21 @@ export async function POST(req) {
     // Extract all primary contacts into a single array
     const allPrimaryContacts = people.flatMap(person => person.primary_contacts);
 
+    
+
     // Then use the same logic to send emails
-    const emailPromises = allPrimaryContacts.map((contact) => {
-      return resend.emails.send({
-        from: `${account.name} <${account.email}>`,
-        to: contact.email,
-        subject: subject,
-        react: BasicTemplate({ message: message, account: account, person: contact, preview }),
+    const emailPromises = allPrimaryContacts.map((contact, index) => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resend.emails.send({
+            from: `${account.name} <${account.email}>`,
+            to: contact.email,
+            subject: subject,
+            react: BasicTemplate({ message: message, account: account, person: contact, preview }),
+          })
+            .then(resolve)
+            .catch(reject);
+        }, index * 1000); // delay of 1 second
       });
     });
 

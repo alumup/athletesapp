@@ -85,10 +85,10 @@ export default async function TeamPage({
       <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
         <div className="flex flex-col space-y-0.5">
           <h1 className="truncate font-cal text-base md:text-3xl font-bold sm:w-auto sm:text-2xl">
-            {team.name}
+            {team?.name}
           </h1>
           <p className="text-sm text-gray-700">
-            {team.coach}
+            {team?.coach}
           </p> 
 
         </div>

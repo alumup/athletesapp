@@ -1,13 +1,11 @@
 "use client"
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { toast } from "sonner";
 import {
   TrashIcon,
   MixerHorizontalIcon,
-  DotsHorizontalIcon,
-  Pencil1Icon,
   ArrowRightIcon
 } from "@radix-ui/react-icons";
 
@@ -185,7 +183,7 @@ export function TeamTable({ data, account }: { data: Person[], account: any}) {
         };
       });
       const primaryContacts = await Promise.all(primaryContactsPromises);
-      console.log(primaryContacts)
+      console.log("PRIMARY CONTACTS --------------->",primaryContacts)
       setPrimaryContacts(primaryContacts);
     };
     fetchPrimaryContacts();
