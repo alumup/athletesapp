@@ -1,7 +1,7 @@
 import { BasicTemplate } from "@/components/emails/basic-template";
 import { NextResponse } from "next/server";
 import resend from "@/lib/resend";
-
+export const maxDuration = 300; // This function can run for a maximum of 5 seconds
 export async function POST(req) {
   // get body data
   const data = await req.json();
@@ -30,7 +30,7 @@ export async function POST(req) {
           })
             .then(resolve)
             .catch(reject);
-        }, index * 1000); // delay of 1 second
+        }, index * 100); // delay of 1 second
       });
     });
 
