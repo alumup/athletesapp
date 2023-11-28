@@ -1,12 +1,21 @@
+import { CallToAction } from '@/components/marketing/CallToAction'
+import { Faqs } from '@/components/marketing/Faqs'
+import { Hero } from '@/components/marketing/Hero'
+import { Pricing } from '@/components/marketing/Pricing'
+import { PrimaryFeatures } from '@/components/marketing/PrimaryFeatures'
+import { Reviews } from '@/components/marketing/Reviews'
+import { SecondaryFeatures } from '@/components/marketing/SecondaryFeatures'
 
-export default function HomePage() {
+export default function Home() {
   return (
-    <div className="flex h-screen flex-col items-center justify-center space-y-10 bg-black">
-      <h1 className="font-bold text-6xl text-white">
-        Athletes App®
-      </h1>
-      <p className="text-lg md:text-2xl font-light text-white">A CRM created to help high school coaches 
-      manage and strengthen your teams, parents, and alumni base.</p>
-    </div>
-  );
+    <>
+      <Hero />
+      {/* <PrimaryFeatures />
+      <SecondaryFeatures />
+      <CallToAction />
+      <Reviews /> */}
+      {/* <Pricing /> */}
+      {/* <Faqs /> */}
+    </>
+  )
 }
