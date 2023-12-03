@@ -16,7 +16,7 @@ export async function getAccountWithDomain(domain: string) {
     if (user?.id) {
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("*, accounts(*)")
+        .select("*, accounts(*, senders(*))")
         .eq("id", user?.id)
         .single();
 
@@ -25,7 +25,7 @@ export async function getAccountWithDomain(domain: string) {
     } else if (domain) {
       const { data: site, error: siteError } = await supabase
         .from("sites")
-        .select("*, accounts(*)")
+        .select("*, accounts(*, senders(*))")
         .eq(domainKey, domainValue)
         .single();
 
@@ -52,7 +52,7 @@ export async function getAccount() {
   try {
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("*, accounts(*)")
+      .select("*, accounts(*, senders(*))")
       .eq("id", user?.id)
       .single();
 

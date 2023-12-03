@@ -14,7 +14,7 @@ export async function getAccount() {
   try {
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("*, accounts(*)")
+      .select("*, accounts(*, senders(*))")
       .eq("id", user?.id)
       .single();
 

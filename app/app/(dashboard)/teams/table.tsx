@@ -165,7 +165,7 @@ export function TeamTable({ data, account }: { data: Person[], account: any}) {
   };
   
   // Check if any row is selected
-   const isAnyRowSelected = table.getSelectedRowModel().rows.length > 0;
+  const isAnyRowSelected = table?.getSelectedRowModel()?.rows?.length > 0;
 
   const selectedRows = table.getSelectedRowModel().rows;
   

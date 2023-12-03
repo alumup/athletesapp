@@ -8,8 +8,11 @@ export async function POST(req) {
   const account = data?.account;
   const people = data?.people;
   const subject = data?.subject;
+  const sender = data?.sender;
   const message = data?.message;
   const preview = data?.preview;
+
+  console.log("SENDER", data.sender)
 
 
   try {
@@ -23,7 +26,7 @@ export async function POST(req) {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           resend.emails.send({
-            from: `${account.name} <${account.email}>`,
+            from: sender,
             to: contact.email,
             subject: subject,
             react: BasicTemplate({ message: message, account: account, person: contact, preview }),

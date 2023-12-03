@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm, Controller } from 'react-hook-form';
 import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
@@ -16,6 +16,8 @@ export default function SendEmailModal({ people, account, onClose }: { people: a
   const modal = useModal();
   const { register, handleSubmit, control, formState: { errors } } = useForm();
 
+  console.log("SENDERS", account)
+
   // Functions to handle actions
   const handleSendEmail = ({ data }: { data: any }) => {
     console.log('handleSendEmail called', data);
@@ -28,6 +30,7 @@ export default function SendEmailModal({ people, account, onClose }: { people: a
       body: JSON.stringify({
         account: account,
         people: people,
+        sender: data.sender,
         subject: data.subject,
         message: data.message.getHTML(),
         preview: data.preview
@@ -73,6 +76,22 @@ export default function SendEmailModal({ people, account, onClose }: { people: a
         </div>
 
         {emailError && <span className="text-sm text-red-500">There was an error sending the email</span>}
+
+        <div className="flex flex-col space-y-2">
+          <label htmlFor="sender" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+            Send From
+          </label>
+          <select
+            id="sender"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            {...register("sender", { required: true })}
+          >
+            {account?.senders.map((sender: any) => (
+              <option value={`${sender.name} <${sender.email}>`}>{sender.email}</option>
+            ))}
+          </select>
+          {errors.sender && <span className="text-sm text-red-500">This field is required</span>}
+        </div>
 
         <div className="flex flex-col space-y-2">
           <label htmlFor="subject" className="text-sm font-medium text-gray-700 dark:text-stone-300">

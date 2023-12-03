@@ -45,7 +45,7 @@ export default async function TeamPage({
     }
 
     if (data) {
-      console.log(data)
+      console.log("ROSTERS SUCCESSFULLY GATHERED")
     }
     
     return data

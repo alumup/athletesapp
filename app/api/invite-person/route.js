@@ -26,7 +26,7 @@ export async function POST(req) {
     } else {
       // Your existing code
       const data = await resend.emails.send({
-        from: `${account.name} <${account.email}>`,
+        from: `${account.name} <${account.senders[0].email}>`,
         to: person.primary_contacts[0].email,
         subject: subject,
         react: BasicTemplate({ message: message }),
