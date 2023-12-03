@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { AlertTriangle } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+// @ts-expect-error
 import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import LoadingDots from "./icons/loading-dots";
 import va from "@vercel/analytics";
