@@ -177,7 +177,7 @@ export default function NewPerson({ account }: { account: any }) {
             type="text"
             id="phone"
             className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
-            {...register("phone", { required: true })}
+            {...register("phone")}
           />
           {errors.phone && <span className="text-sm text-red-500">This field is required</span>}
         </div>
