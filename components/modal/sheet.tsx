@@ -6,7 +6,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { Button } from "../ui/button";
+
 
 export default function SheetModal({cta, title, description, children}: {cta: any, title: any, description: any, children: any}) {
   return (

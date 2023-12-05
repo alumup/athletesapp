@@ -81,6 +81,7 @@ export default function PeoplePage() {
             </h1>
           </div>
           <SheetModal cta="+ New Person" title="New Person" description="Add a person to your database">
+
             <NewPerson account={account} />
           </SheetModal>
         </div>

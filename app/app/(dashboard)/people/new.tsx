@@ -2,35 +2,32 @@
 import { useEffect, useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useForm, useFieldArray } from 'react-hook-form';
-import { useRouter } from "next/navigation";
+
 // @ts-expect-error
 import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
+import { useModal } from "@/components/modal/provider";
 
-
+import { toast } from "sonner";
 
 
 export default function NewPerson({ account }: { account: any }) {
-  const { refresh } = useRouter();
+
 
   const supabase = createClientComponentClient();
   const [tags, setTags] = useState<any>([])
+  const [submitting, setSubmitting] = useState<any>(false)
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-
+  const modal = useModal()
   const handleTagSelect = (event: any) => {
     const selectedTag = event.target.value;
-    console.log(selectedTag)
     setSelectedTags(prevTags => [...prevTags, selectedTag]);
   };
 
   const handleTagDelete = (tagToDelete: string) => {
     setSelectedTags(prevTags => prevTags.filter(tag => tag !== tagToDelete));
   };
-
-  useEffect(() => {
-    console.log(selectedTags)
-  }, [selectedTags])
 
 
   const { register, control, handleSubmit, formState: { errors } } = useForm();
@@ -62,6 +59,7 @@ export default function NewPerson({ account }: { account: any }) {
 
   const onSubmit = async (data: any) => {
     // Create a new person
+    setSubmitting(true)
     const { data: newPerson, error: newPersonError } = await supabase
       .from('people')
       .insert([
@@ -103,7 +101,10 @@ export default function NewPerson({ account }: { account: any }) {
         console.log("Failed to add relationship: ", addRelationshipError);
       }
     }
-    refresh();
+    setSubmitting(false)
+    modal?.hide()
+    toast.success(`Successfully Created Person!`);
+
   };
 
   return (
@@ -122,7 +123,7 @@ export default function NewPerson({ account }: { account: any }) {
             className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:outline-none focus:border-stone-300"
             {...register("name", { required: true })}
           />
-          {errors.phone && <span className="text-sm text-red-500">This field is required</span>}
+          {errors.name && <span className="text-sm text-red-500">This field is required</span>}
         </div>
 
 
@@ -280,24 +281,19 @@ export default function NewPerson({ account }: { account: any }) {
 
       </div>
       <div className="mt-10 flex items-center justify-center rounded-b-lg border-t border-stone-200 bg-stone-50">
-        <SubmitForm />
+        <button
+          className={cn(
+            "h-10 w-full flex items-center justify-center space-x-2 rounded-md border text-sm transition-all focus:outline-none",
+            submitting
+              ? "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"
+              : "border-black bg-black text-white hover:bg-white hover:text-black",
+          )}
+          disabled={submitting}
+        >
+          {submitting ? <LoadingDots color="#808080" /> : <p>Create Person</p>}
+        </button>
       </div>
     </form>
   );
 }
-function SubmitForm() {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      className={cn(
-        "h-10 w-full flex items-center justify-center space-x-2 rounded-md border text-sm transition-all focus:outline-none",
-        pending
-          ? "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"
-          : "border-black bg-black text-white hover:bg-white hover:text-black",
-      )}
-      disabled={pending}
-    >
-      {pending ? <LoadingDots color="#808080" /> : <p>Create Person</p>}
-    </button>
-  );
-}
+
