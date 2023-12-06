@@ -7,6 +7,7 @@ import { Providers } from "./providers";
 import { Metadata } from "next";
 import { getSiteTheme } from "@/lib/fetchers/server";
 import { headers } from "next/headers";
+import { ModalProvider } from "@/components/modal/provider";
 
 function extractSubdomain(host: string) {
   const subdomainMatch = host.match(/^(?:www\.)?(.*?)\.(?:[^.]+\.[^.]+)$/);
@@ -71,7 +72,9 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
       </head>
       <body>
         <Providers>
-          {props.children}
+          <ModalProvider>
+            {props.children}
+          </ModalProvider>
           <Analytics />
         </Providers>
       </body>

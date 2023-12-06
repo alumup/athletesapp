@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useForm, useFieldArray } from 'react-hook-form';
 
-// @ts-expect-error
-import { experimental_useFormStatus as useFormStatus } from "react-dom";
+
+// import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "@/components/modal/provider";
@@ -13,7 +13,6 @@ import { toast } from "sonner";
 
 
 export default function NewPerson({ account }: { account: any }) {
-
 
   const supabase = createClientComponentClient();
   const [tags, setTags] = useState<any>([])
