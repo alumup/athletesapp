@@ -67,15 +67,5 @@ export default async function middleware(req: NextRequest) {
     );
   }
 
-  if (
-    hostname === "localhost:3000" ||
-    hostname === `${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`
-  ) {
-    return NextResponse.rewrite(new URL(`/home${path}`, req.url));
-  }
-
-  console.log("HOSTNAME", hostname)
-  console.log("NEXT DOMAIN", process.env.NEXT_PUBLIC_ROOT_DOMAIN )
-
-  return NextResponse.rewrite(new URL(`/${hostname}${path}`, req.url));
+  return NextResponse.rewrite(new URL(`/home${path}`, req.url));
 }
