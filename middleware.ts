@@ -73,6 +73,7 @@ export default async function middleware(req: NextRequest) {
   }
 
   console.log("HOSTNAME", hostname)
+  console.log("NEXT DOMAIN", process.env.NEXT_PUBLIC_ROOT_DOMAIN )
 
   return NextResponse.rewrite(new URL(`/${hostname}${path}`, req.url));
 }
