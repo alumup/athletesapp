@@ -67,9 +67,9 @@ export default async function middleware(req: NextRequest) {
 
   if (
     hostname === "localhost:3000" ||
-    hostname === "athletes.app"
+    hostname === `${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`
   ) {
-    return NextResponse.rewrite(new URL(`/home${path}`, req.url));
+    return NextResponse.rewrite(new URL(`/home${path}`, "https://athletes.app"));
   }
 
   console.log("REQUEST URL", req.url)
