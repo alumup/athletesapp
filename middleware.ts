@@ -12,6 +12,7 @@ export default async function middleware(req: NextRequest) {
   if (!hostname.includes(`${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)) {
     hostname = `${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`;
   }
+  console.log("HOSTNAME", hostname)
 
   const path = url.pathname;
 
