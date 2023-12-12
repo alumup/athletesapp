@@ -30,12 +30,6 @@ export function MainNav({
         Teams
       </Link>
       <Link
-        href="/sites"
-        className="text-sm font-medium text-muted-foreground transition-colors hover:text-zinc-900"
-      >
-        Sites
-      </Link>
-      <Link
         href="/events"
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-zinc-900"
       >
