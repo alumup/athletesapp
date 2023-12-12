@@ -17,10 +17,11 @@ export default function PeoplePage() {
   const [account, setAccount] = useState(null)
 
 
-  const fetchPeople = async () => {
+  const fetchPeople = async (account) => {
     const { data: people, error } = await supabase
-    .from("people")
-    .select("*")
+      .from("people")
+      .select("*")
+      .eq('account_id', account?.id)
     // need to get only people that belong to this account
 
     if (error) {
@@ -50,8 +51,8 @@ export default function PeoplePage() {
 
   
   useEffect(() => {
-    fetchAccount()
-    fetchPeople()
+    const account = fetchAccount()
+    account.then(acc => fetchPeople(acc))
     const channel = supabase
     .channel('people')
     .on("postgres_changes",

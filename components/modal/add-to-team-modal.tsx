@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useForm } from 'react-hook-form';
 import { useRouter } from "next/navigation";
+import { getAccount } from "@/lib/fetchers/client";
 // @ts-expect-error
 import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
@@ -36,10 +37,18 @@ export default function AddToTeamModal({people, onClose} : {people: any, onClose
   const [fees, setFees] = useState<Fee[]>([]);
 
   useEffect(() => {
-    async function fetchTeams() {
+
+    const fetchAccount = async () => {
+      const account = await getAccount()
+      return account
+    }
+
+
+    async function fetchTeams({ account }: { account: any }) {
       const { data: teams, error } = await supabase
         .from('teams')
         .select('*')
+        .eq('account_id', account?.id)
       if (error) {
         console.log("ERROR: ", error)
       } else {
@@ -48,10 +57,11 @@ export default function AddToTeamModal({people, onClose} : {people: any, onClose
       }
     }
 
-    async function fetchFees() {
+    async function fetchFees({account}: {account: any}) {
       const { data: fees, error } = await supabase
         .from('fees')
         .select('*')
+        .eq('account_id', account?.id)
       if (error) {
         console.log("ERROR: ", error)
       } else {
@@ -60,8 +70,14 @@ export default function AddToTeamModal({people, onClose} : {people: any, onClose
         setValue('fee', fees[0].id);
       }
     }
-    fetchTeams()
-    fetchFees()
+
+    
+    const account = fetchAccount();
+
+    account.then(acc => {
+      fetchTeams({ account: acc })
+      fetchFees({ account: acc })
+    })
   }, [])
 
 

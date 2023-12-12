@@ -45,8 +45,6 @@ import SendEmailModal from "@/components/modal/send-email-modal";
 import AddToTeamModal from "@/components/modal/add-to-team-modal";
 import SendButton from "@/components/modal-buttons/send-button";
 import IconButton from "@/components/modal-buttons/icon-button";
-import LoadingDots from "@/components/icons/loading-dots";
-import { toast } from "sonner";
 import LoadingSpinner from "@/components/form/loading-spinner";
 
 

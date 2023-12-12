@@ -173,7 +173,7 @@ const PortalPage = async () => {
      
       </div>
 
-      <div className="my-10 px-8 py-3 max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between border border-gray-300 rounded-xl shadow bg-white overflow-hidden">
+      {/* <div className="my-10 px-8 py-3 max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between border border-gray-300 rounded-xl shadow bg-white overflow-hidden">
         <div className="flex flex-col">
           <h3 className="text-md font-bold">Provo Bulldog Youth Uniform</h3>
           <h6 className="text-sm font-light">Buy your ProLook Reversible jersey.</h6>
@@ -184,7 +184,7 @@ const PortalPage = async () => {
             <ExternalLinkIcon className="w-4 h-4" />
           </a>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

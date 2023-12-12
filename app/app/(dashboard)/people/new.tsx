@@ -2,23 +2,21 @@
 import { useEffect, useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useForm, useFieldArray } from 'react-hook-form';
-
+import { useRouter } from 'next/navigation'
 
 // import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
-import { useModal } from "@/components/modal/provider";
-
 import { toast } from "sonner";
 
 
 export default function NewPerson({ account }: { account: any }) {
-
+  const router = useRouter()
   const supabase = createClientComponentClient();
   const [tags, setTags] = useState<any>([])
   const [submitting, setSubmitting] = useState<any>(false)
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const modal = useModal()
+
   const handleTagSelect = (event: any) => {
     const selectedTag = event.target.value;
     setSelectedTags(prevTags => [...prevTags, selectedTag]);
@@ -72,6 +70,7 @@ export default function NewPerson({ account }: { account: any }) {
           birthdate: data.birthdate === '' ? null : data.birthdate,
           grade: data.grade,
           tags: selectedTags,
+          dependent: data.dependent
         }
       ])
       .select('id')
@@ -101,8 +100,8 @@ export default function NewPerson({ account }: { account: any }) {
       }
     }
     setSubmitting(false)
-    modal?.hide()
     toast.success(`Successfully Created Person!`);
+    router.push(`/people/${newPerson.id}`)
 
   };
 
@@ -235,6 +234,22 @@ export default function NewPerson({ account }: { account: any }) {
             ))}
           </select>
 
+        </div>
+
+        <div className="flex flex-col space-y-2">
+          <label htmlFor="phone" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+            Dependent
+          </label>
+          <div className="flex items-center space-x-1">
+            <input
+              type="checkbox"
+              id="dependent"
+              className="rounded-md border border-stone-200 bg-stone-50 px-2 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+              {...register("dependent")}
+            />
+            <span className="text-sm font-medium text-gray-700 dark:text-stone-300">True</span>
+          </div>
+          {errors.dependent && <span className="text-sm text-red-500">This field is required</span>}
         </div>
 
         <div className="flex flex-col space-y-2">
