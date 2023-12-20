@@ -34,16 +34,26 @@ const PortalPage = async () => {
     .eq('id', user?.id)
     .single();
   
- 
-  
+
   if (profileError) console.log('Error fetching profile: ', profileError.message);
+  
+  const { data: people, error: peopleError } = await supabase
+    .from('people')
+    .select('*, accounts(*)')
+    .in('id', profile?.people_ids);
+  
+  if (peopleError) console.log('Error fetching people: ', peopleError.message);
+  
+ 
+  console.log("PEOPLE", people)
+
 
 
   async function fetchToRelationships() {
     const { data, error } = await supabase
       .from("relationships")
-      .select("*,from:person_id(*),to:relation_id(*)")
-      .eq("person_id", profile?.people?.id)
+      .select("*, from:person_id(*),to:relation_id(*, accounts(*))")
+      .in("person_id", profile?.people_ids)
 
     if (error) {
       console.error(error);
@@ -94,18 +104,21 @@ const PortalPage = async () => {
   return (
     <div className="py-5">
     
+    
       
     <div className="max-w-4xl mx-auto py-10 px-5 border border-gray-300 rounded-xl shadow bg-white">
       <div className="flex items-center justify-between border-b border-gray-300 w-full pb-3">
-        <h1 className="text-2xl font-bold">{profile?.name || fullName(profile)}</h1>
-      </div>
+          <h1 className="text-2xl font-bold">{profile?.name || fullName(profile)}</h1>
+          <button className="bg-black text-white text-sm rounded px-3 py-1">Edit Profile</button>
+        </div>
+        
 
       <div className="mt-10">
         {toRelationships?.map((relation, i) => (
           <div key={i} className="divide-y divide-gray-300">
             <div className="px-3 py-2 flex flex-col">
               <div className="flex justify-between items-center">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center space-x-2">
                   <span>
                     {relation.to.aau_number === null || relation.to.aau_number === "" ? (
                       <TooltipProvider>
@@ -121,8 +134,9 @@ const PortalPage = async () => {
                     ) : null}
                   </span>
                   <span className="font-bold text-md">
-                    {relation.to.name || fullName(relation.to)}
+                    {relation.to.name || fullName(relation.to)} 
                   </span>
+                  <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-900">{relation.to.accounts.name}</span>
                 </div>
            
                 <GenericButton cta={`Edit`} size="sm" variant="outline">
@@ -152,7 +166,7 @@ const PortalPage = async () => {
                     <div className="col-span-1">
                       <span className="text-sm">{roster.teams?.name} ({roster.fees?.name})</span>
                     </div>
-                    <div className="col-span-1 mt-5 md:mt-0 flex items-center justify-end">  
+                    <div className="col-span-1 mt-5 md:mt-2 flex items-center justify-end">  
                       {hasPaidFee(relation, roster) ? 
                         <CheckCircleIcon className="w-6 h-6 text-lime-500" /> :
                         <GenericButton size="sm" variant="default" cta={`Pay $${roster.fees?.amount}`}>
