@@ -29,10 +29,9 @@ export default function PersonPage({
   const [fromRelationships, setFromRelationships] = useState<any>(null);
   const [account, setAccount] = useState<any>(null);
   const [emailIsSending, setEmailIsSending] = useState<any>(false)
-  
+  const [profile, setProfile] = useState<boolean>(true)
 
   const invitePerson = async ({ person, account }: { person: any, account: any }) => {
-    console.log("INVITED PERSON: ", person)
     setEmailIsSending(true)
     const response = await fetch('/api/invite-person', {
       method: 'POST',
@@ -71,13 +70,30 @@ export default function PersonPage({
         setFromRelationships(fetchedFromRelationships);
 
         const fetchedAccount = await getAccount();
+
+        const p = await hasProfile({ ...fetchedPerson, primary_contacts: primaryPeople });
   
         setAccount(fetchedAccount);
+        setProfile(p)
       }
 
       fetchData();
     }, []);
   
+  async function hasProfile(person: any) {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("email", person?.primary_contacts[0].email)
+      .single();
+
+    if (error) {
+      console.error(error);
+      return false;
+    }
+
+    return data ? true : false;
+  }
 
     async function fetchPerson() {
       const { data, error } = await supabase
@@ -143,7 +159,7 @@ export default function PersonPage({
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          {!person?.dependent && (
+          {!person?.dependent && !profile && (
               <button onClick={() => invitePerson({ person, account })} className="px-3 py-1.5 bg-lime-500 text-white text-md rounded">
                 {emailIsSending ? <LoadingDots color='#808080' /> : <span>Invite to Portal</span>}
             </button>

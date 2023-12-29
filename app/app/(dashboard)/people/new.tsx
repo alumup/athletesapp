@@ -57,6 +57,9 @@ export default function NewPerson({ account }: { account: any }) {
   const onSubmit = async (data: any) => {
     // Create a new person
     setSubmitting(true)
+
+
+    // Continue with creating a new person if email doesn't exist
     const { data: newPerson, error: newPersonError } = await supabase
       .from('people')
       .insert([
@@ -81,7 +84,6 @@ export default function NewPerson({ account }: { account: any }) {
       return;
     }
 
-
     // Add guardians to the new person
     for (const relationship of data.relationships) {
       const { error: addRelationshipError } = await supabase
@@ -102,7 +104,6 @@ export default function NewPerson({ account }: { account: any }) {
     setSubmitting(false)
     toast.success(`Successfully Created Person!`);
     router.push(`/people/${newPerson.id}`)
-
   };
 
   return (

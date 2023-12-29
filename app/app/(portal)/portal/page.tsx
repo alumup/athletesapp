@@ -1,7 +1,7 @@
 import React from 'react';
 import { cookies } from 'next/headers'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import Link from 'next/link';
+
 import { fullName } from "@/lib/utils";
 import CreatePaymentModal from '@/components/modal/create-payment-modal';
 import GenericButton from "@/components/modal-buttons/generic-button";
@@ -34,26 +34,35 @@ const PortalPage = async () => {
     .eq('id', user?.id)
     .single();
   
-
   if (profileError) console.log('Error fetching profile: ', profileError.message);
   
-  const { data: people, error: peopleError } = await supabase
+  // Get all of the people that INDEPENDENTS and use the same email as the signed in user
+
+  const { data: independents, error: independentsError } = await supabase
     .from('people')
     .select('*, accounts(*)')
-    .in('id', profile?.people_ids);
+    .eq('dependent', false)
+    .eq('email', user?.email);
+
+  console.log("USER EMAIL", user?.email)
+
+  if (independentsError) console.log('Error fetching people with same email: ', independentsError.message);
   
-  if (peopleError) console.log('Error fetching people: ', peopleError.message);
-  
- 
-  console.log("PEOPLE", people)
+  console.log("Independents: ", independents)
+  console.log("Prrofile IDs: ", profile.people_ids)
 
 
 
   async function fetchToRelationships() {
+
+    let independentIds = independents?.map(independent => independent.id) || [];
+
+    console.log("IDS", independentIds)
+   
     const { data, error } = await supabase
       .from("relationships")
       .select("*, from:person_id(*),to:relation_id(*, accounts(*))")
-      .in("person_id", profile?.people_ids)
+      .in("person_id", independentIds)
 
     if (error) {
       console.error(error);
@@ -61,7 +70,7 @@ const PortalPage = async () => {
     }
 
     if (data) {
-      console.log(data)
+      console.log("Relationships", data)
     }
 
     return data

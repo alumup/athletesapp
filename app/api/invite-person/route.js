@@ -4,6 +4,7 @@ import resend from "@/lib/resend";
 
 
 const domain = process.env.NODE_ENV === 'production' ? 'https://app.athletes.app' : 'http://app.localhost:3000'
+const sign_in = process.env.NODE_ENV === 'production' ? 'https://app.athletes.app/login' : 'http://app.localhost:3000/login'
 
 export async function POST(req) {
   // get body data
@@ -11,7 +12,7 @@ export async function POST(req) {
   const account = data?.account;
   const person = data?.person;
   const subject = data?.subject;
-  const message = `You've been invited to join ${account.name} to manage your athletes. Click the link to get access to your account. ${domain}/login?email=${person.primary_contacts[0].email}&account_id=${account.id}&people_id=${person.id}&sign_up=true`;
+  const message = `You've been invited to join ${account.name} to manage your athletes. If you have an Athletes App account please ${sign_in}. If you don't click this link to get access to your account. ${domain}/login?email=${person.primary_contacts[0].email}&account_id=${account.id}&people_id=${person.id}&sign_up=true`;
 
 
 

@@ -27,6 +27,7 @@ export async function POST(request: Request) {
       data: {
         first_name: first_name,
         last_name: last_name,
+        email: email,
         account_id: account_id,
         people_id: people_id,
         people_ids: people_id,
