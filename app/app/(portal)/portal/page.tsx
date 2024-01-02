@@ -48,8 +48,8 @@ const PortalPage = async () => {
 
   if (independentsError) console.log('Error fetching people with same email: ', independentsError.message);
   
-  console.log("Independents: ", independents)
-  console.log("Prrofile IDs: ", profile.people_ids)
+  // console.log("Independents: ", independents)
+  // console.log("Prrofile IDs: ", profile.people_ids)
 
 
 
