@@ -30,7 +30,6 @@ export async function POST(request: Request) {
         email: email,
         account_id: account_id,
         people_id: people_id,
-        people_ids: people_id,
         role: 'general'
       }
     },
