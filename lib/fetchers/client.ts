@@ -163,7 +163,7 @@ export async function getPrimaryContact(person: any) {
 export async function getPrimaryContacts(person: any) {
   const supabase = createClientComponentClient();
 
-  if (person.dependent) {
+  if (person?.dependent) {
     try {
       // Fetch the primary relationships
       const { data: relationships, error: relationshipError } = await supabase

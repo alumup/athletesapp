@@ -8,6 +8,7 @@ import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { fullName } from "@/lib/utils";
+import { toast } from "sonner";
 
 
 const formatDate = (dateString: any) => {
@@ -19,7 +20,7 @@ const formatDate = (dateString: any) => {
 };
 
 export default function EditPerson({ person, account }: { person: any, account: any }) {
-  const { refresh } = useRouter();
+  const router = useRouter();
   const supabase = createClientComponentClient();
 
   const [tags, setTags] = useState<any>([])
@@ -96,7 +97,8 @@ export default function EditPerson({ person, account }: { person: any, account: 
         console.log("Failed to update relationship: ", updateRelationshipError);
       }
     }
-    refresh();
+    // Navigate to the person that was edited
+    toast.success(`${person.first_name} updated`)
   };
 
   useEffect(() => {
@@ -382,7 +384,7 @@ function SubmitForm() {
       )}
       disabled={pending}
     >
-      {pending ? <LoadingDots color="#808080" /> : <p>Create Person</p>}
+      {pending ? <LoadingDots color="#808080" /> : <p>Edit Person</p>}
     </button>
   );
 }
