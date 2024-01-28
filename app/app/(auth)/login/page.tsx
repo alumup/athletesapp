@@ -19,7 +19,7 @@ export default function Login() {
 
   const account_id = searchParams.get('account_id')
   const people_id = searchParams.get('people_id')
-  const email = decryptId(searchParams.get('email') as string)
+  const email = decryptId(searchParams.get('email') as string) || ''
   const sign_up = searchParams.get('sign_up')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -100,14 +100,15 @@ export default function Login() {
     setEmailIsSending(true); // Set emailIsSending to true before making the request
 
     const formData = new FormData(event.target);
+
     const response = await fetch('/api/auth/sign-up', {
       method: 'POST',
       body: formData,
     });
 
-    setEmailIsSending(false); // Set emailIsSending to false after the request is complete
 
     if (!response.ok) {
+      setEmailIsSending(false); // Set emailIsSending to false after the request is complete
       toast.error('Sign up failed')
     }
 
@@ -168,7 +169,7 @@ export default function Login() {
                   {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
                 </div>
               </div>
-              <button className="mt-6 bg-[#77dd77] rounded shadow px-4 py-2 text-black mb-2 w-full">
+              <button disabled={emailIsSending} className="mt-6 bg-[#77dd77] rounded shadow px-4 py-2 text-black mb-2 w-full">
                 {emailIsSending ? <LoadingDots color='#808080' /> : <span>Sign In</span>}
               </button>
             </form>
@@ -213,12 +214,11 @@ export default function Login() {
                 Email
               </label>
               <input
-                className="rounded-md px-4 py-2 bg-inherit border mb-6 disabled:opacity-75"
+                className="rounded-md px-4 py-2 bg-inherit border mb-6 disabled:opacity-75 cursor-not-allowed"
                 name="email"
                 placeholder="you@example.com"
-                defaultValue={email || ''}
+                value={email}
                 required
-                disabled
               />
               <label className="text-md" htmlFor="password">
                 Password
@@ -238,7 +238,7 @@ export default function Login() {
                   {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
                 </div>
               </div>
-              <button className="mt-6 bg-[#77dd77] rounded shadow px-4 py-2 text-black mb-2 w-full">
+              <button disabled={emailIsSending} className="mt-6 bg-[#77dd77] rounded shadow px-4 py-2 text-black mb-2 w-full">
                 {emailIsSending ? <LoadingDots color='#808080' /> : <span>Create Account</span>}
               </button>
 
