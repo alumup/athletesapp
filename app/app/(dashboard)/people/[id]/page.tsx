@@ -1,6 +1,6 @@
 
 'use client'
-import {useState, useEffect, Key} from 'react'
+import { useState, useEffect, Key } from 'react'
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Link from "next/link";
 import { getAccount, getPrimaryContacts } from "@/lib/fetchers/client";
@@ -14,6 +14,7 @@ import LoadingCircle from '@/components/icons/loading-circle';
 
 import SheetModal from "@/components/modal/sheet";
 import EditPerson from "./edit";
+import { encryptId } from '@/app/utils/ecryption';
 
 export default function PersonPage({
   params
@@ -33,12 +34,13 @@ export default function PersonPage({
 
   const invitePerson = async ({ person, account }: { person: any, account: any }) => {
     setEmailIsSending(true)
+    const email = encryptId(person.primary_contacts[0].email)
     const response = await fetch('/api/invite-person', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ person: person, account: account, subject: `You've Been Invited to Athletes App!` }),
+      body: JSON.stringify({ email: email, person: person, account: account, subject: `You've Been Invited to Athletes App!` }),
     });
 
     if (!response.ok) {
@@ -52,34 +54,34 @@ export default function PersonPage({
     }
   };
 
-    useEffect(() => {
-      async function fetchData() {
-        const fetchedPerson = await fetchPerson();
-        // Fetch primary contact for the person
-        const primaryPeople = await getPrimaryContacts(fetchedPerson);
+  useEffect(() => {
+    async function fetchData() {
+      const fetchedPerson = await fetchPerson();
+      // Fetch primary contact for the person
+      const primaryPeople = await getPrimaryContacts(fetchedPerson);
 
-        setPerson({
-          ...fetchedPerson,
-          primary_contacts: primaryPeople
-        });
+      setPerson({
+        ...fetchedPerson,
+        primary_contacts: primaryPeople
+      });
 
-        const fetchedToRelationships = await fetchToRelationships();
-        setToRelationships(fetchedToRelationships);
+      const fetchedToRelationships = await fetchToRelationships();
+      setToRelationships(fetchedToRelationships);
 
-        const fetchedFromRelationships = await fetchFromRelationships();
-        setFromRelationships(fetchedFromRelationships);
+      const fetchedFromRelationships = await fetchFromRelationships();
+      setFromRelationships(fetchedFromRelationships);
 
-        const fetchedAccount = await getAccount();
+      const fetchedAccount = await getAccount();
 
-        const p = await hasProfile({ ...fetchedPerson, primary_contacts: primaryPeople });
-  
-        setAccount(fetchedAccount);
-        setProfile(p)
-      }
+      const p = await hasProfile({ ...fetchedPerson, primary_contacts: primaryPeople });
 
-      fetchData();
-    }, []);
-  
+      setAccount(fetchedAccount);
+      setProfile(p)
+    }
+
+    fetchData();
+  }, []);
+
   async function hasProfile(person: any) {
     const { data, error } = await supabase
       .from("profiles")
@@ -95,48 +97,48 @@ export default function PersonPage({
     return data ? true : false;
   }
 
-    async function fetchPerson() {
-      const { data, error } = await supabase
-        .from("people")
-        .select("*")
-        .eq("id", params.id)
-        .single()
+  async function fetchPerson() {
+    const { data, error } = await supabase
+      .from("people")
+      .select("*")
+      .eq("id", params.id)
+      .single()
 
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      return data;
+    if (error) {
+      console.error(error);
+      return;
     }
 
-    async function fetchToRelationships() {
-      const { data, error } = await supabase
-        .from("relationships")
-        .select("*,from:person_id(*),to:relation_id(*)")
-        .eq("person_id", params.id)
+    return data;
+  }
 
-      if (error) {
-        console.error(error);
-        return;
-      }
+  async function fetchToRelationships() {
+    const { data, error } = await supabase
+      .from("relationships")
+      .select("*,from:person_id(*),to:relation_id(*)")
+      .eq("person_id", params.id)
 
-      return data;
+    if (error) {
+      console.error(error);
+      return;
     }
 
-    async function fetchFromRelationships() {
-      const { data, error } = await supabase
-        .from("relationships")
-        .select("*,from:person_id(*),to:relation_id(*)")
-        .eq("relation_id", params.id)
+    return data;
+  }
 
-      if (error) {
-        console.error(error);
-        return;
-      }
+  async function fetchFromRelationships() {
+    const { data, error } = await supabase
+      .from("relationships")
+      .select("*,from:person_id(*),to:relation_id(*)")
+      .eq("relation_id", params.id)
 
-      return data;
+    if (error) {
+      console.error(error);
+      return;
     }
+
+    return data;
+  }
 
   if (!person) {
     return (
@@ -145,65 +147,65 @@ export default function PersonPage({
       </div>
     )
   }
-  
+
   return (
     <div className="flex flex-col space-y-12">
-    <div className="flex flex-col space-y-6">
-      <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
-        <div className="flex flex-col space-y-0.5">
-          <h1 className="truncate font-cal text-base md:text-xl font-bold dark:text-white sm:w-auto sm:text-3xl">
-            {person?.name || fullName(person)}
-          </h1>
-          <p className="text-stone-500 dark:text-stone-400">
-            {person?.email}
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          {!person?.dependent && !profile && (
+      <div className="flex flex-col space-y-6">
+        <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
+          <div className="flex flex-col space-y-0.5">
+            <h1 className="truncate font-cal text-base md:text-xl font-bold dark:text-white sm:w-auto sm:text-3xl">
+              {person?.name || fullName(person)}
+            </h1>
+            <p className="text-stone-500 dark:text-stone-400">
+              {person?.email}
+            </p>
+          </div>
+          <div className="flex items-center space-x-2">
+            {!person?.dependent && !profile && (
               <button onClick={() => invitePerson({ person, account })} className="px-3 py-1.5 bg-lime-500 text-white text-md rounded">
                 {emailIsSending ? <LoadingDots color='#808080' /> : <span>Invite to Portal</span>}
-            </button>
-          )}
+              </button>
+            )}
 
             <SheetModal cta={`Edit ${person?.first_name}`} title={`Edit ${person?.first_name}`} description="Edit this person">
               <EditPerson person={person} account={account} />
             </SheetModal>
+          </div>
+        </div>
+        <div className="mt-10 space-y-5">
+          <h2 className="mb-3 font-bold text-zinc-500 text-xs uppercase">Relationships</h2>
+          {toRelationships?.map((relation: any, i: Key | null | undefined) => (
+            <div key={i}>
+              <div className="border border-stone-200 px-3 py-2 rounded flex items-center space-x-1">
+                <div className="flex flex-col">
+                  <span>{relation.name} of</span>
+                  <a href={`/people/${relation.to.id}`} className="font-bold text-sm">{relation.to.name || fullName(relation.to)}</a>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {fromRelationships?.map((relation: any, i: Key | null | undefined) => (
+            <div key={i}>
+              <div className="border border-stone-200 px-3 py-2 rounded flex items-center space-x-1">
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex flex-col">
+                    <span>{relation.name} is</span>
+                    <Link href={`/people/${relation.from.id}`} className="font-bold text-sm">{relation.from.name || fullName(relation.to)}</Link>
+                  </div>
+                  <div>
+                    {relation.primary ? <CheckBadgeIcon className="w-8 h-8 text-lime-500" /> : ""}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+
+
+
         </div>
       </div>
-      <div className="mt-10 space-y-5">
-        <h2 className="mb-3 font-bold text-zinc-500 text-xs uppercase">Relationships</h2>
-        {toRelationships?.map((relation: any, i: Key | null | undefined) => (
-          <div key={i}>
-            <div className="border border-stone-200 px-3 py-2 rounded flex items-center space-x-1">
-              <div className="flex flex-col">
-                <span>{relation.name} of</span>
-                <a href={`/people/${relation.to.id}`} className="font-bold text-sm">{relation.to.name || fullName(relation.to)}</a>
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {fromRelationships?.map((relation: any, i: Key | null | undefined) => (
-          <div key={i}>
-            <div className="border border-stone-200 px-3 py-2 rounded flex items-center space-x-1">
-              <div className="flex items-center justify-between w-full">
-                <div className="flex flex-col">
-                  <span>{relation.name} is</span>
-                  <Link href={`/people/${relation.from.id}`} className="font-bold text-sm">{relation.from.name || fullName(relation.to)}</Link>
-                </div>
-                <div>
-                  {relation.primary ? <CheckBadgeIcon className="w-8 h-8 text-lime-500" /> : ""}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-    
-
-        
-      </div>
     </div>
-  </div>
-  
+
   )
 }

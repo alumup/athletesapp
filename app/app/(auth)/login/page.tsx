@@ -8,6 +8,7 @@ import LoadingDots from '@/components/icons/loading-dots'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import { decryptId } from '@/app/utils/ecryption'
 
 
 export default function Login() {
@@ -18,7 +19,7 @@ export default function Login() {
 
   const account_id = searchParams.get('account_id')
   const people_id = searchParams.get('people_id')
-  const email = searchParams.get('email')
+  const email = decryptId(searchParams.get('email') as string)
   const sign_up = searchParams.get('sign_up')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -46,7 +47,7 @@ export default function Login() {
   }, [people_id])
 
   useEffect(() => {
-   
+
     const fetchAccountData = async () => {
       if (account_id) {
         console.log("ACCOUNT ID", account_id)
@@ -120,19 +121,19 @@ export default function Login() {
       <div className="flex items-center justify-center">
         <img src="athletes.svg" className="w-[150px] h-auto" />
       </div>
-   
+
       <div className="mt-5 p-3 bg-gray-50 border border-gray-100 rounded shadow w-[300px] md:w-[400px]">
         {account?.name && (
           <div className="bg-gray-100 border border-gray-300 p-5 rounded">
             <p className="text-sm text-center">Sign up to manage your <span className="font-bold">{account?.name}</span> athletes.</p>
           </div>
         )}
- 
-      <Tabs defaultValue={signUp ? 'signUp' : 'signIn'} className="mt-5 w-full">
-        <TabsList className="grid w-full grid-cols-2 gap-2 bg-gray-200 border border-gray-300 rounded p-1 mb-5">
-          <TabsTrigger value="signIn" className="rounded data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 bg-gray-200 text-zinc-900">Sign In</TabsTrigger>
-          <TabsTrigger value="signUp" className="rounded data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 bg-gray-200 text-zinc-900">Sign Up</TabsTrigger>
-        </TabsList>
+
+        <Tabs defaultValue={signUp ? 'signUp' : 'signIn'} className="mt-5 w-full">
+          <TabsList className="grid w-full grid-cols-2 gap-2 bg-gray-200 border border-gray-300 rounded p-1 mb-5">
+            <TabsTrigger value="signIn" className="rounded data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 bg-gray-200 text-zinc-900">Sign In</TabsTrigger>
+            <TabsTrigger value="signUp" className="rounded data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 bg-gray-200 text-zinc-900">Sign Up</TabsTrigger>
+          </TabsList>
 
           <TabsContent value="signIn">
             <Messages />
@@ -207,11 +208,12 @@ export default function Login() {
                 Email
               </label>
               <input
-                className="rounded-md px-4 py-2 bg-inherit border mb-6"
+                className="rounded-md px-4 py-2 bg-inherit border mb-6 disabled:opacity-75"
                 name="email"
                 placeholder="you@example.com"
                 defaultValue={email || ''}
                 required
+                disabled
               />
               <label className="text-md" htmlFor="password">
                 Password
@@ -224,7 +226,7 @@ export default function Login() {
                   placeholder="••••••••"
                   required
                 />
-                <div 
+                <div
                   className="absolute z-30 inset-y-0 right-3 flex items-center"
                   onClick={() => setShowPassword(!showPassword)}
                 >
@@ -237,8 +239,8 @@ export default function Login() {
 
             </form>
           </TabsContent>
-          </Tabs>
-        </div>
+        </Tabs>
+      </div>
       <div className="mt-5 flex justify-center p-2 text-[10px]">
         Powered by Athletes App.
       </div>

@@ -12,7 +12,8 @@ export async function POST(req) {
   const account = data?.account;
   const person = data?.person;
   const subject = data?.subject;
-  const message = `You've been invited to join ${account.name} to manage your athletes. If you have an Athletes App account please ${sign_in}. If you don't click this link to get access to your account. ${domain}/login?email=${person.primary_contacts[0].email}&account_id=${account.id}&people_id=${person.id}&sign_up=true`;
+  const email = data?.email;
+  const message = `You've been invited to join ${account.name} to manage your athletes. If you have an Athletes App account please ${sign_in}. If you don't click this link to get access to your account. ${domain}/login?email=${email}&account_id=${account.id}&people_id=${person.id}&sign_up=true`;
 
 
 
