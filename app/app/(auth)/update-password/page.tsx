@@ -1,6 +1,8 @@
 'use client'
 
 import LoadingDots from "@/components/icons/loading-dots"
+import { EyeSlashIcon } from "@heroicons/react/24/outline"
+import { EyeIcon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
 import { useState } from "react"
@@ -9,7 +11,7 @@ import { toast } from "sonner"
 export default function UpdatePassword() {
     const router = useRouter()
     const [emailIsSending, setEmailIsSending] = useState(false)
-    const [password, setPassword] = useState("")
+    const [showPassword, setShowPassword] = useState(false)
     const handleChangePassword = async (event: any) => {
         event.preventDefault()
 
@@ -47,11 +49,21 @@ export default function UpdatePassword() {
                     <label className="text-md" htmlFor="email">
                         Password
                     </label>
-                    <input
-                        className="rounded-md px-4 py-2 bg-inherit border mb-6"
-                        name="password"
-                        required
-                    />
+                    <div className="relative overflow-hidden flex items-center justify-center w-full">
+                        <input
+                            className="w-full  border bg-inherit rounded-md px-4 py-2 pr-10"
+                            type={showPassword ? "text" : "password"}
+                            name="password"
+                            placeholder="••••••••"
+                            required
+                        />
+                        <div
+                            className="absolute z-30 inset-y-0 right-3 flex items-center"
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                        </div>
+                    </div>
 
                     <button className="mt-3 bg-[#77dd77] rounded shadow px-4 py-2 text-black mb-2 w-full">
                         {emailIsSending ? <LoadingDots color='#808080' /> : <span>Update Password</span>}
