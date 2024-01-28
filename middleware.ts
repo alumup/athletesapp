@@ -12,7 +12,7 @@ export default async function middleware(req: NextRequest) {
   if (!hostname.includes(`${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)) {
     hostname = `${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`;
   }
-  console.log("HOSTNAME", hostname)
+  console.log("HOSTNAME", hostname);
 
   const path = url.pathname;
 
@@ -29,38 +29,43 @@ export default async function middleware(req: NextRequest) {
       console.log("ERROR IN MIDDLEWARE: ", error.message);
     }
 
-    if (!session && path !== "/login") {
+    const noRedirectPaths = ["/login", "/forgot-password", "/update-password"];
+
+    if (!session && !noRedirectPaths.includes(path)) {
       return NextResponse.redirect(new URL("/login", req.url));
     } else if (session && path == "/login") {
       return NextResponse.redirect(new URL("/", req.url));
     }
 
-    // Check user role and redirect if role is 'general'
-    const { data: { user } } = await supabase.auth.getUser();
+    if (session) {
+      // Check user role and redirect if role is 'general'
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    if (user) {
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user?.id)
-        .single();
-  
-      if (profileError) {
-        console.log("ERROR IN MIDDLEWARE: ", profileError.message);
-      }
-  
-      const role = profile?.role;
+      if (user) {
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user?.id)
+          .single();
 
-      if (role === 'general' && path !== '/portal') {
-        const redirectUrl = process.env.NODE_ENV === 'production'
-          ? `https://app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/portal`
-          : `http://localhost:3000/portal`;
+        if (profileError) {
+          console.log("ERROR IN MIDDLEWARE: ", profileError.message);
+        }
 
-        return NextResponse.redirect(redirectUrl);
+        const role = profile?.role;
+
+        if (role === "general" && path !== "/portal") {
+          const redirectUrl =
+            process.env.NODE_ENV === "production"
+              ? `https://app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/portal`
+              : `http://localhost:3000/portal`;
+
+          return NextResponse.redirect(redirectUrl);
+        }
       }
     }
-    
-
 
     return NextResponse.rewrite(
       new URL(`/app${path === "/" ? "" : path}`, req.url),
@@ -73,7 +78,6 @@ export default async function middleware(req: NextRequest) {
   ) {
     return NextResponse.rewrite(new URL(`/home${path}`, req.url));
   }
-
 
   return NextResponse.rewrite(new URL(`/${hostname}${path}`, req.url));
 }

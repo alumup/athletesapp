@@ -7,7 +7,6 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   const requestUrl = new URL(request.url);
   const formData = await request.formData();
-  const email = String(formData.get("email"));
   const password = String(formData.get("password"));
 
   const supabase = createRouteHandlerClient({ cookies });
@@ -17,36 +16,26 @@ export async function POST(request: Request) {
       ? "https://app.athletes.app"
       : "http://app.localhost:3000";
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
+  const { data, error } = await supabase.auth.updateUser({
+    password: password,
   });
 
-  console.log("RETURN ANYTHING");
-
   if (error) {
-    console.log("ERROR", error);
-    // return NextResponse.redirect(
-    //   `${domain}/login?error=Could not authenticate user`,
-    //   {
-    //     // a 301 status is required to redirect from a POST to a GET route
-    //     status: 301,
-    //   }
-    // )
+    console.log("ERROR - reset token", error);
+
     return NextResponse.json(
       {
-        error: "Could not authenticate user",
+        error: "Could not sent reset password email",
         ok: false,
       },
       {
-        status: 401,
+        status: 400,
       },
     );
   }
 
   return NextResponse.json(
     {
-      message: "Login success",
       ok: true,
     },
     {
