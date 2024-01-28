@@ -83,9 +83,9 @@ export default function Login() {
       body: formData,
     });
 
-    setEmailIsSending(false); // Set emailIsSending to false after the request is complete
 
     if (!response.ok) {
+      setEmailIsSending(false); // Set emailIsSending to false after the request is complete
       toast.error('Sign in failed')
     }
 
@@ -172,6 +172,11 @@ export default function Login() {
                 {emailIsSending ? <LoadingDots color='#808080' /> : <span>Sign In</span>}
               </button>
             </form>
+            <div className="mt-5 flex justify-center p-2 text-lg cursor-pointer text-black hover:text-gray-400" onClick={() => {
+              router.push("/forgot-password")
+            }}>
+              Forgot password?
+            </div>
           </TabsContent>
 
           <TabsContent value="signUp">

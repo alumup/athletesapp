@@ -58,7 +58,7 @@ export default function ForgotPassword() {
             {emailIsSending ? <LoadingDots color='#808080' /> : <span>Send me a reset link</span>}
           </button>
           <div className="mt-3 flex justify-center p-2">
-            <Link className='text-black hover:text-blue-300' href={"/"} >Cancel</Link>
+            <Link className='text-black hover:text-gray-300' href={"/"} >Cancel</Link>
           </div>
         </form>
       </div>
