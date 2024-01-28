@@ -86,7 +86,7 @@ export default function Login() {
 
     if (!response.ok) {
       setEmailIsSending(false); // Set emailIsSending to false after the request is complete
-      toast.error('Sign in failed')
+      toast.error('Invalid login credentials')
     }
 
     if (response.ok) {
