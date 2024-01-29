@@ -2,10 +2,12 @@
 
 import LoadingDots from "@/components/icons/loading-dots"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
 export default function ForgotPassword() {
+  const router = useRouter()
   const [emailIsSending, setEmailIsSending] = useState(false)
   const [email, setEmail] = useState("")
   const handleForgotPassword = async (event: any) => {
@@ -27,6 +29,7 @@ export default function ForgotPassword() {
     if (response.ok) {
       setEmailIsSending(false)
       toast.success("Reset token sent successfully.")
+      router.push("/")
     }
   }
 

@@ -2,6 +2,7 @@
 
 import LoadingDots from "@/components/icons/loading-dots"
 import { EyeSlashIcon } from "@heroicons/react/24/outline"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { EyeIcon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
@@ -10,29 +11,31 @@ import { toast } from "sonner"
 
 export default function UpdatePassword() {
     const router = useRouter()
+    const supabase = createClientComponentClient()
     const [emailIsSending, setEmailIsSending] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
+
     const handleChangePassword = async (event: any) => {
         event.preventDefault()
 
         setEmailIsSending(true)
 
         const formData = new FormData(event.target);
-        const response = await fetch("/api/auth/update-password", {
-            method: "POST",
-            body: formData
-        })
+        const password = String(formData.get("password"));
 
-        if (!response.ok) {
+        const { error } = await supabase.auth.updateUser({
+            password: password,
+        });
+
+        if (error) {
             setEmailIsSending(false)
+            console.log(error, "<< Error updating password")
             toast.error("Error updating password.")
-        }
-
-        if (response.ok) {
+            return
+        } else {
             // setEmailIsSending(false)
             toast.success("Password set successfully")
-            router.push("/portal")
-
+            router.push("/")
         }
     }
 
