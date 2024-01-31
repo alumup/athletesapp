@@ -23,11 +23,11 @@ const ThankYouPage = () => {
     return (
         <>
             <div className="max-w-4xl mx-auto py-10 px-5 border border-gray-300 rounded-xl shadow bg-white">
-                <div className="cursor  rounded">
+                <a href={"/portal"} className="cursor  rounded">
                     <span className="flex items-center space-x-2 text-sm text-gray-700">
-                        <ArrowLeftIcon onClick={() => router.push("/portal")} className="h-8 w-8 hover:bg-gray-100 cursor-pointer" />
+                        <ArrowLeftIcon className="h-8 w-8 hover:bg-gray-100 cursor-pointer" />
                     </span>
-                </div>
+                </a>
                 <div className='mt-10'>
                     <div className="bg-white p-6  md:mx-auto">
                         <CheckCircle className='h-35 w-35 mx-auto my-6' />
