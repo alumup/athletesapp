@@ -47,10 +47,10 @@ export default async function EventsPage() {
                   {event.name}
                 </h2>
                 <p className="font-light text-sm dark:text-white sm:w-auto sm:text-base">
-                  {event.location.name}
+                  {event.location?.name}
                 </p>
                 <p className="font-light text-sm dark:text-white sm:w-auto sm:text-base">
-                {event.schedule.start_date} - {event.schedule.end_date}
+                {event.schedule?.start_date} - {event.schedule?.end_date}
               </p>
              </div>
             </Link>
