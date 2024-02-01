@@ -7,6 +7,7 @@ interface ModalContextProps {
   show: (content: ReactNode) => void;
   hide: () => void;
   isModalOpen: boolean;
+  updateModalContent: (content: ReactNode) => void;
 }
 
 const ModalContext = createContext<ModalContextProps | undefined>(undefined);
@@ -27,8 +28,12 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     }, 300); // Adjust this timeout as per your transition duration
   };
 
+  const updateModalContent = (content: ReactNode) => {
+    setModalContent(content)
+  }
+
   return (
-    <ModalContext.Provider value={{ show, hide, isModalOpen: showModal }}>
+    <ModalContext.Provider value={{ show, hide, isModalOpen: showModal, updateModalContent }}>
       {children}
       {showModal && (
         <Modal showModal={showModal} setShowModal={setShowModal}>

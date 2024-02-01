@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { toast } from "sonner";
 import { useRouter } from 'next/navigation'
+import LoadingSpinner from "./form/loading-spinner";
 
 
-export const StripeElements = ({modal, fee, person}) => {
+export const StripeElements = ({ modal, fee, person }) => {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter()
@@ -84,8 +85,9 @@ export const StripeElements = ({modal, fee, person}) => {
     } else {
       setMessage({ type: 'success', text: "Payment succeeded!" });
       setPaymentSuccess(true);
-      modal.hide()
       router.refresh();
+      router.push('/thank-you');
+      modal.show(<LoadingSpinner />)
       toast.success("Payment successful!")
     }
 
@@ -114,7 +116,7 @@ export const StripeElements = ({modal, fee, person}) => {
           <h3 className="font-bold text-base md:text-xl">{fee?.name}</h3>
           <span className="font-light text-base">{person?.name}</span>
         </div>
-        
+
         <button
           disabled={isLoading || !stripe || !elements}
           id="submit"

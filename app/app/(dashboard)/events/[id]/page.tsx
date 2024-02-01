@@ -71,7 +71,7 @@ export default async function EventPage({
             {event.name}
           </h1>
           <p className="text-stone-500 dark:text-stone-400">
-              {event.location.name}
+              {event.location?.name}
             </p>
         </div>
 
