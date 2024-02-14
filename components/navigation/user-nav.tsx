@@ -16,6 +16,7 @@ import { getAccountWithDomain } from "@/lib/fetchers/client";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 
 export function UserNav() {
   const params = useParams();
@@ -80,7 +81,10 @@ export function UserNav() {
             <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            Settings
+            <Link href={"/settings"}>
+              Settings
+
+            </Link>
             <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuGroup>
