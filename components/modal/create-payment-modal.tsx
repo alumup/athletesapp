@@ -13,20 +13,31 @@ import LoadingSpinner from "../form/loading-spinner";
 // Make sure to call loadStripe outside of a component’s render to avoid
 // recreating the Stripe object on every render.
 // This is your test publishable API key.
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+// const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
-export default function CreatePaymentModal({account, profile, person, fee, roster}: {account: any, profile: any, person: any, fee: any, roster:any}) {
- 
+export default function CreatePaymentModal({ account, profile, person, fee, roster }: { account: any, profile: any, person: any, fee: any, roster: any }) {
+
   const modal = useModal();
 
   const [clientSecret, setClientSecret] = useState("");
   const [hasRendered, setHasRendered] = useState(false);
-
-  
+  const [stripePromise, setStripePromise] = useState<any>(null)
 
 
   // This useEffect hook changes hasRendered to true after the component has mounted
   useEffect(() => {
+    const setupStripe = async () => {
+      const accountDetais = JSON.parse(account?.value);
+      const loadedStripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
+        {
+          stripeAccount: accountDetais.stripe_id
+        });
+
+      setStripePromise(loadedStripe)
+    }
+
+    setupStripe()
+
     setHasRendered(true);
   }, []);
 
@@ -76,13 +87,13 @@ export default function CreatePaymentModal({account, profile, person, fee, roste
             </div>
           )}
 
-          {clientSecret && (
+          {clientSecret && stripePromise && (
             <Elements options={options} stripe={stripePromise}>
               <StripeElements modal={modal} fee={fee} person={person} />
             </Elements>
           )}
         </div>
- 
+
       </div>
     </div>
   );
