@@ -69,8 +69,33 @@ export async function POST(req: NextRequest) {
 
     if (payment && payment.length === 0) {
       // Create a PaymentIntent with the customers amount and currency
-      const paymentIntent = await stripe.paymentIntents.create(
-        {
+      let paymentIntent;
+      if (profile.accounts.stripe_id && profile.accounts.application_fee) {
+        paymentIntent = await stripe.paymentIntents.create(
+          {
+            amount: fee.amount * 100,
+            customer: customer.id,
+            currency: "usd",
+            setup_future_usage: "off_session",
+            receipt_email: profile.email,
+            automatic_payment_methods: {
+              enabled: true,
+            },
+            application_fee_amount:
+              fee.amount * profile.accounts.application_fee,
+            metadata: {
+              fee_id: fee.id,
+              roster_id: roster.id,
+              profile_id: profile.id,
+              person_id: person.id,
+            },
+          },
+          {
+            stripeAccount: profile.accounts.stripe_id,
+          },
+        );
+      } else {
+        paymentIntent = await stripe.paymentIntents.create({
           amount: fee.amount * 100,
           customer: customer.id,
           currency: "usd",
@@ -79,18 +104,15 @@ export async function POST(req: NextRequest) {
           automatic_payment_methods: {
             enabled: true,
           },
-          application_fee_amount: fee.amount * profile.accounts.application_fee,
+
           metadata: {
             fee_id: fee.id,
             roster_id: roster.id,
             profile_id: profile.id,
             person_id: person.id,
           },
-        },
-        {
-          stripeAccount: profile.accounts.stripe_id,
-        },
-      );
+        });
+      }
 
       if (!paymentIntent) throw new Error("paymentIntent could not be created");
 

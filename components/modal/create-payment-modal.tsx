@@ -28,10 +28,16 @@ export default function CreatePaymentModal({ account, profile, person, fee, rost
   useEffect(() => {
     const setupStripe = async () => {
       const accountDetais = JSON.parse(account?.value);
-      const loadedStripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
-        {
-          stripeAccount: accountDetais.stripe_id
-        });
+      let loadedStripe;
+      if (accountDetais.stripe_id) {
+        loadedStripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
+          {
+            stripeAccount: accountDetais.stripe_id
+          });
+
+      } else {
+        loadedStripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+      }
 
       setStripePromise(loadedStripe)
     }
