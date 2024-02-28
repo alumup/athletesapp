@@ -8,24 +8,24 @@ module.exports = {
     './app/**/*.{js,ts,jsx,tsx,json}',
 
   ],
-  safelist: [
-    'relative',
-    'absolute',
-    {
-      pattern: /(bg|text|border)-./
-    },
+  // safelist: [
+  //   'relative',
+  //   'absolute',
+  //   {
+  //     pattern: /(bg|text|border)-./
+  //   },
 
-    {
-      pattern: /(p|px|py)-./
-    },
-    {
-      pattern: /(w|h)-./
-    },
-    {
-      pattern: /text-+./,
-      variants: ['sm', 'md', 'lg']
-    },
-  ],
+  //   {
+  //     pattern: /(p|px|py)-./
+  //   },
+  //   {
+  //     pattern: /(w|h)-./
+  //   },
+  //   {
+  //     pattern: /text-+./,
+  //     variants: ['sm', 'md', 'lg']
+  //   },
+  // ],
   theme: {
     extend: {
       animation: {
