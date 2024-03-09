@@ -24,7 +24,6 @@ const InvoicePage = ({ params }: {
                 .eq("status", "succeeded")
 
             if (data && !error) {
-                console.log(data, "<< data\n\n")
                 setPayments(data)
             }
         }
@@ -67,7 +66,7 @@ const InvoicePage = ({ params }: {
                                                     </tr>
                                                 </thead>
                                                 <tbody className="bg-white divide-y divide-gray-200">
-                                                    {payments.map((payment) => (
+                                                    {payments?.map((payment) => (
                                                         <tr key={payment.id}>
                                                             <td className="px-6 py-4 whitespace-nowrap">
                                                                 <div className="text-sm text-gray-900">{payment.fees?.name}</div>

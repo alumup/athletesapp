@@ -115,6 +115,7 @@ const PortalPage = async () => {
         <div className="flex items-center justify-between border-b border-gray-300 w-full pb-3">
           <h1 className="text-2xl font-bold">{profile?.name || fullName(profile)}</h1>
           <div>
+            <Link href={`/portal/dependents/${profile.people_id}`} className="bg-grey text-black text-sm border  rounded px-3 py-1 mx-2">Dependents</Link>
             <Link href={`/portal/invoices/${profile.id}`} className="bg-grey text-black text-sm border  rounded px-3 py-1 mx-2">Payments</Link>
             <button className="bg-black text-white text-sm rounded px-3 py-1">Edit Profile</button>
           </div>
