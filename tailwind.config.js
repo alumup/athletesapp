@@ -2,30 +2,10 @@
 
 module.exports = {
   darkMode: "class",
-  mode: 'jit',
   content: [
     './components/**/*.{js,ts,jsx,tsx,json}',
     './app/**/*.{js,ts,jsx,tsx,json}',
-
   ],
-  // safelist: [
-  //   'relative',
-  //   'absolute',
-  //   {
-  //     pattern: /(bg|text|border)-./
-  //   },
-
-  //   {
-  //     pattern: /(p|px|py)-./
-  //   },
-  //   {
-  //     pattern: /(w|h)-./
-  //   },
-  //   {
-  //     pattern: /text-+./,
-  //     variants: ['sm', 'md', 'lg']
-  //   },
-  // ],
   theme: {
     extend: {
       animation: {
