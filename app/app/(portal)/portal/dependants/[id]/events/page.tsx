@@ -20,10 +20,22 @@ const TeamEvents = ({ params }: { params: { id: string } }) => {
 
   useEffect(() => {
     const getEvents = async () => {
+      const {
+        data: { user },
+        error: errorUser,
+      } = await supabase.auth.getUser();
+      if (errorUser) console.log("Error fetching user: ", errorUser.message);
+
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("*, accounts(*, senders(*)), people(*)")
+        .eq("id", user?.id)
+        .single();
+
       const { data, error } = await supabase
         .from("events")
         .select("*,accounts(*), fees(*), rsvp(*)")
-        .eq("account_id", "0b2390b7-8da9-44c8-b55e-38d5a29115f2");
+        .eq("account_id", profile.accounts.id);
 
       if (!error && data) setEvents(data);
 

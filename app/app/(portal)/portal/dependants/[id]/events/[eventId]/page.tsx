@@ -30,18 +30,6 @@ const EventDetails = ({
   const supabase = createClientComponentClient();
 
   useEffect(() => {
-    const getAccount = async () => {
-      const { data, error } = await supabase
-        .from("accounts")
-        .select("*,senders(*)")
-        .eq("id", "c9a64bac-337a-4037-870a-0ff4bfd8909a")
-        .single();
-
-      setAccount(data);
-    };
-
-    getAccount();
-
     const getUser = async () => {
       const {
         data: { user },
@@ -51,14 +39,17 @@ const EventDetails = ({
 
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("*, accounts(*), people(*)")
+        .select("*, accounts(*, senders(*)), people(*)")
         .eq("id", user?.id)
         .single();
+
+      console.log(profile, "<< profile");
 
       if (profileError)
         console.log("Error fetching profile: ", profileError.message);
 
       setUser(profile);
+      setAccount(profile.accounts);
     };
 
     getUser();
