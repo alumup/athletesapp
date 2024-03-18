@@ -1,8 +1,8 @@
-'use client'
-import React, { useEffect } from 'react';
-import { GridTileImage } from '@/components/grid/tile';
-import { useShopify } from '@/components/shopify-provider';
-import { useThemeData } from '@/providers/theme-provider';
+"use client";
+import React, { useEffect } from "react";
+import { GridTileImage } from "@/components/grid/tile";
+import { useShopify } from "@/components/shopify-provider";
+import { useThemeData } from "@/providers/theme-provider";
 
 function Products() {
   const shopify = useShopify();
@@ -13,19 +13,17 @@ function Products() {
     const getProducts = async () => {
       try {
         const products = await shopify?.getCollectionProducts({
-          collection: 'products',
+          collection: "products",
           reverse: true,
-          sortKey: 'CREATED_AT',
+          sortKey: "CREATED_AT",
         });
         setProducts(products);
       } catch (error) {
-        console.error('Failed to fetch products', error);
+        console.error("Failed to fetch products", error);
       }
-    }
+    };
 
     getProducts();
-
-
   }, [shopify]);
 
   // useEffect(() => {
@@ -35,24 +33,30 @@ function Products() {
   // }, [data?.theme?.value, theme, applyTheme]);
 
   return (
-    <div className={`theme default py-10 px-3 md:px-5 bg-background text-foreground`}>
-      <div className={`max-w-7xl w-full mx-auto h-full`}>
-        <h2 className="mb-4 text-2xl font-bold font-primary">Products</h2>
-        <ul className="grid grid-cols-1 md:grid-cols-5 gap-5">
-          {products && (
+    <div
+      className={`theme default bg-background px-3 py-10 text-foreground md:px-5`}
+    >
+      <div className={`mx-auto h-full w-full max-w-7xl`}>
+        <h2 className="mb-4 font-primary text-2xl font-bold">Products</h2>
+        <ul className="grid grid-cols-1 gap-5 md:grid-cols-5">
+          {products &&
             products?.map((product) => (
               <li
                 key={product.handle}
-                className="aspect-square w-full col-span-1"
+                className="col-span-1 aspect-square w-full"
               >
-                <a className="relative h-full w-full" href={`/products/${product.handle}`}>
+                <a
+                  className="relative h-full w-full"
+                  href={`/products/${product.handle}`}
+                >
                   <GridTileImage
                     alt={product.title}
                     label={{
                       title: product.title,
                       amount: product.priceRange.maxVariantPrice.amount,
-                      currencyCode: product.priceRange.maxVariantPrice.currencyCode,
-                      position: 'bottom'
+                      currencyCode:
+                        product.priceRange.maxVariantPrice.currencyCode,
+                      position: "bottom",
                     }}
                     src={product.featuredImage?.url}
                     fill
@@ -60,9 +64,7 @@ function Products() {
                   />
                 </a>
               </li>
-            )))
-          }
-
+            ))}
         </ul>
       </div>
     </div>

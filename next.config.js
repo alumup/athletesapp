@@ -16,7 +16,7 @@ module.exports = {
       "flag.vercel.app",
       "illustrations.popsy.co",
       "zkoxnmdrhgbjovfvparc.supabase.co",
-      "cdn.shopify.com"
+      "cdn.shopify.com",
     ],
   },
   reactStrictMode: false,

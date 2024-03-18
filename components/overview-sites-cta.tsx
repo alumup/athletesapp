@@ -5,12 +5,9 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 
 export default async function OverviewSitesCTA() {
-
   const supabase = createServerComponentClient({ cookies });
 
-  const {data: sites, error } = await supabase
-    .from('sites')
-    .select('*')
+  const { data: sites, error } = await supabase.from("sites").select("*");
 
   return sites && sites.length > 0 ? (
     <Link
@@ -23,6 +20,8 @@ export default async function OverviewSitesCTA() {
     // <CreateSiteButton>
     //   <CreateSiteModal />
     // </CreateSiteButton>
-    <button className="bg-zinc-900 text-zinc-50 px-5 py-3 rounded">Button</button>
+    <button className="rounded bg-zinc-900 px-5 py-3 text-zinc-50">
+      Button
+    </button>
   );
 }

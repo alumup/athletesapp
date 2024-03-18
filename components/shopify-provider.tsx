@@ -39,7 +39,10 @@ export function useShopify() {
 export function useCart() {
   const shopify = useShopify();
   const cartId = getCookie("cartId");
-  const { data, error, isLoading, mutate } = useSWR(shopify?.getCart ? cartId : null, (shopify as Shopify)?.getCart.bind(shopify));
+  const { data, error, isLoading, mutate } = useSWR(
+    shopify?.getCart ? cartId : null,
+    (shopify as Shopify)?.getCart.bind(shopify),
+  );
   return {
     data,
     isLoading,

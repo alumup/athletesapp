@@ -1,12 +1,12 @@
-import Image from 'next/image'
-import Link from 'next/link'
+import Image from "next/image";
+import Link from "next/link";
 
-import { Button } from '@/components/marketing/Button'
-import { Container } from '@/components/marketing/Container'
-import { TextField } from '@/components/marketing/Fields'
-import { Logomark } from '@/components/marketing/Logo'
-import { NavLinks } from '@/components/marketing/NavLinks'
-import qrCode from '@/images/qr-code.svg'
+import { Button } from "@/components/marketing/Button";
+import { Container } from "@/components/marketing/Container";
+import { TextField } from "@/components/marketing/Fields";
+import { Logomark } from "@/components/marketing/Logo";
+import { NavLinks } from "@/components/marketing/NavLinks";
+import qrCode from "@/images/qr-code.svg";
 
 function QrCodeBorder(props) {
   return (
@@ -17,7 +17,7 @@ function QrCodeBorder(props) {
         strokeLinecap="round"
       />
     </svg>
-  )
+  );
 }
 
 export function Footer() {
@@ -75,5 +75,5 @@ export function Footer() {
         </div>
       </Container>
     </footer>
-  )
+  );
 }

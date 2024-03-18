@@ -1,8 +1,8 @@
-'use client'
+"use client";
 // Tiptap.js
-import { useEditor, EditorContent } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
-import { useEffect } from 'react';
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { useEffect } from "react";
 
 export default function Tiptap({ content, onChange }) {
   const editor = useEditor({
@@ -31,5 +31,5 @@ export default function Tiptap({ content, onChange }) {
     <>
       <EditorContent editor={editor} />
     </>
-  )
+  );
 }

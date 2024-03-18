@@ -2,9 +2,14 @@ import { BasicTemplate } from "@/components/emails/basic-template";
 import { NextResponse } from "next/server";
 import resend from "@/lib/resend";
 
-
-const domain = process.env.NODE_ENV === 'production' ? 'https://app.athletes.app' : 'http://app.localhost:3000'
-const sign_in = process.env.NODE_ENV === 'production' ? 'https://app.athletes.app/login' : 'http://app.localhost:3000/login'
+const domain =
+  process.env.NODE_ENV === "production"
+    ? "https://app.athletes.app"
+    : "http://app.localhost:3000";
+const sign_in =
+  process.env.NODE_ENV === "production"
+    ? "https://app.athletes.app/login"
+    : "http://app.localhost:3000/login";
 
 export async function POST(req) {
   // get body data
@@ -14,8 +19,6 @@ export async function POST(req) {
   const subject = data?.subject;
   const email = data?.email;
   const message = `You've been invited to join ${account.name} to manage your athletes. If you have an Athletes App account please ${sign_in}. If you don't click this link to get access to your account. ${domain}/login?email=${email}&account_id=${account.id}&people_id=${person.id}&sign_up=true`;
-
-
 
   try {
     // loop through the people array and send an email to each person
@@ -35,7 +38,6 @@ export async function POST(req) {
       });
       return NextResponse.json(data);
     }
-
   } catch (error) {
     console.log("invite-person error", error);
     return NextResponse.json({ error });

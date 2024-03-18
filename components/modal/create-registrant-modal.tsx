@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray } from "react-hook-form";
 import { useRouter } from "next/navigation";
 // @ts-expect-error
 import { experimental_useFormStatus as useFormStatus } from "react-dom";
@@ -9,20 +9,28 @@ import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
 
-
-
-export default function CreateRegistrantModal({account, event} : {account: any, event: any}) {
-  const {refresh}= useRouter();
+export default function CreateRegistrantModal({
+  account,
+  event,
+}: {
+  account: any;
+  event: any;
+}) {
+  const { refresh } = useRouter();
   const modal = useModal();
   const supabase = createClientComponentClient();
 
-  const { register, control, handleSubmit, formState: { errors } } = useForm();
-
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const onSubmit = async (data: any) => {
     // Create a new person
     const { data: newPerson, error: newPersonError } = await supabase
-      .from('people')
+      .from("people")
       .insert([
         {
           account_id: account?.id,
@@ -32,16 +40,16 @@ export default function CreateRegistrantModal({account, event} : {account: any, 
           phone: data.phone,
           birthdate: data.birthdate,
           grade: data.grade,
-        }
+        },
       ])
-      .select('id')
+      .select("id")
       .single();
-  
+
     if (newPersonError) {
       console.log("FORM ERRORS: ", newPersonError);
       return;
     }
-  
+
     modal?.hide();
     refresh();
   };
@@ -58,92 +66,123 @@ export default function CreateRegistrantModal({account, event} : {account: any, 
 
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-1 flex flex-col space-y-2">
-            <label htmlFor="first_name" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+            <label
+              htmlFor="first_name"
+              className="text-sm font-medium text-gray-700 dark:text-stone-300"
+            >
               First Name*
             </label>
             <input
               type="text"
               id="first_name"
-              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
               {...register("first_name", { required: true })}
             />
-            {errors.first_name && <span className="text-sm text-red-500">This field is required</span>}
+            {errors.first_name && (
+              <span className="text-sm text-red-500">
+                This field is required
+              </span>
+            )}
           </div>
 
           <div className="col-span-1 flex flex-col space-y-2">
-            <label htmlFor="last_name" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+            <label
+              htmlFor="last_name"
+              className="text-sm font-medium text-gray-700 dark:text-stone-300"
+            >
               Last Name*
             </label>
             <input
               type="text"
               id="last_name"
-              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
               {...register("last_name", { required: true })}
             />
-            {errors.last_name && <span className="text-sm text-red-500">This field is required</span>}
+            {errors.last_name && (
+              <span className="text-sm text-red-500">
+                This field is required
+              </span>
+            )}
           </div>
-
         </div>
 
         <div className="flex flex-col space-y-2">
-          <label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-stone-300">
-           Email*
+          <label
+            htmlFor="email"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
+            Email*
           </label>
           <input
             type="email"
             id="email"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("email", { required: true })}
           />
-          {errors.email && <span className="text-sm text-red-500">This field is required</span>}
+          {errors.email && (
+            <span className="text-sm text-red-500">This field is required</span>
+          )}
         </div>
 
         <div className="flex flex-col space-y-2">
-          <label htmlFor="phone" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+          <label
+            htmlFor="phone"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
             Phone
           </label>
           <input
             type="text"
             id="phone"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("phone", { required: true })}
           />
-          {errors.phone && <span className="text-sm text-red-500">This field is required</span>}
+          {errors.phone && (
+            <span className="text-sm text-red-500">This field is required</span>
+          )}
         </div>
 
         <div className="flex flex-col space-y-2">
-          <label htmlFor="birthdate" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+          <label
+            htmlFor="birthdate"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
             Birthdate
           </label>
           <input
             type="date"
             id="birthdate"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("birthdate")}
           />
-          {errors.birthdate && <span className="text-sm text-red-500">This field is required</span>}
+          {errors.birthdate && (
+            <span className="text-sm text-red-500">This field is required</span>
+          )}
         </div>
 
         <div className="flex flex-col space-y-2">
-          <label htmlFor="grade" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+          <label
+            htmlFor="grade"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
             Grade (1 thru 12)
           </label>
           <select
             id="grade"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("grade")}
           >
             {[...Array(12)].map((_, i) => (
-              <option key={i} value={i + 1}>{i + 1}</option>
+              <option key={i} value={i + 1}>
+                {i + 1}
+              </option>
             ))}
             <option value="Graduated">Graduated</option>
           </select>
-          {errors.grade && <span className="text-sm text-red-500">This field is required</span>}
+          {errors.grade && (
+            <span className="text-sm text-red-500">This field is required</span>
+          )}
         </div>
-
-
-  
-        
       </div>
       <div className="flex items-center justify-end rounded-b-lg border-t border-stone-200 bg-stone-50 p-3 dark:border-stone-700 dark:bg-stone-800 md:px-10">
         <CreateSiteFormButton />

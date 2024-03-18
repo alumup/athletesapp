@@ -1,4 +1,3 @@
-
 // export const metadata: Metadata = {
 //   title,
 //   description,
@@ -23,10 +22,5 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-      <>
-        {children}
-      </>
-
-  );
+  return <>{children}</>;
 }

@@ -1,26 +1,23 @@
-'use client'
-import { Suspense, useEffect, useState } from 'react';
-import { useThemeData } from '@/providers/theme-provider';
-import Link from 'next/link';
-import Image from 'next/image';
-import Cart from '@/components/cart';
-import OpenCart from '@/components/cart/open-cart';
-import { AnimatePresence, motion } from 'framer-motion';
-
+"use client";
+import { Suspense, useEffect, useState } from "react";
+import { useThemeData } from "@/providers/theme-provider";
+import Link from "next/link";
+import Image from "next/image";
+import Cart from "@/components/cart";
+import OpenCart from "@/components/cart/open-cart";
+import { AnimatePresence, motion } from "framer-motion";
 
 function Navbar({ site, pages }) {
   const { applyTheme, theme } = useThemeData();
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true);
 
   // Reapply theme whenever data.theme.value changes
   useEffect(() => {
     if (site?.theme && theme) {
-      setIsLoading(false)
+      setIsLoading(false);
       applyTheme(theme);
     }
   }, [site?.theme]);
-
-
 
   return (
     <AnimatePresence mode="wait">
@@ -30,19 +27,16 @@ function Navbar({ site, pages }) {
           animate={{
             opacity: 1,
             transition: {
-              duration: 1
-            }
+              duration: 1,
+            },
           }} // animate to y: 0
           exit={{ opacity: 0 }}
-          className={`theme ${site?.theme?.navbar.theme} bg-background text-foreground z-30 transition-all`}
+          className={`theme ${site?.theme?.navbar.theme} z-30 bg-background text-foreground transition-all`}
         >
-          <div className="mx-auto flex h-full max-w-7xl items-center space-x-5 py-3 px-3 md:px-0">
-            <div className="w-full grid grid-cols-2 md:grid-cols-3 gap-5">
+          <div className="mx-auto flex h-full max-w-7xl items-center space-x-5 px-3 py-3 md:px-0">
+            <div className="grid w-full grid-cols-2 gap-5 md:grid-cols-3">
               <div className="col-span-1 flex items-center justify-start">
-                <a
-                  href="/"
-                  className="font-semibold text-xl tracking-tight"
-                >
+                <a href="/" className="text-xl font-semibold tracking-tight">
                   <Image
                     src={site.logo}
                     alt={site.name}
@@ -52,28 +46,29 @@ function Navbar({ site, pages }) {
                 </a>
               </div>
 
-              <div className="col-span-1 hidden md:flex justify-center items-center space-x-2">
+              <div className="col-span-1 hidden items-center justify-center space-x-2 md:flex">
                 {pages?.map((page) => (
-                  <a key={page.id} href={`/${page.slug}`} className="text-foreground text-xs uppercase">
+                  <a
+                    key={page.id}
+                    href={`/${page.slug}`}
+                    className="text-xs uppercase text-foreground"
+                  >
                     {page.name}
                   </a>
-                ))
-                }
+                ))}
               </div>
 
               <div className="col-span-1 flex items-center justify-end">
                 <Suspense fallback={<OpenCart />}>
                   <Cart />
                 </Suspense>
-
-
               </div>
             </div>
           </div>
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;

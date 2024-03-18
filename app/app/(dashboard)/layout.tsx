@@ -6,15 +6,20 @@ import { Search } from "@/components/navigation/search";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { cookies } from 'next/headers'
+import { cookies } from "next/headers";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-export const dynamic = 'force-dynamic'
-export default async function DashboardLayout({ children }: { children: ReactNode }) {
+export const dynamic = "force-dynamic";
+export default async function DashboardLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const supabase = createServerComponentClient({ cookies });
 
-  const supabase = createServerComponentClient({cookies})
-
-  const { data: { session }, error } = await supabase.auth.getSession()
-
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
 
   if (error) {
     console.error(error);
@@ -25,7 +30,6 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     redirect("/login");
   }
 
-
   return (
     <>
       {/* <Nav>
@@ -33,14 +37,12 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <Profile />
         </Suspense>
       </Nav> */}
-      <div className="sticky top-0 bg-gray-50 z-50 flex-col md:flex">
+      <div className="sticky top-0 z-50 flex-col bg-gray-50 md:flex">
         <div className="border-b">
-          <div className="max-w-screen-2xl mx-auto">
+          <div className="mx-auto max-w-screen-2xl">
             <div className="flex h-16 items-center px-4">
-              <Link
-                href="/"
-              >
-               <img src="/athletes.svg" className="w-[125px] h-auto" />
+              <Link href="/">
+                <img src="/athletes.svg" className="h-auto w-[125px]" />
               </Link>
               <MainNav className="mx-6" />
               <div className="ml-auto flex items-center space-x-4">
@@ -51,7 +53,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           </div>
         </div>
       </div>
-      <div className="px-4 my-10 max-w-screen-2xl mx-auto w-full min-h-screen">{children}</div>
+      <div className="mx-auto my-10 min-h-screen w-full max-w-screen-2xl px-4">
+        {children}
+      </div>
     </>
   );
 }

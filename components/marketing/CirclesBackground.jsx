@@ -12,5 +12,5 @@ export function CirclesBackground(props) {
       <circle cx={545} cy={545} r="416.5" />
       <circle cx={545} cy={545} r="352.5" />
     </svg>
-  )
+  );
 }

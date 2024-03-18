@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
@@ -7,7 +7,7 @@ import {
   ListBulletIcon,
   MixerHorizontalIcon,
   DotsHorizontalIcon,
-  Pencil1Icon
+  Pencil1Icon,
 } from "@radix-ui/react-icons";
 
 import {
@@ -45,9 +45,6 @@ import SendEmailModal from "@/components/modal/send-email-modal";
 import SendButton from "@/components/modal-buttons/send-button";
 import IconButton from "@/components/modal-buttons/icon-button";
 
-
-
-
 export type Person = {
   id: string;
   first_name: string;
@@ -55,8 +52,8 @@ export type Person = {
   name: string;
   tags: any;
   email: string;
-  grade: string,
-  birthdate: string,
+  grade: string;
+  birthdate: string;
   phone: string;
 };
 
@@ -106,51 +103,51 @@ const columns: ColumnDef<Person>[] = [
     cell: ({ row }) => <div>{row.getValue("phone")}</div>,
   },
   {
-  accessorKey: "actions",
-  header: "",
-  cell: ({ row }) => 
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild className="cursor">
-          <DotsHorizontalIcon width={18}/>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="p-2">
-      
-            <Link href={`/people/${row.original.id}`} className="cursor hover:bg-gray-100 rounded">
+    accessorKey: "actions",
+    header: "",
+    cell: ({ row }) => (
+      <>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild className="cursor">
+            <DotsHorizontalIcon width={18} />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="p-2">
+            <Link
+              href={`/people/${row.original.id}`}
+              className="cursor rounded hover:bg-gray-100"
+            >
               <span className="flex items-center space-x-2 text-sm text-gray-700">
                 <Pencil1Icon className="mr-2 h-4 w-4" /> Visit
               </span>
             </Link>
-      
-            <Link href={`/people/${row.original.id}`} className="cursor hover:bg-gray-100 rounded">
-            <span className="flex items-center space-x-2 text-sm text-gray-700">
+
+            <Link
+              href={`/people/${row.original.id}`}
+              className="cursor rounded hover:bg-gray-100"
+            >
+              <span className="flex items-center space-x-2 text-sm text-gray-700">
                 <TrashIcon className="mr-2 h-4 w-4" /> Delete
               </span>
             </Link>
-        
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
-  }
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </>
+    ),
+  },
 ];
 
-
-
-
-export function EventTable({data, account}: {data: Person[], account: any}) {
-
- 
+export function EventTable({
+  data,
+  account,
+}: {
+  data: Person[];
+  account: any;
+}) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-    []
-  );
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-
-  const [columnVisibility, setColumnVisibility] =
-    useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-
-
 
   const table = useReactTable({
     data,
@@ -176,19 +173,17 @@ export function EventTable({data, account}: {data: Person[], account: any}) {
     table.setPageSize(30);
   }, []); //
 
-  
-
-    const handleDeleteSelected = () => {
-      const selectedRows = table.getSelectedRowModel().rows;
-      // Logic to delete selected rows
-    };
-  
-    // Check if any row is selected
-    const isAnyRowSelected = table.getSelectedRowModel().rows.length > 0;
-
+  const handleDeleteSelected = () => {
     const selectedRows = table.getSelectedRowModel().rows;
+    // Logic to delete selected rows
+  };
 
-    const people = selectedRows.map((row) => row.original);
+  // Check if any row is selected
+  const isAnyRowSelected = table.getSelectedRowModel().rows.length > 0;
+
+  const selectedRows = table.getSelectedRowModel().rows;
+
+  const people = selectedRows.map((row) => row.original);
 
   return (
     <div className="w-full">
@@ -203,7 +198,10 @@ export function EventTable({data, account}: {data: Person[], account: any}) {
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto flex justify-between items-center">
+            <Button
+              variant="outline"
+              className="ml-auto flex items-center justify-between"
+            >
               <MixerHorizontalIcon className="mr-2 h-4 w-4" /> View
             </Button>
           </DropdownMenuTrigger>
@@ -223,15 +221,15 @@ export function EventTable({data, account}: {data: Person[], account: any}) {
                   >
                     {column.id}
                   </DropdownMenuCheckboxItem>
-                )
+                );
               })}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
       {isAnyRowSelected && (
-        <div className="flex justify-between space-x-4 py-2 mb-2">
-          <div className="flex items-center space-x-2"> 
+        <div className="mb-2 flex justify-between space-x-4 py-2">
+          <div className="flex items-center space-x-2">
             <SendButton channel="email" cta="Send Email">
               <SendEmailModal
                 people={people}
@@ -240,7 +238,11 @@ export function EventTable({data, account}: {data: Person[], account: any}) {
               />
             </SendButton>
           </div>
-          <Button onClick={handleDeleteSelected} variant="outline" className="text-red-500">
+          <Button
+            onClick={handleDeleteSelected}
+            variant="outline"
+            className="text-red-500"
+          >
             <TrashIcon className="mr-2 h-4 w-4" /> Delete
           </Button>
         </div>
@@ -257,10 +259,10 @@ export function EventTable({data, account}: {data: Person[], account: any}) {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -276,7 +278,7 @@ export function EventTable({data, account}: {data: Person[], account: any}) {
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -296,7 +298,7 @@ export function EventTable({data, account}: {data: Person[], account: any}) {
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
+        <div className="text-muted-foreground flex-1 text-sm">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
@@ -320,5 +322,5 @@ export function EventTable({data, account}: {data: Person[], account: any}) {
         </div>
       </div>
     </div>
-  )
+  );
 }

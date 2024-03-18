@@ -1,15 +1,19 @@
-'use client'
-import { useEffect, useState } from 'react';
-import { useFormData } from '@/providers/form-provider';
+"use client";
+import { useEffect, useState } from "react";
+import { useFormData } from "@/providers/form-provider";
 
 // Import all form components
-import { Payment, Person, Products} from '@/components/dynamic-form/form-components';
-import Image from 'next/image';
+import {
+  Payment,
+  Person,
+  Products,
+} from "@/components/dynamic-form/form-components";
+import Image from "next/image";
 
 const formComponents = {
   Payment,
   Products,
-  Person
+  Person,
 };
 
 export const FormContainer = ({ formIndex, formJson, event }) => {
@@ -66,16 +70,20 @@ export const FormContainer = ({ formIndex, formJson, event }) => {
           )}
           {paymentSuccess && (
             <div>
-
-              <h2 className="text-2xl md:text-4xl leading-6 text-gray-700 font-semibold text-center mb-5">
+              <h2 className="mb-5 text-center text-2xl font-semibold leading-6 text-gray-700 md:text-4xl">
                 Thank you for your order!
               </h2>
-              <p className="text-sm md:text-base leading-6 text-gray-500 my-5 font-light">
-                You should receive an email confirmation shortly. If you have any questions, please contact us at <a href="mailto:jake@provobasketball.com" className="text-lime-600 hover:text-lime-500">Contact Us</a>.
+              <p className="my-5 text-sm font-light leading-6 text-gray-500 md:text-base">
+                You should receive an email confirmation shortly. If you have
+                any questions, please contact us at{" "}
+                <a
+                  href="mailto:jake@provobasketball.com"
+                  className="text-lime-600 hover:text-lime-500"
+                >
+                  Contact Us
+                </a>
+                .
               </p>
-   
-              
-
             </div>
           )}
         </>

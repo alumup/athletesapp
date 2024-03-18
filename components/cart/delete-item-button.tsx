@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import LoadingDots from "@/components/loading-dots";
 import { useParams, useRouter } from "next/navigation";

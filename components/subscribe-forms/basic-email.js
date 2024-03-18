@@ -6,9 +6,9 @@ import { v4 as uuidv4 } from "uuid";
 
 const BasicEmailForm = ({
   accountId,
-  title = 'Subscribe and Stay Awhile',
-  subtitle = 'Subscribe to get notified of all my lastest videos, posts, and announcements',
-  btnText = 'Subscribe'
+  title = "Subscribe and Stay Awhile",
+  subtitle = "Subscribe to get notified of all my lastest videos, posts, and announcements",
+  btnText = "Subscribe",
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
@@ -110,16 +110,12 @@ const BasicEmailForm = ({
 
   return (
     <div className="h-full w-full">
-      <h2 className="subtitle-sm mx-auto w-full text-center font-bold tracking-tight font-primary">
-        {!email && !submitMessage && (
-          <span>
-            {title}
-          </span>
-        )}
+      <h2 className="subtitle-sm mx-auto w-full text-center font-primary font-bold tracking-tight">
+        {!email && !submitMessage && <span>{title}</span>}
         {email && <span>{submitMessage}</span>}
       </h2>
       {!email && !submitMessage && (
-        <p className="text-foreground mx-auto text-center font-secondary">
+        <p className="mx-auto text-center font-secondary text-foreground">
           {subtitle}
         </p>
       )}
@@ -155,7 +151,7 @@ const BasicEmailForm = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="bg-primary text-primary-foreground px-3 py-2 rounded"
+              className="rounded bg-primary px-3 py-2 text-primary-foreground"
             >
               {isSubmitting ? "Saving..." : btnText}
             </button>

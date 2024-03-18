@@ -1,4 +1,3 @@
-
 import {
   Card,
   CardContent,
@@ -6,12 +5,15 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 
-
-export default function OverviewStats({name, value}: {name: string, value: string}) {
-
-
+export default function OverviewStats({
+  name,
+  value,
+}: {
+  name: string;
+  value: string;
+}) {
   return (
     <div className="col-span-1 w-full">
       <Card>
@@ -25,7 +27,7 @@ export default function OverviewStats({name, value}: {name: string, value: strin
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth="2"
-            className="h-4 w-4 text-muted-foreground"
+            className="text-muted-foreground h-4 w-4"
           >
             <rect width="20" height="14" x="2" y="5" rx="2" />
             <path d="M2 10h20" />
@@ -33,12 +35,9 @@ export default function OverviewStats({name, value}: {name: string, value: strin
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">+12,234</div>
-          <p className="text-xs text-muted-foreground">
-            +19% from last month
-          </p>
+          <p className="text-muted-foreground text-xs">+19% from last month</p>
         </CardContent>
       </Card>
-
     </div>
   );
 }

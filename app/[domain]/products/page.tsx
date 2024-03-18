@@ -59,7 +59,6 @@ export default async function ProductsPage({
 }) {
   const shopify = await getAccountShopify(params.domain);
 
-
   // const productJsonLd = {
   //   "@context": "https://schema.org",
   //   "@type": "Product",
@@ -86,15 +85,12 @@ export default async function ProductsPage({
         }}
       /> */}
       <div className="theme">
-        <div className="w-full h-[300px] bg-black"></div>
-        <div className="mt-10 mx-auto max-w-7xl w-full px-3 md:px-5">
+        <div className="h-[300px] w-full bg-black"></div>
+        <div className="mx-auto mt-10 w-full max-w-7xl px-3 md:px-5">
           <h1>Products</h1>
           <Products />
- 
         </div>
       </div>
     </>
   );
 }
-
-

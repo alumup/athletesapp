@@ -1,23 +1,23 @@
-import { useId } from 'react'
-import Image from 'next/image'
-import clsx from 'clsx'
+import { useId } from "react";
+import Image from "next/image";
+import clsx from "clsx";
 
-import { AppDemo } from '@/components/marketing/AppDemo'
-import { AppStoreLink } from '@/components/marketing/AppStoreLink'
-import { Button } from '@/components/marketing/Button'
-import { Container } from '@/components/marketing/Container'
-import { PhoneFrame } from '@/components/marketing/PhoneFrame'
-import logoBbc from '@/images/logos/bbc.svg'
-import logoCbs from '@/images/logos/cbs.svg'
-import logoCnn from '@/images/logos/cnn.svg'
-import logoFastCompany from '@/images/logos/fast-company.svg'
-import logoForbes from '@/images/logos/forbes.svg'
-import logoHuffpost from '@/images/logos/huffpost.svg'
-import logoTechcrunch from '@/images/logos/techcrunch.svg'
-import logoWired from '@/images/logos/wired.svg'
+import { AppDemo } from "@/components/marketing/AppDemo";
+import { AppStoreLink } from "@/components/marketing/AppStoreLink";
+import { Button } from "@/components/marketing/Button";
+import { Container } from "@/components/marketing/Container";
+import { PhoneFrame } from "@/components/marketing/PhoneFrame";
+import logoBbc from "@/images/logos/bbc.svg";
+import logoCbs from "@/images/logos/cbs.svg";
+import logoCnn from "@/images/logos/cnn.svg";
+import logoFastCompany from "@/images/logos/fast-company.svg";
+import logoForbes from "@/images/logos/forbes.svg";
+import logoHuffpost from "@/images/logos/huffpost.svg";
+import logoTechcrunch from "@/images/logos/techcrunch.svg";
+import logoWired from "@/images/logos/wired.svg";
 
 function BackgroundIllustration(props) {
-  let id = useId()
+  let id = useId();
 
   return (
     <div {...props}>
@@ -82,7 +82,7 @@ function BackgroundIllustration(props) {
         </defs>
       </svg>
     </div>
-  )
+  );
 }
 
 function PlayIcon(props) {
@@ -95,7 +95,7 @@ function PlayIcon(props) {
         stroke="#A3A3A3"
       />
     </svg>
-  )
+  );
 }
 
 export function Hero() {
@@ -108,11 +108,12 @@ export function Hero() {
               Manage Your Athletes®
             </h1>
             <p className="mt-6 text-lg text-gray-600">
-              Athletes App® is an relationship management tool that helps coaches manage the players, parents, and alumni in their programs. 
+              Athletes App® is an relationship management tool that helps
+              coaches manage the players, parents, and alumni in their programs.
             </p>
             <div className="mt-8 flex flex-wrap gap-x-6 gap-y-4">
               <Button href="#" className="hidden lg:block">
-               Get Started
+                Get Started
               </Button>
               <Button
                 href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
@@ -140,16 +141,16 @@ export function Hero() {
               className="mx-auto mt-8 flex max-w-xl flex-wrap justify-center gap-x-10 gap-y-8 lg:mx-0 lg:justify-start"
             >
               {[
-                ['Forbes', logoForbes],
-                ['TechCrunch', logoTechcrunch],
-                ['Wired', logoWired],
-                ['CNN', logoCnn, 'hidden xl:block'],
-                ['BBC', logoBbc],
-                ['CBS', logoCbs],
-                ['Fast Company', logoFastCompany],
-                ['HuffPost', logoHuffpost, 'hidden xl:block'],
+                ["Forbes", logoForbes],
+                ["TechCrunch", logoTechcrunch],
+                ["Wired", logoWired],
+                ["CNN", logoCnn, "hidden xl:block"],
+                ["BBC", logoBbc],
+                ["CBS", logoCbs],
+                ["Fast Company", logoFastCompany],
+                ["HuffPost", logoHuffpost, "hidden xl:block"],
               ].map(([name, logo, className]) => (
-                <li key={name} className={clsx('flex', className)}>
+                <li key={name} className={clsx("flex", className)}>
                   <Image src={logo} alt={name} className="h-8" unoptimized />
                 </li>
               ))}
@@ -158,5 +159,5 @@ export function Hero() {
         </div>
       </Container>
     </div>
-  )
+  );
 }

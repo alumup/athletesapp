@@ -1,14 +1,17 @@
 import { Card } from "@/components/ui/card";
-import { CalendarDaysIcon, UserGroupIcon, UserIcon } from "@heroicons/react/24/outline";
+import {
+  CalendarDaysIcon,
+  UserGroupIcon,
+  UserIcon,
+} from "@heroicons/react/24/outline";
 import Link from "next/link";
-
 
 export default function Overview() {
   return (
-    <div className="flex max-w-7xl w-full mx-auto flex-col space-y-12 p-8">
-      <div className="grid grid-cols-3 gap-5 w-full">
+    <div className="mx-auto flex w-full max-w-7xl flex-col space-y-12 p-8">
+      <div className="grid w-full grid-cols-3 gap-5">
         <Link href="/people" className="col-span-1 ">
-          <Card className="flex items-center justify-between p-6 bg-white rounded-lg shadow-sm">
+          <Card className="flex items-center justify-between rounded-lg bg-white p-6 shadow-sm">
             <div>
               <h2 className="mb-2 text-lg font-semibold text-gray-700 dark:text-gray-200">
                 People
@@ -18,12 +21,12 @@ export default function Overview() {
               </p>
             </div>
             <div>
-              <UserIcon className="w-6 h-6" />
+              <UserIcon className="h-6 w-6" />
             </div>
           </Card>
         </Link>
         <Link href="/teams" className="col-span-1 ">
-          <Card className="flex items-center justify-between p-6 bg-white rounded-lg shadow-sm">
+          <Card className="flex items-center justify-between rounded-lg bg-white p-6 shadow-sm">
             <div>
               <h2 className="mb-2 text-lg font-semibold text-gray-700 dark:text-gray-200">
                 Teams
@@ -33,12 +36,12 @@ export default function Overview() {
               </p>
             </div>
             <div>
-              <UserGroupIcon className="w-6 h-6" />
+              <UserGroupIcon className="h-6 w-6" />
             </div>
           </Card>
         </Link>
         <Link href="/events" className="col-span-1 ">
-          <Card className="flex items-center justify-between p-6 bg-white rounded-lg shadow-sm">
+          <Card className="flex items-center justify-between rounded-lg bg-white p-6 shadow-sm">
             <div>
               <h2 className="mb-2 text-lg font-semibold text-gray-700 dark:text-gray-200">
                 Events
@@ -48,13 +51,11 @@ export default function Overview() {
               </p>
             </div>
             <div>
-              <CalendarDaysIcon className="w-6 h-6" />
+              <CalendarDaysIcon className="h-6 w-6" />
             </div>
           </Card>
         </Link>
-
       </div>
-
     </div>
   );
 }

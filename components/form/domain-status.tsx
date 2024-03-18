@@ -1,7 +1,10 @@
 "use client";
 
-
-import { CheckCircledIcon, CrossCircledIcon, InfoCircledIcon } from "@radix-ui/react-icons";
+import {
+  CheckCircledIcon,
+  CrossCircledIcon,
+  InfoCircledIcon,
+} from "@radix-ui/react-icons";
 import LoadingSpinner from "./loading-spinner";
 import { useDomainStatus } from "./use-domain-status";
 

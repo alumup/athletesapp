@@ -65,9 +65,7 @@ export function UserNav() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{account?.name}</p>
-            <p className="text-zinc-700 text-xs leading-none">
-              {user?.email}
-            </p>
+            <p className="text-xs leading-none text-zinc-700">{user?.email}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -81,10 +79,7 @@ export function UserNav() {
             <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Link href={"/settings"}>
-              Settings
-
-            </Link>
+            <Link href={"/settings"}>Settings</Link>
             <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuGroup>

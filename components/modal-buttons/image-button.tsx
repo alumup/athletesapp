@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 
 export default function ImageButton({
   children,
-  image
+  image,
 }: {
   children: ReactNode;
   image: string;
@@ -15,7 +15,7 @@ export default function ImageButton({
   return (
     <button
       onClick={() => modal?.show(children)}
-      className="w-52 h-52 bg-gray-200 rounded cursor relative overflow-hidden"
+      className="cursor relative h-52 w-52 overflow-hidden rounded bg-gray-200"
     >
       <Image
         src={image}

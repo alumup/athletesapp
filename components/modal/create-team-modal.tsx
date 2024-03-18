@@ -1,7 +1,7 @@
 "use client";
 
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useForm } from 'react-hook-form';
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 // @ts-expect-error
 import { experimental_useFormStatus as useFormStatus } from "react-dom";
@@ -9,30 +9,31 @@ import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
 
-
-export default function CreateTeamModal({account}: {account: any}) {
-  const {refresh}= useRouter();
+export default function CreateTeamModal({ account }: { account: any }) {
+  const { refresh } = useRouter();
   const modal = useModal();
 
   const supabase = createClientComponentClient();
-  const { register, handleSubmit, formState: { errors }, } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const onSubmit = async (data: any) => {
-    const { error } = await supabase
-      .from('teams')
-      .insert([
-       {
-          account_id: account.id,
-          name: data.name,
-          coach: data.coach,
-       }
-      ])
+    const { error } = await supabase.from("teams").insert([
+      {
+        account_id: account.id,
+        name: data.name,
+        coach: data.coach,
+      },
+    ]);
 
     if (error) {
-      console.log("FORM ERRORS: ", error)
+      console.log("FORM ERRORS: ", error);
     } else {
       modal?.hide();
-      refresh()
+      refresh();
     }
   };
 
@@ -44,32 +45,34 @@ export default function CreateTeamModal({account}: {account: any}) {
       <div className="relative flex flex-col space-y-4 p-5 md:p-10">
         <h2 className="font-cal text-2xl dark:text-white">New Team</h2>
 
-
         <div className="flex flex-col space-y-2">
-          <label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+          <label
+            htmlFor="name"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
             Name
           </label>
           <input
             type="text"
             id="name"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("name", { required: true })}
           />
         </div>
         <div className="flex flex-col space-y-2">
-          <label htmlFor="coach" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+          <label
+            htmlFor="coach"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
             Coach
           </label>
           <input
             type="text"
             id="coach"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("coach", { required: true })}
           />
         </div>
-
-
-  
       </div>
       <div className="flex items-center justify-end rounded-b-lg border-t border-stone-200 bg-stone-50 p-3 dark:border-stone-700 dark:bg-stone-800 md:px-10">
         <CreateSiteFormButton />

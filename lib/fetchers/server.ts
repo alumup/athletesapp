@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import Shopify, { createShopify } from "../shopify";
 import { getDomainQuery } from "../utils";
 
-
 export async function getAccount() {
   const supabase = createServerComponentClient({ cookies });
 
@@ -94,15 +93,12 @@ export async function getSiteTheme(domain: string) {
   }
 }
 
-
 export async function getAccountShopify(domain: string) {
   const accountId = await getAccountId(domain);
   const shopifyToken = await getShopifyToken(accountId);
 
   return createShopify(shopifyToken) as Shopify;
 }
-
-
 
 export async function getPageDataBySiteAndSlug(site_id: string, slug: string) {
   const supabase = createServerComponentClient({ cookies });
@@ -121,7 +117,6 @@ export async function getPageDataBySiteAndSlug(site_id: string, slug: string) {
   return data;
 }
 
-
 export async function getPrimaryContact(person: any) {
   const supabase = createServerComponentClient({ cookies }); // replace with your Supabase client
 
@@ -129,10 +124,10 @@ export async function getPrimaryContact(person: any) {
     try {
       // Fetch the primary relationship
       const { data: relationship, error: relationshipError } = await supabase
-        .from('relationships')
-        .select('*')
-        .eq('relation_id', person.id)
-        .eq('primary', true)
+        .from("relationships")
+        .select("*")
+        .eq("relation_id", person.id)
+        .eq("primary", true)
         .single();
 
       if (relationshipError) {
@@ -142,9 +137,9 @@ export async function getPrimaryContact(person: any) {
 
       // Fetch the primary person
       const { data: primaryPerson, error: primaryPersonError } = await supabase
-        .from('people')
-        .select('*')
-        .eq('id', relationship.person_id)
+        .from("people")
+        .select("*")
+        .eq("id", relationship.person_id)
         .single();
 
       if (primaryPersonError) {
@@ -155,7 +150,7 @@ export async function getPrimaryContact(person: any) {
       // Return the primary person
       return primaryPerson;
     } catch (error) {
-      console.error('Error fetching primary contact:', error);
+      console.error("Error fetching primary contact:", error);
       return null;
     }
   } else {
@@ -164,8 +159,6 @@ export async function getPrimaryContact(person: any) {
   }
 }
 
-
-
 export async function getPrimaryContacts(person: any) {
   const supabase = createServerComponentClient({ cookies });
 
@@ -173,10 +166,10 @@ export async function getPrimaryContacts(person: any) {
     try {
       // Fetch the primary relationships
       const { data: relationships, error: relationshipError } = await supabase
-        .from('relationships')
-        .select('*')
-        .eq('relation_id', person.id)
-        .eq('primary', true);
+        .from("relationships")
+        .select("*")
+        .eq("relation_id", person.id)
+        .eq("primary", true);
 
       if (relationshipError) {
         console.error(relationshipError);
@@ -186,11 +179,12 @@ export async function getPrimaryContacts(person: any) {
       // Fetch the primary persons
       const primaryPersons = await Promise.all(
         relationships.map(async (relationship: any) => {
-          const { data: primaryPerson, error: primaryPersonError } = await supabase
-            .from('people')
-            .select('*')
-            .eq('id', relationship.person_id)
-            .single();
+          const { data: primaryPerson, error: primaryPersonError } =
+            await supabase
+              .from("people")
+              .select("*")
+              .eq("id", relationship.person_id)
+              .single();
 
           if (primaryPersonError) {
             console.error(primaryPersonError);
@@ -198,13 +192,13 @@ export async function getPrimaryContacts(person: any) {
           }
 
           return primaryPerson;
-        })
+        }),
       );
 
       // Filter out any null values (in case of errors)
-      return primaryPersons.filter(person => person !== null);
+      return primaryPersons.filter((person) => person !== null);
     } catch (error) {
-      console.error('Error fetching primary contacts:', error);
+      console.error("Error fetching primary contacts:", error);
       return null;
     }
   } else {

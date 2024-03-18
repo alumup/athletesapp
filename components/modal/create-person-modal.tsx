@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray } from "react-hook-form";
 import { useRouter } from "next/navigation";
 // @ts-expect-error
 import { experimental_useFormStatus as useFormStatus } from "react-dom";
@@ -9,61 +9,64 @@ import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
 
-
-
-export default function CreatePersonModal({account} : {account: any}) {
-  const {refresh}= useRouter();
+export default function CreatePersonModal({ account }: { account: any }) {
+  const { refresh } = useRouter();
   const modal = useModal();
   const supabase = createClientComponentClient();
-  const [tags, setTags] = useState<any>([])
+  const [tags, setTags] = useState<any>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const handleTagSelect = (event: any) => {
     const selectedTag = event.target.value;
-    console.log(selectedTag)
-    setSelectedTags(prevTags => [...prevTags, selectedTag]);
+    console.log(selectedTag);
+    setSelectedTags((prevTags) => [...prevTags, selectedTag]);
   };
 
   const handleTagDelete = (tagToDelete: string) => {
-    setSelectedTags(prevTags => prevTags.filter(tag => tag !== tagToDelete));
+    setSelectedTags((prevTags) =>
+      prevTags.filter((tag) => tag !== tagToDelete),
+    );
   };
 
-  useEffect(()=>{
-    console.log(selectedTags)
-  },[selectedTags])
+  useEffect(() => {
+    console.log(selectedTags);
+  }, [selectedTags]);
 
-
-  const { register, control, handleSubmit, formState: { errors } } = useForm();
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const { fields, append } = useFieldArray({
     control,
-    name: "relationships"
+    name: "relationships",
   });
 
   useEffect(() => {
     const getTags = async () => {
-      const {data, error} = await supabase
-        .from('tags')
-        .select('name')
-        .eq('account_id', account.id)
-      
+      const { data, error } = await supabase
+        .from("tags")
+        .select("name")
+        .eq("account_id", account.id);
+
       if (error) {
-        console.log("getTags", error)
+        console.log("getTags", error);
       }
 
       if (data) {
-        console.log(data)
-        setTags(data)
+        console.log(data);
+        setTags(data);
       }
-    }
+    };
 
-    getTags()
-  }, [])
-
+    getTags();
+  }, []);
 
   const onSubmit = async (data: any) => {
     // Create a new person
     const { data: newPerson, error: newPersonError } = await supabase
-      .from('people')
+      .from("people")
       .insert([
         {
           account_id: account.id,
@@ -72,38 +75,37 @@ export default function CreatePersonModal({account} : {account: any}) {
           last_name: data.last_name,
           email: data.email,
           phone: data.phone,
-          birthdate: data.birthdate === '' ? null : data.birthdate,
+          birthdate: data.birthdate === "" ? null : data.birthdate,
           grade: data.grade,
           tags: selectedTags,
-        }
+        },
       ])
-      .select('id')
+      .select("id")
       .single();
-  
+
     if (newPersonError) {
       console.log("FORM ERRORS: ", newPersonError);
       return;
     }
 
-  
     // Add guardians to the new person
     for (const relationship of data.relationships) {
       const { error: addRelationshipError } = await supabase
-        .from('relationships')
+        .from("relationships")
         .insert([
           {
             person_id: newPerson.id,
             relation_id: relationship.id,
             name: relationship.name,
             primary: relationship.primary,
-          }
+          },
         ]);
-  
+
       if (addRelationshipError) {
         console.log("Failed to add relationship: ", addRelationshipError);
       }
     }
-  
+
     modal?.hide();
     refresh();
   };
@@ -117,140 +119,189 @@ export default function CreatePersonModal({account} : {account: any}) {
         <h2 className="font-cal text-2xl dark:text-white">New Person</h2>
 
         <div className="flex flex-col space-y-2">
-          <label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+          <label
+            htmlFor="name"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
             Name
           </label>
           <input
             type="text"
             id="name"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("name", { required: true })}
           />
-          {errors.phone && <span className="text-sm text-red-500">This field is required</span>}
+          {errors.phone && (
+            <span className="text-sm text-red-500">This field is required</span>
+          )}
         </div>
-
 
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-1 flex flex-col space-y-2">
-            <label htmlFor="first_name" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+            <label
+              htmlFor="first_name"
+              className="text-sm font-medium text-gray-700 dark:text-stone-300"
+            >
               First Name*
             </label>
             <input
               type="text"
               id="first_name"
-              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
               {...register("first_name", { required: true })}
             />
-            {errors.first_name && <span className="text-sm text-red-500">This field is required</span>}
+            {errors.first_name && (
+              <span className="text-sm text-red-500">
+                This field is required
+              </span>
+            )}
           </div>
 
           <div className="col-span-1 flex flex-col space-y-2">
-            <label htmlFor="last_name" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+            <label
+              htmlFor="last_name"
+              className="text-sm font-medium text-gray-700 dark:text-stone-300"
+            >
               Last Name*
             </label>
             <input
               type="text"
               id="last_name"
-              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
               {...register("last_name", { required: true })}
             />
-            {errors.last_name && <span className="text-sm text-red-500">This field is required</span>}
+            {errors.last_name && (
+              <span className="text-sm text-red-500">
+                This field is required
+              </span>
+            )}
           </div>
-
         </div>
 
         <div className="flex flex-col space-y-2">
-          <label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-stone-300">
-           Email*
+          <label
+            htmlFor="email"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
+            Email*
           </label>
           <input
             type="email"
             id="email"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("email", { required: true })}
           />
-          {errors.email && <span className="text-sm text-red-500">This field is required</span>}
+          {errors.email && (
+            <span className="text-sm text-red-500">This field is required</span>
+          )}
         </div>
 
         <div className="flex flex-col space-y-2">
-          <label htmlFor="phone" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+          <label
+            htmlFor="phone"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
             Phone
           </label>
           <input
             type="text"
             id="phone"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("phone", { required: true })}
           />
-          {errors.phone && <span className="text-sm text-red-500">This field is required</span>}
+          {errors.phone && (
+            <span className="text-sm text-red-500">This field is required</span>
+          )}
         </div>
 
         <div className="flex flex-col space-y-2">
-          <label htmlFor="birthdate" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+          <label
+            htmlFor="birthdate"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
             Birthdate
           </label>
           <input
             type="date"
             id="birthdate"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("birthdate")}
           />
-          {errors.birthdate && <span className="text-sm text-red-500">This field is required</span>}
+          {errors.birthdate && (
+            <span className="text-sm text-red-500">This field is required</span>
+          )}
         </div>
 
         <div className="flex flex-col space-y-2">
-          <label htmlFor="grade" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+          <label
+            htmlFor="grade"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
             Grade (1 thru 12)
           </label>
           <select
             id="grade"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("grade")}
           >
             {[...Array(12)].map((_, i) => (
-              <option key={i} value={i + 1}>{i + 1}</option>
+              <option key={i} value={i + 1}>
+                {i + 1}
+              </option>
             ))}
             <option value="Graduated">Graduated</option>
           </select>
-          {errors.grade && <span className="text-sm text-red-500">This field is required</span>}
+          {errors.grade && (
+            <span className="text-sm text-red-500">This field is required</span>
+          )}
         </div>
 
         <div className="flex flex-col space-y-2">
-          <label htmlFor="tags" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+          <label
+            htmlFor="tags"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
             Tags
           </label>
 
           <div>
             {selectedTags.map((tag, index) => (
-              <span key={index} onClick={() => handleTagDelete(tag)} className="cursor-pointer hover:bg-red-500 mr-1 px-3 py-1 text-sm rounded bg-green-500 text-white">
+              <span
+                key={index}
+                onClick={() => handleTagDelete(tag)}
+                className="mr-1 cursor-pointer rounded bg-green-500 px-3 py-1 text-sm text-white hover:bg-red-500"
+              >
                 {tag}
               </span>
             ))}
           </div>
 
-        
-          <select 
-            onChange={handleTagSelect} 
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
-        
+          <select
+            onChange={handleTagSelect}
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
           >
-            {tags && tags.map((tag: any, index: any) => (
-              <option key={index} value={tag.name}>{tag.name}</option>
-            ))}
+            {tags &&
+              tags.map((tag: any, index: any) => (
+                <option key={index} value={tag.name}>
+                  {tag.name}
+                </option>
+              ))}
           </select>
-         
         </div>
 
         <div className="flex flex-col space-y-2">
-          <label htmlFor="relationships" className="text-sm font-medium text-gray-700 dark:text-stone-300">
-              Relationships
+          <label
+            htmlFor="relationships"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
+            Relationships
           </label>
 
           {fields.map((field, index) => (
-            <div className="w-full flex flex-col mt-2">
+            <div className="mt-2 flex w-full flex-col">
               <select
                 id="name"
-                className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+                className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
                 {...register(`relationships.${index}.name`, { required: true })}
               >
                 <option value="Parent">Parent</option>
@@ -260,8 +311,7 @@ export default function CreatePersonModal({account} : {account: any}) {
                 key={field.id}
                 placeholder="Relationship ID"
                 {...register(`relationships.${index}.id`, { required: true })}
-                className="mt-2 rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
-
+                className="mt-2 rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
                 defaultValue={field.id} // make sure to set up defaultValue
               />
               <label>
@@ -273,15 +323,14 @@ export default function CreatePersonModal({account} : {account: any}) {
               </label>
             </div>
           ))}
-          <button 
-            type="button" 
-            className="infline-flex text-xs rounded border border-zinc-900 border-zinc-900 px-2 py-2"
+          <button
+            type="button"
+            className="infline-flex rounded border border-zinc-900 border-zinc-900 px-2 py-2 text-xs"
             onClick={() => append({ id: "" })}
           >
             Add New Relationship
           </button>
         </div>
-        
       </div>
       <div className="flex items-center justify-end rounded-b-lg border-t border-stone-200 bg-stone-50 p-3 dark:border-stone-700 dark:bg-stone-800 md:px-10">
         <CreateSiteFormButton />

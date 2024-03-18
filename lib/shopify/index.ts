@@ -287,7 +287,7 @@ export default class Shopify {
       return Promise.resolve(Shopify.reshapeCart(res.body.data.cart));
     } catch (error) {
       console.error(error);
-      Promise.reject(error)
+      Promise.reject(error);
       throw error; // or handle the error as you see fit
     }
   }

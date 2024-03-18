@@ -12,8 +12,6 @@ export default function Leaflet({
   const controls = useAnimation();
   const transitionProps = { type: "spring", stiffness: 500, damping: 30 };
 
-
-
   useEffect(() => {
     controls.start({
       y: 0,
@@ -39,7 +37,7 @@ export default function Leaflet({
       <motion.div
         ref={leafletRef}
         key="leaflet"
-        className="group fixed inset-x-0 bottom-0 pb-5 z-40 w-screen cursor-grab bg-white active:cursor-grabbing sm:hidden"
+        className="group fixed inset-x-0 bottom-0 z-40 w-screen cursor-grab bg-white pb-5 active:cursor-grabbing sm:hidden"
         initial={{ y: "100%" }}
         animate={controls}
         exit={{ y: "100%" }}
@@ -51,18 +49,16 @@ export default function Leaflet({
         dragConstraints={{ top: 0, bottom: 0 }}
       >
         <div
-          className={`absolute top-0 z-40 rounded-t-4xl -mb-1 flex h-7 w-full items-center justify-center border-t border-gray-200`}
+          className={`rounded-t-4xl absolute top-0 z-40 -mb-1 flex h-7 w-full items-center justify-center border-t border-gray-200`}
         >
           <div className="-mr-1 h-1 w-6 rounded-full bg-gray-300 transition-all group-active:rotate-12" />
           <div className="h-1 w-6 rounded-full bg-gray-300 transition-all group-active:-rotate-12" />
         </div>
-        <div className="px-5 py-10">
-          {children}
-        </div>
+        <div className="px-5 py-10">{children}</div>
       </motion.div>
       <motion.div
         key="leaflet-backdrop"
-        className="fixed inset-0 h-screen w-full z-30 bg-gray-900 bg-opacity-30 backdrop-blur"
+        className="fixed inset-0 z-30 h-screen w-full bg-gray-900 bg-opacity-30 backdrop-blur"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}

@@ -47,7 +47,6 @@ export default function Nav({ children }: { children: ReactNode }) {
 
   const [siteId, setSiteId] = useState<string | null>();
 
-
   const tabs = useMemo(() => {
     if (segments[0] === "site" && id) {
       return [
@@ -146,10 +145,10 @@ export default function Nav({ children }: { children: ReactNode }) {
         } fixed z-10 flex h-full flex-col justify-between border-r border-stone-200 bg-stone-100 p-4 transition-all dark:border-stone-700 dark:bg-stone-900 sm:w-60 sm:translate-x-0`}
       >
         <div className="grid gap-2">
-          <div className="w-full flex items-center rounded-lg px-2 py-1.5">
+          <div className="flex w-full items-center rounded-lg px-2 py-1.5">
             <Link
               href="/"
-              className="rounded-lg p-1.5 hover:bg-stone-200 dark:hover:bg-stone-700 font-bold"
+              className="rounded-lg p-1.5 font-bold hover:bg-stone-200 dark:hover:bg-stone-700"
             >
               JUMPSHOT®
             </Link>

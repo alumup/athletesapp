@@ -123,12 +123,9 @@ export default async function SiteLayout({
       >
         <ThemeProvider site={data}>
           <Navbar site={data} pages={pages} />
-          <div className="h-full min-h-screen">
-            {children}
-          </div>
+          <div className="h-full min-h-screen">{children}</div>
           <Footer site={data} />
         </ThemeProvider>
- 
       </div>
       <Analytics />
     </>

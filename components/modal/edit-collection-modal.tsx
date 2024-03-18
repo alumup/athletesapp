@@ -1,7 +1,7 @@
 "use client";
 
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useForm } from 'react-hook-form';
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 // @ts-expect-error
 import { experimental_useFormStatus as useFormStatus } from "react-dom";
@@ -9,31 +9,37 @@ import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
 
-
-
-export default function EditCollectionModal({collection} : {collection: any}) {
-  const {refresh}= useRouter();
+export default function EditCollectionModal({
+  collection,
+}: {
+  collection: any;
+}) {
+  const { refresh } = useRouter();
   const modal = useModal();
 
   const supabase = createClientComponentClient();
 
-  const { register, handleSubmit, control, formState: { errors } } = useForm();
-
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm();
 
   const onSubmit = async (data: any) => {
     const { error } = await supabase
-      .from('collections')
+      .from("collections")
       .update([
-       {
+        {
           name: data.name,
-       }
+        },
       ])
-      .eq('id', collection.id)
+      .eq("id", collection.id);
     if (error) {
-      console.log("FORM ERRORS: ", error)
+      console.log("FORM ERRORS: ", error);
     } else {
       modal?.hide();
-      refresh()
+      refresh();
     }
   };
 
@@ -43,23 +49,28 @@ export default function EditCollectionModal({collection} : {collection: any}) {
       className="w-full rounded-md bg-white dark:bg-black md:max-w-md md:border md:border-stone-200 md:shadow dark:md:border-stone-700"
     >
       <div className="relative flex flex-col space-y-4 p-5 md:p-10">
-        <h2 className="font-cal text-2xl dark:text-white">Edit {collection?.name}</h2>
-
+        <h2 className="font-cal text-2xl dark:text-white">
+          Edit {collection?.name}
+        </h2>
 
         <div className="flex flex-col space-y-2">
-          <label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-stone-300">
-           Name
+          <label
+            htmlFor="email"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
+            Name
           </label>
           <input
             type="email"
             id="email"
             defaultValue={collection?.name}
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("email", { required: true })}
           />
-          {errors.email && <span className="text-sm text-red-500">This field is required</span>}
+          {errors.email && (
+            <span className="text-sm text-red-500">This field is required</span>
+          )}
         </div>
-        
       </div>
       <div className="flex items-center justify-end rounded-b-lg border-t border-stone-200 bg-stone-50 p-3 dark:border-stone-700 dark:bg-stone-800 md:px-10">
         <CreateSiteFormButton />

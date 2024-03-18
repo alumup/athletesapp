@@ -1,8 +1,7 @@
-import * as React from 'react';
+import * as React from "react";
 // import { Tailwind } from '@react-email/tailwind';
 // import { Preview } from '@react-email/preview';
 // import { Section } from '@react-email/section'
-
 
 interface EmailTemplateProps {
   account: any;

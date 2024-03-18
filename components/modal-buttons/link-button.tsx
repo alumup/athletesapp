@@ -5,7 +5,7 @@ import { ReactNode } from "react";
 
 export default function LinkButton({
   children,
-  cta
+  cta,
 }: {
   children: ReactNode;
   cta: string;
@@ -16,7 +16,7 @@ export default function LinkButton({
       onClick={() => modal?.show(children)}
       className="mt-2 text-xs font-medium text-zinc-900 transition-all"
     >
-     {cta}
+      {cta}
     </button>
   );
 }

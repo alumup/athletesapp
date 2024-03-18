@@ -1,14 +1,10 @@
-
-
-import PageArea from './page-area'
+import PageArea from "./page-area";
 
 function App() {
   return (
-
-    <div className="w-full min-h-screen h-full flex justify-center">
+    <div className="flex h-full min-h-screen w-full justify-center">
       <PageArea />
     </div>
-
   );
 }
 

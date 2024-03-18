@@ -1,6 +1,5 @@
 import { headers } from "next/headers";
 
-
 export default async function Sitemap() {
   const headersList = headers();
   const domain =

@@ -15,13 +15,11 @@ export async function generateMetadata({
   params,
 }: {
   params: { handle: string; domain: string };
-  }): Promise<Metadata> {
-  
-  console.log("DOMAIN", params.domain)
+}): Promise<Metadata> {
+  console.log("DOMAIN", params.domain);
   const shopify = await getAccountShopify(params.domain);
 
   const product = await shopify.getProduct(params.handle);
-
 
   if (!product) return notFound();
 

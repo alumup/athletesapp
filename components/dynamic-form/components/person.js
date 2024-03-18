@@ -1,33 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { useForm, useFieldArray } from 'react-hook-form';
+import React, { useState, useEffect } from "react";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useForm, useFieldArray } from "react-hook-form";
 import { useFormData } from "@/providers/form-provider";
 import { motion, AnimatePresence } from "framer-motion";
 import BackBtn from "@/components/dynamic-form/buttons/back-btn";
 import NextBtn from "@/components/dynamic-form/buttons/next-btn";
 
-import {
-  BookmarkIcon as Ticket
-} from '@radix-ui/react-icons'
+import { BookmarkIcon as Ticket } from "@radix-ui/react-icons";
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  show: { opacity: 1 }
+  show: { opacity: 1 },
 };
 
 const defaultPerson = { name: "", email: "", phone: "" };
 
-export const Person = ({ initialValues={}, formIndex, formStep, setFormStep, isFirstStep, isLastStep }) => {
+export const Person = ({
+  initialValues = {},
+  formIndex,
+  formStep,
+  setFormStep,
+  isFirstStep,
+  isLastStep,
+}) => {
   const { formData, setFormValues, event } = useFormData();
   const supabase = createClientComponentClient();
-  
+
   const [current, setCurrent] = useState(0);
   const [person, setPerson] = useState([]);
   const [personCount, setPersonCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
   const defaultPerson = { name: "", email: "", phone: "" };
-  
+
   const {
     register,
     handleSubmit,
@@ -37,9 +42,9 @@ export const Person = ({ initialValues={}, formIndex, formStep, setFormStep, isF
     clearErrors,
     formState: { errors },
   } = useForm({
-    defaultValues: { 
+    defaultValues: {
       ...initialValues,
-      people: [defaultPerson] // Set default person
+      people: [defaultPerson], // Set default person
     },
     mode: "onChange",
   });
@@ -49,13 +54,7 @@ export const Person = ({ initialValues={}, formIndex, formStep, setFormStep, isF
     name: "people",
   });
 
-
-
-
-
-
   const savePerson = async (person) => {
-
     // const { data: existingPerson, error: existingPersonError } = await supabase
     //   .from('people')
     //   .select('*')
@@ -63,7 +62,7 @@ export const Person = ({ initialValues={}, formIndex, formStep, setFormStep, isF
     //   .maybeSingle();
 
     // if (existingPersonError) console.log(existingPersonError);
-    
+
     // if (existingPerson) {
     //   console.log(`Person with email ${person.email} already exists in the database.`);
     //   return;
@@ -76,7 +75,7 @@ export const Person = ({ initialValues={}, formIndex, formStep, setFormStep, isF
     //   .single();
 
     // if (insertError) console.log(insertError);
-    
+
     // if (newPerson) {
     //  const { data: ticket, error: ticketError } = await supabase
     //     .from('people')
@@ -86,17 +85,15 @@ export const Person = ({ initialValues={}, formIndex, formStep, setFormStep, isF
 
     //   if (ticketError) console.log(ticketError);
 
-      
-      
     // }
 
-    console.log("PERSON", person)
-  }
+    console.log("PERSON", person);
+  };
 
   const nextPerson = () => {
     setLoading(true);
     const currentPerson = getValues().people[current];
-  
+
     if (Object.values(currentPerson).every(Boolean)) {
       savePerson(currentPerson).then(() => {
         setCurrent(current + 1);
@@ -114,7 +111,7 @@ export const Person = ({ initialValues={}, formIndex, formStep, setFormStep, isF
       setLoading(false);
     }
   };
-  
+
   const onSubmit = (values) => {
     setLoading(true);
     setFormValues(values, formIndex);
@@ -124,19 +121,19 @@ export const Person = ({ initialValues={}, formIndex, formStep, setFormStep, isF
       setLoading(false);
     });
   };
-  
+
   return (
-    <div className="w-full h-auto">
+    <div className="h-auto w-full">
       <div>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <p className="text-xl md:text-2xl leading-6 text-gray-700">Person</p>
-          <p className="text-sm md:text-base leading-6 text-gray-500 mb-5 font-light">
-            You can buy up to 4 tickets. We will assign the tickets you buy together as a group in our 4-man scramble.
+          <p className="text-xl leading-6 text-gray-700 md:text-2xl">Person</p>
+          <p className="mb-5 text-sm font-light leading-6 text-gray-500 md:text-base">
+            You can buy up to 4 tickets. We will assign the tickets you buy
+            together as a group in our 4-man scramble.
           </p>
-          <div className="border border-gray-200 p-3 rounded">
-
+          <div className="rounded border border-gray-200 p-3">
             <AnimatePresence mode="wait">
-              <motion.div 
+              <motion.div
                 key={current}
                 variants={containerVariants}
                 initial="hidden"
@@ -144,13 +141,20 @@ export const Person = ({ initialValues={}, formIndex, formStep, setFormStep, isF
                 exit="hidden"
               >
                 {fields[current] && (
-                  <div className="flex flex-col w-full my-3">
-                    <div className="mt-3 flex flex-col w-full">
-                      <label htmlFor={`people.${current}.name`} className="text-xs">Name</label>
+                  <div className="my-3 flex w-full flex-col">
+                    <div className="mt-3 flex w-full flex-col">
+                      <label
+                        htmlFor={`people.${current}.name`}
+                        className="text-xs"
+                      >
+                        Name
+                      </label>
                       <input
-                        {...register(`people.${current}.name`, {required: true})}
+                        {...register(`people.${current}.name`, {
+                          required: true,
+                        })}
                         placeholder="name"
-                        className="mt-1 p-3 border border-gray-300 rounded-md placeholder:text-gray-300"
+                        className="mt-1 rounded-md border border-gray-300 p-3 placeholder:text-gray-300"
                         defaultValue={fields[current]?.name} // make sure to set up defaultValue
                         onChange={(e) => {
                           if (e.target.value) {
@@ -160,16 +164,25 @@ export const Person = ({ initialValues={}, formIndex, formStep, setFormStep, isF
                       />
 
                       {/* include error handling */}
-                      {errors.people && errors.people[current]?.name  && (
-                        <p className="text-red-400 mt-1 text-xs">Name is required</p>
+                      {errors.people && errors.people[current]?.name && (
+                        <p className="mt-1 text-xs text-red-400">
+                          Name is required
+                        </p>
                       )}
                     </div>
-                    <div className="mt-3 flex flex-col w-full">
-                      <label htmlFor={`people.${current}.email`} className="text-xs">Email</label>
+                    <div className="mt-3 flex w-full flex-col">
+                      <label
+                        htmlFor={`people.${current}.email`}
+                        className="text-xs"
+                      >
+                        Email
+                      </label>
                       <input
-                        {...register(`people.${current}.email`, {required: true})}
+                        {...register(`people.${current}.email`, {
+                          required: true,
+                        })}
                         placeholder="email"
-                        className="mt-1 p-3 border border-gray-300 rounded-md placeholder:text-gray-300"
+                        className="mt-1 rounded-md border border-gray-300 p-3 placeholder:text-gray-300"
                         defaultValue={fields[current]?.email} // make sure to set up defaultValue
                         onChange={(e) => {
                           if (e.target.value) {
@@ -179,16 +192,25 @@ export const Person = ({ initialValues={}, formIndex, formStep, setFormStep, isF
                       />
 
                       {/* include error handling */}
-                      {errors.people && errors.people[current]?.email  && (
-                        <p className="text-red-400 mt-1 text-xs">Email is required</p>
+                      {errors.people && errors.people[current]?.email && (
+                        <p className="mt-1 text-xs text-red-400">
+                          Email is required
+                        </p>
                       )}
                     </div>
-                    <div className="mt-3 flex flex-col w-full">
-                      <label htmlFor={`people.${current}.phone`} className="text-xs">Phone</label>
+                    <div className="mt-3 flex w-full flex-col">
+                      <label
+                        htmlFor={`people.${current}.phone`}
+                        className="text-xs"
+                      >
+                        Phone
+                      </label>
                       <input
-                        {...register(`people.${current}.phone`, {required: true})}
+                        {...register(`people.${current}.phone`, {
+                          required: true,
+                        })}
                         placeholder="phone"
-                        className="mt-1 p-3 border border-gray-300 rounded-md placeholder:text-gray-300"
+                        className="mt-1 rounded-md border border-gray-300 p-3 placeholder:text-gray-300"
                         defaultValue={fields[current]?.phone} // make sure to set up defaultValue
                         onChange={(e) => {
                           if (e.target.value) {
@@ -198,20 +220,21 @@ export const Person = ({ initialValues={}, formIndex, formStep, setFormStep, isF
                       />
 
                       {/* include error handling */}
-                      {errors.people && errors.people[current]?.phone  && (
-                        <p className="text-red-400 mt-1 text-xs">Phone is required</p>
+                      {errors.people && errors.people[current]?.phone && (
+                        <p className="mt-1 text-xs text-red-400">
+                          Phone is required
+                        </p>
                       )}
                     </div>
 
                     {/* Other fields here */}
-                    
                   </div>
                 )}
               </motion.div>
             </AnimatePresence>
           </div>
 
-          <div className="fixed md:relative bottom-0 inset-x-0 flex items-center justify-between bg-white p-5 border-t border-gray-200 shadow-sm">
+          <div className="fixed inset-x-0 bottom-0 flex items-center justify-between border-t border-gray-200 bg-white p-5 shadow-sm md:relative">
             {current > 0 && (
               <button
                 onClick={() => setCurrent(current - 1)}
@@ -221,13 +244,15 @@ export const Person = ({ initialValues={}, formIndex, formStep, setFormStep, isF
                 Back
               </button>
             )}
-            {!isFirstStep && current === 0  && <BackBtn step={formStep} setFormStep={setFormStep} cta="Back"/>}
-            
+            {!isFirstStep && current === 0 && (
+              <BackBtn step={formStep} setFormStep={setFormStep} cta="Back" />
+            )}
+
             {current !== 0 && (
               <button
                 onClick={nextPerson}
                 type="button"
-                className="bg-[#77dd77] text-[#212121] px-5 py-2 rounded text-sm whitespace-nowrap"
+                className="whitespace-nowrap rounded bg-[#77dd77] px-5 py-2 text-sm text-[#212121]"
               >
                 Next Person
               </button>
@@ -235,7 +260,6 @@ export const Person = ({ initialValues={}, formIndex, formStep, setFormStep, isF
             {!isLastStep && current === 0 && (
               <NextBtn cta={loading ? "Loading..." : "Next"} />
             )}
-
           </div>
         </form>
       </div>
