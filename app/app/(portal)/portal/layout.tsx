@@ -1,14 +1,16 @@
 import { ReactNode } from "react";
 
-export default async function PorttalLayout({ children }: { children: ReactNode }) { 
+export default async function PorttalLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return (
-    <div className="bg-gray-50 min-h-screen h-full w-full px-3 md:px-5">
-      <div className="py-5 flex justify-center items-center">
-        <img src="/athletes.svg" className="w-[125px] h-auto" />
+    <div className="h-full min-h-screen w-full bg-gray-50 px-3 md:px-5">
+      <div className="flex items-center justify-center py-5">
+        <img src="/athletes.svg" className="h-auto w-[125px]" />
       </div>
-      <div>
-        {children}
-      </div>
-    </div>  
-  )
+      <div>{children}</div>
+    </div>
+  );
 }
