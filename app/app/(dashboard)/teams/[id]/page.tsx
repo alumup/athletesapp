@@ -10,7 +10,7 @@ import GenericButton from "@/components/modal-buttons/generic-button";
 import CreateEventModal from "@/components/modal/create-event-modal";
 import { useEffect, useState } from "react";
 
-export async function getPrimaryContacts(supabase: any, person: any) {
+async function getPrimaryContacts(supabase: any, person: any) {
   if (person.dependent) {
     try {
       // Fetch the primary relationships
