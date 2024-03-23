@@ -1,12 +1,15 @@
-'use client'
-
-
+"use client";
 
 function HtmlBlock({ id, data }) {
-
   return (
-    <div key={id} className="min-h-[50px] h-full w-full relative group flex items-center justify-center">
-      <div className="w-full h-full" dangerouslySetInnerHTML={{ __html: data?.content?.value }} />
+    <div
+      key={id}
+      className="group relative flex h-full min-h-[50px] w-full items-center justify-center"
+    >
+      <div
+        className="h-full w-full"
+        dangerouslySetInnerHTML={{ __html: data?.content?.value }}
+      />
     </div>
   );
 }

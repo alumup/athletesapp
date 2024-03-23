@@ -1,6 +1,5 @@
 "use client";
 
-
 import { Toaster } from "sonner";
 import { ModalProvider } from "@/components/modal/provider";
 import { Next13ProgressBar } from "next13-progressbar";

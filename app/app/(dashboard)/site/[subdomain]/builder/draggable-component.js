@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
@@ -26,16 +26,17 @@ export default function DraggableComponent({
       if (dragIndex === hoverIndex) {
         return;
       }
-    
+
       // Determine rectangle on screen
       const hoverBoundingRect = ref.current?.getBoundingClientRect();
       // Get vertical middle
-      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      const hoverMiddleY =
+        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
       // Determine mouse position
       const clientOffset = monitor.getClientOffset();
       // Get pixels to the top
       const hoverClientY = clientOffset.y - hoverBoundingRect.top;
-    
+
       // Only perform the move when the mouse has crossed half of the items height
       // When dragging downwards, only move when the cursor is below 50%
       // When dragging upwards, only move when the cursor is above 50%
@@ -45,7 +46,7 @@ export default function DraggableComponent({
       if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
         return;
       }
-    
+
       // Time to actually perform the action
       moveComponent(dragIndex, hoverIndex);
       // Note: we're mutating the monitor item here!
@@ -59,13 +60,12 @@ export default function DraggableComponent({
   const [{ isDragging }, drag] = useDrag({
     type: "component",
     item: () => {
-      return { id, index}; 
+      return { id, index };
     },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
   });
-
 
   const opacity = isDragging ? 0.4 : 1;
   drag(drop(ref));

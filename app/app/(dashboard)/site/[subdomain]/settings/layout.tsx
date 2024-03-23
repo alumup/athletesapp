@@ -10,9 +10,8 @@ export default async function SiteAnalyticsLayout({
   params: { subdomain: string };
   children: ReactNode;
 }) {
-
   const supabase = createServerComponentClient({ cookies });
-  
+
   const { data, error } = await supabase
     .from("sites")
     .select("*")

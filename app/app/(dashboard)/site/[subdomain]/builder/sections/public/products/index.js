@@ -1,8 +1,8 @@
-'use client'
-import React, { useEffect } from 'react';
-import { GridTileImage } from '@/components/grid/tile';
-import { useShopify } from '@/components/shopify-provider';
-import { useThemeData } from '@/providers/theme-provider';
+"use client";
+import React, { useEffect } from "react";
+import { GridTileImage } from "@/components/grid/tile";
+import { useShopify } from "@/components/shopify-provider";
+import { useThemeData } from "@/providers/theme-provider";
 
 function Products({ id, data }) {
   const shopify = useShopify();
@@ -15,19 +15,18 @@ function Products({ id, data }) {
         const products = await shopify?.getCollectionProducts({
           collection: data?.collection?.value,
           reverse: true,
-          sortKey: 'CREATED_AT',
+          sortKey: "CREATED_AT",
         });
-        console.log("PRODUCTS", products)
+        console.log("PRODUCTS", products);
         setProducts(products);
       } catch (error) {
-        console.error('Failed to fetch products', error);
+        console.error("Failed to fetch products", error);
       }
-    }
+    };
 
     getProducts();
 
-    console.log("COLLECTION VALUE", data?.collection?.value)
-
+    console.log("COLLECTION VALUE", data?.collection?.value);
   }, [data?.collection?.value, shopify]);
 
   useEffect(() => {
@@ -37,24 +36,33 @@ function Products({ id, data }) {
   }, [data?.theme?.value, theme, applyTheme]);
 
   return (
-    <div key={id} className={`theme ${data?.theme?.value} py-10 px-3 md:px-5 bg-background text-foreground`}>
-      <div className={`max-w-7xl w-full mx-auto h-full`}>
-        <h2 className="mb-4 text-2xl font-bold font-primary">{data?.collection?.value}</h2>
+    <div
+      key={id}
+      className={`theme ${data?.theme?.value} bg-background px-3 py-10 text-foreground md:px-5`}
+    >
+      <div className={`mx-auto h-full w-full max-w-7xl`}>
+        <h2 className="mb-4 font-primary text-2xl font-bold">
+          {data?.collection?.value}
+        </h2>
         <ul className="flex w-full gap-4 overflow-x-auto pt-1">
-          {products && (
+          {products &&
             products?.map((product) => (
               <li
                 key={product.handle}
                 className="aspect-square w-full flex-none min-[475px]:w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5"
               >
-                <a className="relative h-full w-full" href={`/products/${product.handle}`}>
+                <a
+                  className="relative h-full w-full"
+                  href={`/products/${product.handle}`}
+                >
                   <GridTileImage
                     alt={product.title}
                     label={{
                       title: product.title,
                       amount: product.priceRange.maxVariantPrice.amount,
-                      currencyCode: product.priceRange.maxVariantPrice.currencyCode,
-                      position: 'bottom'
+                      currencyCode:
+                        product.priceRange.maxVariantPrice.currencyCode,
+                      position: "bottom",
                     }}
                     src={product.featuredImage?.url}
                     fill
@@ -62,9 +70,7 @@ function Products({ id, data }) {
                   />
                 </a>
               </li>
-            )))
-          }
-
+            ))}
         </ul>
       </div>
     </div>

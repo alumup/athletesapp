@@ -1,104 +1,141 @@
-import React from 'react';
-import { cookies } from 'next/headers'
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+"use client";
+import React, { useEffect, useState } from "react";
 
-import { fullName } from "@/lib/utils";
-import CreatePaymentModal from '@/components/modal/create-payment-modal';
-import GenericButton from "@/components/modal-buttons/generic-button";
-import { getAccount } from '@/lib/fetchers/server';
-import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
-import { CheckCircleIcon } from '@heroicons/react/24/solid';
-import EditPersonModal from '@/components/modal/edit-person-modal';
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { ExternalLinkIcon } from '@radix-ui/react-icons';
-import Link from 'next/link';
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import { getInitials } from "@/lib/utils";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  AlarmClock,
+  CheckCircleIcon,
+  Clock,
+  Loader,
+  MapPin,
+} from "lucide-react";
+import AccountEvents from "@/components/events/events";
+import GenericButton from "@/components/modal-buttons/generic-button";
+import CreatePaymentModal from "@/components/modal/create-payment-modal";
 
-export const dynamic = 'force-dynamic'
+const PortalPage = () => {
+  const supabase = createClientComponentClient();
 
-const PortalPage = async () => {
+  const [account, setAccount] = useState<any>();
+  const [user, setUser] = useState<any>();
+  const [profile, setProfile] = useState<any>();
+  const [independents, setIndependents] = useState<any>(null);
+  const [toRelationships, setToRelationships] = useState<any>(null);
+  const [rosters, setRosters] = useState<any>(null);
+  const [loading, setLoading] = useState<any>(true);
+  const [error, setError] = useState<any>(null);
+  const [selectedDependent, setSelectedDependent] = useState<any>();
 
-  const supabase = createServerComponentClient({ cookies })
+  useEffect(() => {
+    const getAccount = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
 
-  const account = getAccount()
+      if (error) console.log("Error fetching user: ", error.message);
 
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error) console.log('Error fetching user: ', error.message);
+      setUser(user);
 
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('*, accounts(*), people(*)')
-    .eq('id', user?.id)
-    .single();
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("*, accounts(*, senders(*)), people(*)")
+        .eq("id", user?.id)
+        .single();
 
-  if (profileError) console.log('Error fetching profile: ', profileError.message);
+      if (profileError)
+        console.log("Error fetching profile: ", profileError.message);
 
-  // Get all of the people that INDEPENDENTS and use the same email as the signed in user
+      setProfile(profile);
+      setAccount(profile?.accounts);
+    };
 
-  const { data: independents, error: independentsError } = await supabase
-    .from('people')
-    .select('*, accounts(*)')
-    .eq('dependent', false)
-    .eq('email', user?.email);
+    getAccount();
 
-  console.log("USER EMAIL", user?.email)
+    const fetchRosters = async () => {
+      const { data: roster, error } = await supabase
+        .from("rosters")
+        .select("*, teams(*), fees(*, payments(*))");
 
-  if (independentsError) console.log('Error fetching people with same email: ', independentsError.message);
+      setRosters(roster);
 
-  // console.log("Independents: ", independents)
-  // console.log("Prrofile IDs: ", profile.people_ids)
+      console.log(roster, "<< roster");
+    };
 
+    fetchRosters();
+  }, []);
 
+  useEffect(() => {
+    const getIndependents = async () => {
+      const { data: independents, error: independentsError } = await supabase
+        .from("people")
+        .select("*, accounts(*)")
+        .eq("dependent", false)
+        .eq("email", user?.email);
 
-  async function fetchToRelationships() {
+      if (independentsError)
+        console.log(
+          "Error fetching people with same email: ",
+          independentsError.message,
+        );
 
-    let independentIds = independents?.map(independent => independent.id) || [];
+      setIndependents(independents);
+    };
 
-    console.log("IDS", independentIds)
+    if (user !== null) getIndependents();
+  }, [user]);
 
-    const { data, error } = await supabase
-      .from("relationships")
-      .select("*, from:person_id(*),to:relation_id(*, accounts(*))")
-      .in("person_id", independentIds)
+  useEffect(() => {
+    const fetchToRelationships = async () => {
+      let independentIds =
+        independents?.map((independent: any) => independent.id) || [];
 
-    if (error) {
-      console.error(error);
-      return;
-    }
+      console.log("IDS", independentIds);
 
-    if (data) {
-      console.log("Relationships", data)
-    }
+      const { data, error } = await supabase
+        .from("relationships")
+        .select("*, from:person_id(*),to:relation_id(*, accounts(*))")
+        .in("person_id", independentIds);
 
-    return data
-  }
+      if (error) {
+        console.error(error);
+        return;
+      }
 
+      if (data) {
+        console.log("Relationships", data);
+      }
 
-  async function fetchRosters() {
-    const { data: roster, error } = await supabase
-      .from('rosters')
-      .select('*, teams(*), fees(*, payments(*))')
+      setToRelationships(data);
+      setSelectedDependent(data[0]);
+    };
 
-    return roster
-  }
-
-  const toRelationships = await fetchToRelationships();
-
-  let rosters = await fetchRosters();
+    if (independents && independents.length > 0) fetchToRelationships();
+  }, [independents]);
 
   function hasPaidFee(relation: any, roster: any) {
     // Check if there is a payment for the fee by the person
-    const paymentsForPerson = roster.fees.payments.filter((payment: { person_id: any; }) => payment.person_id === relation.to.id);
+    const paymentsForPerson = roster.fees.payments.filter(
+      (payment: { person_id: any }) => payment.person_id === relation.to.id,
+    );
 
     // Sort the payments by date, most recent first
-    paymentsForPerson.sort((a: { date: string; }, b: { date: string; }) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    paymentsForPerson.sort(
+      (a: { date: string }, b: { date: string }) =>
+        new Date(b.date).getTime() - new Date(a.date).getTime(),
+    );
 
     // Check if any of the payments status are 'succeeded'
-    const succeededPayment = paymentsForPerson.find((payment: { status: string; }) => payment.status === 'succeeded');
+    const succeededPayment = paymentsForPerson.find(
+      (payment: { status: string }) => payment.status === "succeeded",
+    );
 
     // If there is a 'succeeded' payment, return true
     if (succeededPayment) {
@@ -110,104 +147,75 @@ const PortalPage = async () => {
   }
 
   return (
-    <div className="py-5">
-      <div className="max-w-4xl mx-auto py-10 px-5 border border-gray-300 rounded-xl shadow bg-white">
-        <div className="flex items-center justify-between border-b border-gray-300 w-full pb-3">
-          <h1 className="text-2xl font-bold">{profile?.name || fullName(profile)}</h1>
-          <div>
-            <Link href={`/portal/invoices/${profile.id}`} className="bg-grey text-black text-sm border  rounded px-3 py-1 mx-2">Payments</Link>
-            <button className="bg-black text-white text-sm rounded px-3 py-1">Edit Profile</button>
+    <div className="">
+      {/* Relationships */}
+      <div className="flex overflow-x-auto">
+        {toRelationships ? (
+          toRelationships?.map((relation: any) => (
+            <div
+              onClick={() => setSelectedDependent(relation)}
+              className="mx-2 flex items-center whitespace-nowrap rounded-full border p-2"
+              key={relation.id}
+            >
+              <Avatar className="mr-2 h-10 w-10 ">
+                <AvatarFallback className="text-black">
+                  {getInitials(relation.to?.first_name, relation.to?.last_name)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="font-medium">{relation.to?.name}</span>
+            </div>
+          ))
+        ) : (
+          <div className="fixed left-0 top-0 flex h-full w-full items-center justify-center">
+            <Loader className="h-10 w-10" />
           </div>
-
-        </div>
-
-
-        <div className="mt-10">
-          {toRelationships?.map((relation, i) => (
-            <div key={i} className="divide-y divide-gray-300">
-              <div className="px-3 py-2 flex flex-col">
-                <div className="flex justify-between items-center">
-                  <div className="flex justify-between items-center space-x-2">
-                    <span>
-                      {relation.to.aau_number === null || relation.to.aau_number === "" ? (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <ExclamationCircleIcon className="w-6 h-6 text-red-500" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{relation.to.first_name} is missing their AAU Number.</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      ) : null}
-                    </span>
-                    <span className="font-bold text-md">
-                      {relation.to.name || fullName(relation.to)}
-                    </span>
-                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-900">{relation.to.accounts.name}</span>
-                  </div>
-
-                  <GenericButton cta={`Edit`} size="sm" variant="outline">
-                    <EditPersonModal person={relation?.to} account={account} />
-                  </GenericButton>
+        )}
+      </div>
+      {/* Events */}
+      <div className="mx-2 my-5">
+        {selectedDependent && (
+          <AccountEvents dependent={selectedDependent} profile={profile} />
+        )}
+      </div>
+      {/* Events */}
+      <span className="mx-2 font-bold">Teams</span>
+      <div className="mx-2 my-5 mt-2">
+        {rosters
+          ?.filter(
+            (roster: any) => roster.person_id === selectedDependent.to.id,
+          )
+          .map((roster: any, i: any) => (
+            <div key={i}>
+              <div className="grid grid-cols-3 items-center gap-4 last:pt-2">
+                <div className="col-span-2">
+                  <span className="text-sm">
+                    {roster.teams?.name} ({roster.fees?.name})
+                  </span>
                 </div>
-
-                {relation.to.aau_number === null || relation.to.aau_number === "" ? (
-                  <div className="mt-2 w-full flex flex-col md:flex-row items-center justify-between border border-gray-300 rounded-xl bg-white overflow-hidden">
-                    <div className="flex flex-col p-3">
-                      <h3 className="text-sm font-bold">{`${relation.to.first_name}`} needs an AAU Number</h3>
-                      <h6 className="text-sm font-light">After you get the number you can update {`${relation.to.first_name}`}'s profile.</h6>
-                    </div>
-                    <div className="flex flex-col p-3">
-                      <a href="https://play.aausports.org/JoinAAU/MembershipApplication.aspx" className="px-2 py-1 bg-lime-400 text-black rounded text-xs flex flex-shrink items-center space-x-2">
-                        Get AAU Number
-                        <ExternalLinkIcon className="w-4 h-4" />
-                      </a>
-                    </div>
-                  </div>
-                ) : null}
-
-                <h3 className="mt-5 font-bold text-xs">Fees</h3>
-                <div className="py-2 divide-y divide-solid space-y-2">
-                  {rosters?.filter(roster => roster.person_id === relation.to.id).map((roster, i) => (
-                    <div key={i} className="last:pt-2 grid grid-cols-2 items-center gap-3">
-                      <div className="col-span-1">
-                        <span className="text-sm">{roster.teams?.name} ({roster.fees?.name})</span>
-                      </div>
-                      <div className="col-span-1 mt-5 md:mt-2 flex items-center justify-end">
-                        {hasPaidFee(relation, roster) ?
-                          <CheckCircleIcon className="w-6 h-6 text-lime-500" /> :
-                          <GenericButton size="sm" variant="default" cta={`Pay $${roster.fees?.amount}`}>
-                            <CreatePaymentModal account={account} profile={profile} roster={roster} fee={roster.fees} person={relation.to} />
-                          </GenericButton>
-                        }
-                      </div>
-                    </div>
-                  ))}
+                <div className="col-span-1 flex items-center justify-end md:mt-2">
+                  {hasPaidFee(selectedDependent, roster) ? (
+                    <CheckCircleIcon className="h-6 w-6 text-lime-500" />
+                  ) : (
+                    <GenericButton
+                      size="sm"
+                      variant="default"
+                      cta={`Pay $${roster.fees?.amount}`}
+                    >
+                      <CreatePaymentModal
+                        account={account}
+                        profile={profile}
+                        roster={roster}
+                        fee={roster.fees}
+                        person={selectedDependent.to}
+                      />
+                    </GenericButton>
+                  )}
                 </div>
               </div>
+              <div className="-mx-1 my-1 h-px bg-zinc-100 dark:bg-zinc-800"></div>
             </div>
           ))}
-
-
-
-        </div>
-
       </div>
-
-      {/* <div className="my-10 px-8 py-3 max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between border border-gray-300 rounded-xl shadow bg-white overflow-hidden">
-        <div className="flex flex-col">
-          <h3 className="text-md font-bold">Provo Bulldog Youth Uniform</h3>
-          <h6 className="text-sm font-light">Buy your ProLook Reversible jersey.</h6>
-        </div>
-        <div className="flex flex-col mt-5 md:mtt-0">
-          <a href="https://provobasketball.com/products/provo-basketball-youth-uniform" target="_blank" className="px-3 py-1 bg-lime-400 text-black rounded text-sm flex flex-shrink items-center space-x-2">
-            Buy Now
-            <ExternalLinkIcon className="w-4 h-4" />
-          </a>
-        </div>
-      </div> */}
     </div>
   );
 };

@@ -7,17 +7,17 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function SettingsPage() {
-  const supabase = createClientComponentClient()
-  const searchParams = useSearchParams()
+  const supabase = createClientComponentClient();
+  const searchParams = useSearchParams();
 
-  const scope = searchParams.get('scope')
-  const code = searchParams.get('code')
-  const state = searchParams.get('state')
+  const scope = searchParams.get("scope");
+  const code = searchParams.get("code");
+  const state = searchParams.get("state");
 
-  const [connecting, setConnecting] = useState(true)
-  const [user, setUser] = useState<any>()
-  const [stripeConnected, setStripeConnected] = useState()
-  const [stripeAccount, setStripeAccount] = useState<any>()
+  const [connecting, setConnecting] = useState(true);
+  const [user, setUser] = useState<any>();
+  const [stripeConnected, setStripeConnected] = useState();
+  const [stripeAccount, setStripeAccount] = useState<any>();
   useEffect(() => {
     const getUser = async () => {
       const {
@@ -32,22 +32,20 @@ export default function SettingsPage() {
 
       if (profileError) throw profileError;
 
-      setUser(profile)
-      setStripeConnected(profile.accounts.stripe_id)
-    }
+      setUser(profile);
+      setStripeConnected(profile.accounts.stripe_id);
+    };
 
     getUser();
 
     if (scope && code && state) {
-      setConnecting(true)
+      setConnecting(true);
     } else {
-      setConnecting(false)
+      setConnecting(false);
     }
-
-  }, [])
+  }, []);
 
   useEffect(() => {
-
     if (scope && code && state && user) {
       const connectPlatformAccount = async () => {
         const response = await fetch("/api/connect", {
@@ -55,9 +53,9 @@ export default function SettingsPage() {
           body: JSON.stringify({
             scope: scope,
             code: code,
-            state: state
-          })
-        })
+            state: state,
+          }),
+        });
 
         if (response.status === 200) {
           const resp = await response.json();
@@ -65,34 +63,32 @@ export default function SettingsPage() {
             .from("accounts")
             .update({ stripe_id: resp.connected_account_id })
             .eq("id", user?.account_id)
-            .select()
+            .select();
 
-          if (error) toast("Error connecting stripe.")
-          setStripeConnected(updateAccount?.[0]?.stripe_id)
+          if (error) toast("Error connecting stripe.");
+          setStripeConnected(updateAccount?.[0]?.stripe_id);
         }
-      }
+      };
 
-      connectPlatformAccount()
+      connectPlatformAccount();
     }
-  }, [scope, code, state, user])
-
+  }, [scope, code, state, user]);
 
   useEffect(() => {
     if (stripeConnected) {
       const getAccounts = async () => {
-        const response = await fetch('/api/connect/account', {
+        const response = await fetch("/api/connect/account", {
           method: "POST",
-          body: JSON.stringify({ account_id: stripeConnected })
-        })
+          body: JSON.stringify({ account_id: stripeConnected }),
+        });
 
         const account = await response.json();
-        setStripeAccount(account)
-      }
+        setStripeAccount(account);
+      };
 
-      getAccounts()
+      getAccounts();
     }
-  }, [stripeConnected])
-
+  }, [stripeConnected]);
 
   return (
     <div className="flex max-w-screen-xl flex-col space-y-12 py-8">
@@ -101,37 +97,63 @@ export default function SettingsPage() {
           Settings
         </h1>
 
-
-
-
         <div className="relative border border-gray-100 bg-white p-6">
-          <span className="whitespace-nowrap bg-blue-400 px-3 py-1.5 text-xs font-medium"> Stripe </span>
+          <span className="whitespace-nowrap bg-blue-400 px-3 py-1.5 text-xs font-medium">
+            {" "}
+            Stripe{" "}
+          </span>
 
-          {!stripeConnected && <button disabled={connecting} className="mx-3 mt-6 bg-[#77dd77] rounded shadow px-4 py-2 text-black mb-2 w-auto"
-            onClick={() => {
-              if (window) {
-                setConnecting(true)
-                const url = `https://dashboard.stripe.com/oauth/authorize?response_type=code&client_id=${process.env.NEXT_PUBLIC_STRIPE_OAUTH_CLIENT_ID
-                  }&scope=read_write&state=${Math.random() * 100}&redirect_uri=${process.env.NEXT_PUBLIC_BASE_URL
-                  }/settings`;
+          {!stripeConnected && (
+            <button
+              disabled={connecting}
+              className="mx-3 mb-2 mt-6 w-auto rounded bg-[#77dd77] px-4 py-2 text-black shadow"
+              onClick={() => {
+                if (window) {
+                  setConnecting(true);
+                  const url = `https://dashboard.stripe.com/oauth/authorize?response_type=code&client_id=${
+                    process.env.NEXT_PUBLIC_STRIPE_OAUTH_CLIENT_ID
+                  }&scope=read_write&state=${
+                    Math.random() * 100
+                  }&redirect_uri=${process.env.NEXT_PUBLIC_BASE_URL}/settings`;
 
-                window.document.location.href = url;
+                  window.document.location.href = url;
+                }
+              }}
+            >
+              {connecting ? (
+                <LoadingDots color="#808080" />
+              ) : (
+                <span>Connect Stripe</span>
+              )}
+            </button>
+          )}
 
-              }
-            }}>
-            {connecting ? <LoadingDots color='#808080' /> : <span>Connect Stripe</span>}
-          </button>}
+          {stripeConnected && (
+            <>
+              <h2 className="text-black-900 mt-4 text-2xl font-bold">
+                {stripeAccount?.business_profile?.name ||
+                  stripeAccount?.business_profile?.url ||
+                  stripeAccount?.email}
+                <span className="px-2 text-sm text-gray-700">
+                  {stripeAccount?.id}{" "}
+                </span>
+              </h2>
 
-          {stripeConnected && <>
-            <h2 className="mt-4 text-2xl font-bold text-black-900">{stripeAccount?.business_profile?.name || stripeAccount?.business_profile?.url || stripeAccount?.email}<span className="text-gray-700 text-sm px-2">{stripeAccount?.id} </span></h2>
-
-            <p className="mt-1.5 text-lg text-black-700">Payouts Enabled: <span className="text-gray-700 text-sm">{stripeAccount?.payout_enabled ? "true" : "false"}</span></p>
-            <p className="mt-1.5 text-lg text-black-700">Type: <span className="text-gray-700 text-sm">{stripeAccount?.type}</span></p>
-          </>
-          }
+              <p className="text-black-700 mt-1.5 text-lg">
+                Payouts Enabled:{" "}
+                <span className="text-sm text-gray-700">
+                  {stripeAccount?.payout_enabled ? "true" : "false"}
+                </span>
+              </p>
+              <p className="text-black-700 mt-1.5 text-lg">
+                Type:{" "}
+                <span className="text-sm text-gray-700">
+                  {stripeAccount?.type}
+                </span>
+              </p>
+            </>
+          )}
         </div>
-
-
       </div>
     </div>
   );

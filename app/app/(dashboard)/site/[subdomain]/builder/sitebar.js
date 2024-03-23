@@ -2,8 +2,7 @@
 import React from "react";
 import { useDrag } from "react-dnd";
 
-import ThemeForm from './theme-form'
-
+import ThemeForm from "./theme-form";
 
 function Sitebar() {
   return (

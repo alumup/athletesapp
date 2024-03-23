@@ -31,7 +31,7 @@ export async function getAccountWithDomain(domain: string) {
 
       if (siteError) throw siteError;
       account = site?.accounts;
-      console.log("ACCOUNT", account)
+      console.log("ACCOUNT", account);
     }
 
     return account;
@@ -117,7 +117,6 @@ export async function getAccountShopify(domain: string) {
   return createShopify(shopifyToken) as Shopify;
 }
 
-
 export async function getPrimaryContact(person: any) {
   const supabase = createClientComponentClient(); // replace with your Supabase client
 
@@ -125,10 +124,10 @@ export async function getPrimaryContact(person: any) {
     try {
       // Fetch the primary relationship
       const { data: relationship, error: relationshipError } = await supabase
-        .from('relationships')
-        .select('*')
-        .eq('relation_id', person.id)
-        .eq('primary', true)
+        .from("relationships")
+        .select("*")
+        .eq("relation_id", person.id)
+        .eq("primary", true)
         .single();
 
       if (relationshipError) {
@@ -138,9 +137,9 @@ export async function getPrimaryContact(person: any) {
 
       // Fetch the primary person
       const { data: primaryPerson, error: primaryPersonError } = await supabase
-        .from('people')
-        .select('*')
-        .eq('id', relationship.person_id)
+        .from("people")
+        .select("*")
+        .eq("id", relationship.person_id)
         .single();
 
       if (primaryPersonError) {
@@ -151,7 +150,7 @@ export async function getPrimaryContact(person: any) {
       // Return the primary person
       return primaryPerson;
     } catch (error) {
-      console.error('Error fetching primary contact:', error);
+      console.error("Error fetching primary contact:", error);
       return null;
     }
   } else {
@@ -167,10 +166,10 @@ export async function getPrimaryContacts(person: any) {
     try {
       // Fetch the primary relationships
       const { data: relationships, error: relationshipError } = await supabase
-        .from('relationships')
-        .select('*')
-        .eq('relation_id', person.id)
-        .eq('primary', true);
+        .from("relationships")
+        .select("*")
+        .eq("relation_id", person.id)
+        .eq("primary", true);
 
       if (relationshipError) {
         console.error(relationshipError);
@@ -180,11 +179,12 @@ export async function getPrimaryContacts(person: any) {
       // Fetch the primary persons
       const primaryPersons = await Promise.all(
         relationships.map(async (relationship: any) => {
-          const { data: primaryPerson, error: primaryPersonError } = await supabase
-            .from('people')
-            .select('*')
-            .eq('id', relationship.person_id)
-            .single();
+          const { data: primaryPerson, error: primaryPersonError } =
+            await supabase
+              .from("people")
+              .select("*")
+              .eq("id", relationship.person_id)
+              .single();
 
           if (primaryPersonError) {
             console.error(primaryPersonError);
@@ -192,13 +192,13 @@ export async function getPrimaryContacts(person: any) {
           }
 
           return primaryPerson;
-        })
+        }),
       );
 
       // Filter out any null values (in case of errors)
-      return primaryPersons.filter(person => person !== null);
+      return primaryPersons.filter((person) => person !== null);
     } catch (error) {
-      console.error('Error fetching primary contacts:', error);
+      console.error("Error fetching primary contacts:", error);
       return null;
     }
   } else {

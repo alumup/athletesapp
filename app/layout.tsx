@@ -72,9 +72,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
       </head>
       <body>
         <Providers>
-          <ModalProvider>
-            {props.children}
-          </ModalProvider>
+          <ModalProvider>{props.children}</ModalProvider>
           <Analytics />
         </Providers>
       </body>

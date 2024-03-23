@@ -29,11 +29,13 @@ export function ModalProvider({ children }: { children: ReactNode }) {
   };
 
   const updateModalContent = (content: ReactNode) => {
-    setModalContent(content)
-  }
+    setModalContent(content);
+  };
 
   return (
-    <ModalContext.Provider value={{ show, hide, isModalOpen: showModal, updateModalContent }}>
+    <ModalContext.Provider
+      value={{ show, hide, isModalOpen: showModal, updateModalContent }}
+    >
       {children}
       {showModal && (
         <Modal showModal={showModal} setShowModal={setShowModal}>

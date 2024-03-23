@@ -1,13 +1,11 @@
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 
-
 export default async function SiteAnalytics({
   params,
 }: {
   params: { subdomain: string };
 }) {
-
   const supabase = createServerComponentClient({ cookies });
 
   const { data, error } = await supabase

@@ -1,13 +1,13 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { Popover } from '@headlessui/react'
-import { AnimatePresence, motion } from 'framer-motion'
+import Link from "next/link";
+import { Popover } from "@headlessui/react";
+import { AnimatePresence, motion } from "framer-motion";
 
-import { Button } from '@/components/marketing/Button'
-import { Container } from '@/components/marketing/Container'
-import { Logo } from '@/components/marketing/Logo'
-import { NavLinks } from '@/components/marketing/NavLinks'
+import { Button } from "@/components/marketing/Button";
+import { Container } from "@/components/marketing/Container";
+import { Logo } from "@/components/marketing/Logo";
+import { NavLinks } from "@/components/marketing/NavLinks";
 
 function MenuIcon(props) {
   return (
@@ -19,7 +19,7 @@ function MenuIcon(props) {
         strokeLinejoin="round"
       />
     </svg>
-  )
+  );
 }
 
 function ChevronUpIcon(props) {
@@ -32,7 +32,7 @@ function ChevronUpIcon(props) {
         strokeLinejoin="round"
       />
     </svg>
-  )
+  );
 }
 
 function MobileNavLink(props) {
@@ -42,7 +42,7 @@ function MobileNavLink(props) {
       className="block text-base leading-7 tracking-tight text-gray-700"
       {...props}
     />
-  )
+  );
 }
 
 export function Header() {
@@ -63,7 +63,7 @@ export function Header() {
               {({ open }) => (
                 <>
                   <Popover.Button
-                    className="relative z-10 -m-2 inline-flex items-center rounded-lg stroke-gray-900 p-2 hover:bg-gray-200/50 hover:stroke-gray-600 active:stroke-gray-900 ui-not-focus-visible:outline-none"
+                    className="ui-not-focus-visible:outline-none relative z-10 -m-2 inline-flex items-center rounded-lg stroke-gray-900 p-2 hover:bg-gray-200/50 hover:stroke-gray-600 active:stroke-gray-900"
                     aria-label="Toggle site navigation"
                   >
                     {({ open }) =>
@@ -132,5 +132,5 @@ export function Header() {
         </Container>
       </nav>
     </header>
-  )
+  );
 }

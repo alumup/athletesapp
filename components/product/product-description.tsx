@@ -7,14 +7,13 @@ import { VariantSelector } from "./variant-selector";
 export const revalidate = 0;
 
 export function ProductDescription({ product }: { product: Product }) {
-
-  console.log("product", product)
+  console.log("product", product);
 
   return (
     <>
       <div className="mb-6 flex flex-col border-b pb-6 dark:border-neutral-700">
         <h1 className="mb-2 text-3xl font-medium">{product.title}</h1>
-        <div className="mr-auto w-auto rounded-full bg-primary text-primary-foreground p-2 text-sm">
+        <div className="mr-auto w-auto rounded-full bg-primary p-2 text-sm text-primary-foreground">
           <Price
             amount={product.priceRange.maxVariantPrice.amount}
             currencyCode={product.priceRange.maxVariantPrice.currencyCode}
@@ -24,7 +23,7 @@ export function ProductDescription({ product }: { product: Product }) {
 
       {product.descriptionHtml ? (
         <Prose
-          className="mb-6 text-md text-light leading-tight dark:text-white/[60%]"
+          className="text-md text-light mb-6 leading-tight dark:text-white/[60%]"
           html={product.descriptionHtml}
         />
       ) : null}

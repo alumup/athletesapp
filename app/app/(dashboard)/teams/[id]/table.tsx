@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import {
   TrashIcon,
   MixerHorizontalIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
 } from "@radix-ui/react-icons";
 
 import {
@@ -44,42 +44,47 @@ import SendButton from "@/components/modal-buttons/send-button";
 import { useRouter } from "next/navigation";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
 
-
-
 function paymentStatus(person: any, fees: any) {
   // Check if there is a payment for the fee by the person
-  const paymentsForPerson = fees.payments.filter((payment: { person_id: any; }) => payment.person_id === person.id);
+  const paymentsForPerson = fees.payments.filter(
+    (payment: { person_id: any }) => payment.person_id === person.id,
+  );
 
   // Sort the payments by date, most recent first
-  paymentsForPerson.sort((a: { date: string; }, b: { date: string; }) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  paymentsForPerson.sort(
+    (a: { date: string }, b: { date: string }) =>
+      new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
 
   // Check if any of the payments status are 'succeeded'
-  const succeededPayment = paymentsForPerson.find((payment: { status: string; }) => payment.status === 'succeeded');
+  const succeededPayment = paymentsForPerson.find(
+    (payment: { status: string }) => payment.status === "succeeded",
+  );
 
   // If there is a 'succeeded' payment, return 'succeeded'
   if (succeededPayment) {
-    return 'succeeded';
+    return "succeeded";
   }
 
   // If there is no 'succeeded' payment, return the status of the most recent payment
   // If there is no 'succeeded' payment, return the status of the most recent payment and the count of payments
-  return paymentsForPerson[0]?.status
+  return paymentsForPerson[0]?.status;
 }
 
 function renderStatusSpan(status: string) {
   let statusColor: string;
   switch (status) {
-    case 'succeeded':
+    case "succeeded":
       statusColor = "text-green-900 bg-green-100 border border-green-200";
       break;
-    case 'incomplete':
+    case "incomplete":
       statusColor = "text-yellow-900 bg-yellow-100 border border-yellow-200";
       break;
-    case 'pending':
+    case "pending":
       statusColor = "text-gray-900 bg-text-100 border border-text-200";
-      status
+      status;
       break;
-    case 'failed':
+    case "failed":
       statusColor = "text-red-900 bg-red-100 border border-red-200";
       break;
     default:
@@ -87,9 +92,14 @@ function renderStatusSpan(status: string) {
       status = "unpaid";
       break;
   }
-  return <span className={`text-[10px] px-2 py-1 rounded-md ${statusColor} uppercase`}>{status}</span>;
+  return (
+    <span
+      className={`rounded-md px-2 py-1 text-[10px] ${statusColor} uppercase`}
+    >
+      {status}
+    </span>
+  );
 }
-
 
 export type Person = {
   id: string;
@@ -99,10 +109,10 @@ export type Person = {
   name: string;
   tags: any;
   email: string;
-  grade: string,
-  birthdate: string,
+  grade: string;
+  birthdate: string;
   phone: string;
-  primary_contacts: any
+  primary_contacts: any;
 };
 
 const columns: ColumnDef<Person>[] = [
@@ -132,8 +142,8 @@ const columns: ColumnDef<Person>[] = [
       const fees = row.getValue("fees") as { amount: number } | undefined;
       const amount = fees?.amount;
       return (
-        <span className="px-2 py-1 rounded bg-gray-50 text-gray-500">
-          ${amount ?? 'N/A'}
+        <span className="rounded bg-gray-50 px-2 py-1 text-gray-500">
+          ${amount ?? "N/A"}
         </span>
       );
     },
@@ -144,8 +154,8 @@ const columns: ColumnDef<Person>[] = [
     cell: ({ row }: { row: any }) => {
       const person = row.original;
       const status = paymentStatus(person, person.fees);
-      const statusBadge = renderStatusSpan(status)
-      return statusBadge
+      const statusBadge = renderStatusSpan(status);
+      return statusBadge;
     },
   },
   {
@@ -172,7 +182,7 @@ const columns: ColumnDef<Person>[] = [
           <Link
             key={index}
             href={`/people/${contact?.id}`}
-            className="px-2 py-1 rounded-full text-sm text-gray-900 bg-gray-100 border border-gray-200 lowercase cursor-pointer"
+            className="cursor-pointer rounded-full border border-gray-200 bg-gray-100 px-2 py-1 text-sm lowercase text-gray-900"
           >
             {contact?.email}
           </Link>
@@ -186,41 +196,44 @@ const columns: ColumnDef<Person>[] = [
     cell: ({ row }) => <div>{row.getValue("phone")}</div>,
   },
   {
-  accessorKey: "actions",
-  header: "",
-  cell: ({ row }) => 
-    <>
-      <Link href={`/people/${row.original.id}`} className="cursor hover:bg-gray-100 rounded">
-        <span className="flex items-center space-x-2 text-sm text-gray-700">
-          <ArrowRightIcon className="h-5 w-5" />
-        </span>
-      </Link>
-    </>
-  }
+    accessorKey: "actions",
+    header: "",
+    cell: ({ row }) => (
+      <>
+        <Link
+          href={`/people/${row.original.id}`}
+          className="cursor rounded hover:bg-gray-100"
+        >
+          <span className="flex items-center space-x-2 text-sm text-gray-700">
+            <ArrowRightIcon className="h-5 w-5" />
+          </span>
+        </Link>
+      </>
+    ),
+  },
 ];
 
-
-
-
-export function TeamTable({data, team, account}: {data: Person[], team: any, account: any}) {
+export function TeamTable({
+  data,
+  team,
+  account,
+}: {
+  data: Person[];
+  team: any;
+  account: any;
+}) {
   const { refresh } = useRouter();
   const supabase = createClientComponentClient();
 
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-    []
-  );
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   useEffect(() => {
-    console.log("DATA", data)
-  },[])
+    console.log("DATA", data);
+  }, []);
 
-
-  const [columnVisibility, setColumnVisibility] =
-    useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-
-
 
   const table = useReactTable({
     data,
@@ -246,39 +259,39 @@ export function TeamTable({data, team, account}: {data: Person[], team: any, acc
     table.setPageSize(30);
   }, []); //
 
-    // const handleDeleteSelected = () => {
-    //   const people = selectedRows.map((row) => row.original);
-    //   // Logic to delete selected rows
-    // };
-  
+  // const handleDeleteSelected = () => {
+  //   const people = selectedRows.map((row) => row.original);
+  //   // Logic to delete selected rows
+  // };
+
   const handleRemoveSelected = async () => {
     const people = selectedRows.map((row) => row.original);
 
     people.forEach(async (person: any) => {
       const { error } = await supabase
-        .from('rosters')
+        .from("rosters")
         .delete()
-        .eq('team_id', team.id)
-        .eq('person_id', person.id)
-      
+        .eq("team_id", team.id)
+        .eq("person_id", person.id);
+
       if (error) {
-        console.log("ERROR REMOVING PERSON", error)
+        console.log("ERROR REMOVING PERSON", error);
       }
-    })
+    });
 
     // Show a toast notification
 
     refresh();
-    table.toggleAllPageRowsSelected(false)
-    toast.success('Selected players have been removed successfully.');
+    table.toggleAllPageRowsSelected(false);
+    toast.success("Selected players have been removed successfully.");
   };
-  
-    // Check if any row is selected
-    const isAnyRowSelected = table?.getSelectedRowModel()?.rows?.length > 0;
 
-    const selectedRows = table.getSelectedRowModel().rows;
+  // Check if any row is selected
+  const isAnyRowSelected = table?.getSelectedRowModel()?.rows?.length > 0;
 
-    const people = selectedRows.map((row) => row.original);
+  const selectedRows = table.getSelectedRowModel().rows;
+
+  const people = selectedRows.map((row) => row.original);
 
   return (
     <div className="w-full">
@@ -293,7 +306,10 @@ export function TeamTable({data, team, account}: {data: Person[], team: any, acc
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto flex justify-between items-center">
+            <Button
+              variant="outline"
+              className="ml-auto flex items-center justify-between"
+            >
               <MixerHorizontalIcon className="mr-2 h-4 w-4" /> View
             </Button>
           </DropdownMenuTrigger>
@@ -304,7 +320,7 @@ export function TeamTable({data, team, account}: {data: Person[], team: any, acc
               .map((column) => {
                 return (
                   <DropdownMenuCheckboxItem
-                    key={column.id}
+                    key={column.id + Math.random()}
                     className="capitalize"
                     checked={column.getIsVisible()}
                     onCheckedChange={(value) =>
@@ -313,15 +329,15 @@ export function TeamTable({data, team, account}: {data: Person[], team: any, acc
                   >
                     {column.id}
                   </DropdownMenuCheckboxItem>
-                )
+                );
               })}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
       {isAnyRowSelected && (
-        <div className="flex justify-between space-x-4 py-2 mb-2">
-          <div className="flex items-center space-x-2"> 
+        <div className="mb-2 flex justify-between space-x-4 py-2">
+          <div className="flex items-center space-x-2">
             <SendButton channel="email" cta="Send Email">
               <SendEmailModal
                 people={people}
@@ -330,7 +346,11 @@ export function TeamTable({data, team, account}: {data: Person[], team: any, acc
               />
             </SendButton>
           </div>
-          <Button onClick={handleRemoveSelected} variant="outline" className="text-red-500">
+          <Button
+            onClick={handleRemoveSelected}
+            variant="outline"
+            className="text-red-500"
+          >
             <TrashIcon className="mr-2 h-4 w-4" /> Remove
           </Button>
         </div>
@@ -339,18 +359,18 @@ export function TeamTable({data, team, account}: {data: Person[], team: any, acc
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id + Math.random()}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id + Math.random()}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -359,14 +379,14 @@ export function TeamTable({data, team, account}: {data: Person[], team: any, acc
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                  key={row.id}
+                  key={row.id + Math.random()}
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id + Math.random()}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -386,7 +406,7 @@ export function TeamTable({data, team, account}: {data: Person[], team: any, acc
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
+        <div className="text-muted-foreground flex-1 text-sm">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
@@ -410,5 +430,5 @@ export function TeamTable({data, team, account}: {data: Person[], team: any, acc
         </div>
       </div>
     </div>
-  )
+  );
 }

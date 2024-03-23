@@ -8,21 +8,17 @@ export default function GenericButton({
   children,
   size,
   variant,
-  cta
+  cta,
 }: {
-    children: ReactNode;
-    size: any,
-    variant: any,
-    cta: string;
+  children: ReactNode;
+  size: any;
+  variant: any;
+  cta: string;
 }) {
   const modal = useModal();
   return (
-    <Button
-      onClick={() => modal?.show(children)}
-      size={size}
-      variant={variant}
-    >
-     {cta}
+    <Button onClick={() => modal?.show(children)} size={size} variant={variant}>
+      {cta}
     </Button>
   );
 }

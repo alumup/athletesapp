@@ -1,14 +1,24 @@
 import localFont from "next/font/local";
-import { Bricolage_Grotesque, Inter, Lora, Work_Sans, Open_Sans, Playfair_Display, Lato, Fira_Sans, Raleway } from "next/font/google";
+import {
+  Bricolage_Grotesque,
+  Inter,
+  Lora,
+  Work_Sans,
+  Open_Sans,
+  Playfair_Display,
+  Lato,
+  Fira_Sans,
+  Raleway,
+} from "next/font/google";
 
 export const bricolageGrotesque = Bricolage_Grotesque({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700"]
+  weight: ["300", "400", "500", "700"],
 });
 
 export const inter = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700", "900"]
+  weight: ["300", "400", "500", "700", "900"],
 });
 
 export const cal = localFont({
@@ -48,25 +58,23 @@ export const playfair = Playfair_Display({
 
 export const lato = Lato({
   subsets: ["latin"],
-  weight: "400"
-})
+  weight: "400",
+});
 
 export const openSans = Open_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "700"]
-})
-
+  weight: ["400", "500", "700"],
+});
 
 export const raleway = Raleway({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700", "900"]
-})
-
+  weight: ["300", "400", "500", "700", "900"],
+});
 
 export const fira = Fira_Sans({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700", "900"]
-})
+  weight: ["300", "400", "500", "700", "900"],
+});
 
 export const fontMapper = {
   [cal.className]: "Cal",
@@ -79,5 +87,5 @@ export const fontMapper = {
   [openSans.className]: "Open Sans",
   [fira.className]: "Fira Sans",
   [raleway.className]: "Raleway",
-  [bricolageGrotesque.className]: "Bricolage Grotesque"
+  [bricolageGrotesque.className]: "Bricolage Grotesque",
 } as Record<string, string>;

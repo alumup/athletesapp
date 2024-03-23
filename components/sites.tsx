@@ -1,12 +1,11 @@
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 
-
 import SiteCard from "./site-card";
 import Image from "next/image";
 
 export default async function Sites({ limit }: { limit?: number }) {
- const supabase = createServerComponentClient({ cookies });
+  const supabase = createServerComponentClient({ cookies });
 
   const { data: sites, error } = await supabase
     .from("sites")

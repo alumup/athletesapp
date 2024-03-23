@@ -95,9 +95,13 @@ export const removeCartItemById = (id: string, cart: Cart) => {
   newCart.lines.splice(lineItemIndex, 1);
 
   return newCart;
-}
+};
 
-export const updateCartItemQuantityById = (id: string, type: "plus" | "minus", cart: Cart) => {
+export const updateCartItemQuantityById = (
+  id: string,
+  type: "plus" | "minus",
+  cart: Cart,
+) => {
   const lineItemIndex = cart.lines.findIndex((item) => item.id === id);
 
   if (lineItemIndex === -1) return cart;
@@ -106,8 +110,11 @@ export const updateCartItemQuantityById = (id: string, type: "plus" | "minus", c
   newCart.lines = [...newCart.lines];
   newCart.lines[lineItemIndex] = {
     ...newCart.lines[lineItemIndex],
-    quantity: type === "plus" ? newCart.lines[lineItemIndex].quantity + 1 : newCart.lines[lineItemIndex].quantity - 1
+    quantity:
+      type === "plus"
+        ? newCart.lines[lineItemIndex].quantity + 1
+        : newCart.lines[lineItemIndex].quantity - 1,
   };
 
   return newCart;
-}
+};

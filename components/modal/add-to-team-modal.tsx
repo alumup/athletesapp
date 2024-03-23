@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useForm } from 'react-hook-form';
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { getAccount } from "@/lib/fetchers/client";
 // @ts-expect-error
@@ -9,7 +9,6 @@ import { experimental_useFormStatus as useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
-
 
 interface Team {
   id: number;
@@ -21,87 +20,88 @@ interface Fee {
   name: string;
 }
 
-
-export default function AddToTeamModal({people, onClose} : {people: any, onClose: any}) {
-
-
-  const {refresh}= useRouter();
+export default function AddToTeamModal({
+  people,
+  onClose,
+}: {
+  people: any;
+  onClose: any;
+}) {
+  const { refresh } = useRouter();
   const modal = useModal();
 
   const supabase = createClientComponentClient();
 
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm();
-
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm();
 
   const [teams, setTeams] = useState<Team[]>([]);
   const [fees, setFees] = useState<Fee[]>([]);
 
   useEffect(() => {
-
     const fetchAccount = async () => {
-      const account = await getAccount()
-      return account
-    }
-
+      const account = await getAccount();
+      return account;
+    };
 
     async function fetchTeams({ account }: { account: any }) {
       const { data: teams, error } = await supabase
-        .from('teams')
-        .select('*')
-        .eq('account_id', account?.id)
+        .from("teams")
+        .select("*")
+        .eq("account_id", account?.id);
       if (error) {
-        console.log("ERROR: ", error)
+        console.log("ERROR: ", error);
       } else {
-        setTeams(teams)
-        setValue('team', teams[0].id);
+        setTeams(teams);
+        setValue("team", teams[0].id);
       }
     }
 
-    async function fetchFees({account}: {account: any}) {
+    async function fetchFees({ account }: { account: any }) {
       const { data: fees, error } = await supabase
-        .from('fees')
-        .select('*')
-        .eq('account_id', account?.id)
+        .from("fees")
+        .select("*")
+        .eq("account_id", account?.id);
       if (error) {
-        console.log("ERROR: ", error)
+        console.log("ERROR: ", error);
       } else {
-        console.log("FEEEEEES: ", fees)
-        setFees(fees)
-        setValue('fee', fees[0].id);
+        console.log("FEEEEEES: ", fees);
+        setFees(fees);
+        setValue("fee", fees[0].id);
       }
     }
 
-    
     const account = fetchAccount();
 
-    account.then(acc => {
-      fetchTeams({ account: acc })
-      fetchFees({ account: acc })
-    })
-  }, [])
-
+    account.then((acc) => {
+      fetchTeams({ account: acc });
+      fetchFees({ account: acc });
+    });
+  }, []);
 
   const onSubmit = async (data: any) => {
-    console.log("TEAM ID", data.team)
+    console.log("TEAM ID", data.team);
     // add every person to the list
     people.forEach(async (person: any) => {
-      const { error } = await supabase
-        .from('rosters')
-        .insert([
-         {
-            team_id: data.team,
-            person_id: person.id,
-            fee_id: data.fee,
-         }
-        ])
+      const { error } = await supabase.from("rosters").insert([
+        {
+          team_id: data.team,
+          person_id: person.id,
+          fee_id: data.fee,
+        },
+      ]);
       if (error) {
-        console.log("FORM ERRORS: ", error)
+        console.log("FORM ERRORS: ", error);
       } else {
         modal?.hide();
         onClose();
-        refresh()
+        refresh();
       }
-    })
+    });
   };
 
   return (
@@ -112,42 +112,52 @@ export default function AddToTeamModal({people, onClose} : {people: any, onClose
       <div className="relative flex flex-col space-y-4 p-5 md:p-10">
         <h2 className="font-cal text-2xl dark:text-white">Add to Team</h2>
 
-
-       {/* Add a select that searches for lists and adds the person to the list */}
+        {/* Add a select that searches for lists and adds the person to the list */}
         <div className="flex flex-col space-y-2">
-          <label htmlFor="team" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+          <label
+            htmlFor="team"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
             Team
           </label>
           <select
             id="team"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("team")}
           >
             {teams.map((team: any) => (
-              <option key={team.id} value={team.id}>{team.name}</option>
+              <option key={team.id} value={team.id}>
+                {team.name}
+              </option>
             ))}
           </select>
-          {errors.list && <span className="text-sm text-red-500">This field is required</span>}
+          {errors.list && (
+            <span className="text-sm text-red-500">This field is required</span>
+          )}
         </div>
 
         <div className="flex flex-col space-y-2">
-          <label htmlFor="fee" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+          <label
+            htmlFor="fee"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
             Fee
           </label>
           <select
             id="fee"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("fee")}
           >
             {fees.map((fee: any) => (
-              <option key={fee.id} value={fee.id}>{fee.name}</option>
+              <option key={fee.id} value={fee.id}>
+                {fee.name}
+              </option>
             ))}
           </select>
-          {errors.list && <span className="text-sm text-red-500">This field is required</span>}
+          {errors.list && (
+            <span className="text-sm text-red-500">This field is required</span>
+          )}
         </div>
-
-
-
       </div>
       <div className="flex items-center justify-end rounded-b-lg border-t border-stone-200 bg-stone-50 p-3 dark:border-stone-700 dark:bg-stone-800 md:px-10">
         <CreateSiteFormButton />

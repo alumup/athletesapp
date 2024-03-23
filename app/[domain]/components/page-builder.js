@@ -1,19 +1,18 @@
-'use client'
-import { useEffect, useState } from 'react';
-import { useSitePage } from '@/lib/hooks/use-site-page'
-import { motion, AnimatePresence } from 'framer-motion';
+"use client";
+import { useEffect, useState } from "react";
+import { useSitePage } from "@/lib/hooks/use-site-page";
+import { motion, AnimatePresence } from "framer-motion";
 
 // PUBLIC
-import Hero from "@/app/app/(dashboard)/site/[subdomain]/builder/sections/public/hero/index"
-import HtmlBlock from "@/app/app/(dashboard)/site/[subdomain]/builder/sections/public/html-block/index"
-import Products from "@/app/app/(dashboard)/site/[subdomain]/builder/sections/public/products/index"
-import Subscribe from '@/app/app/(dashboard)/site/[subdomain]/builder/sections/public/subscribe/index'
+import Hero from "@/app/app/(dashboard)/site/[subdomain]/builder/sections/public/hero/index";
+import HtmlBlock from "@/app/app/(dashboard)/site/[subdomain]/builder/sections/public/html-block/index";
+import Products from "@/app/app/(dashboard)/site/[subdomain]/builder/sections/public/products/index";
+import Subscribe from "@/app/app/(dashboard)/site/[subdomain]/builder/sections/public/subscribe/index";
 
 // PRIVATE
-import AdBanner from "@/app/app/(dashboard)/site/[subdomain]/builder/sections/private/ad-banner/index"
-import HeroImage from "@/app/app/(dashboard)/site/[subdomain]/builder/sections/private/hero-image/index"
-import BasicHero from "@/app/app/(dashboard)/site/[subdomain]/builder/sections/private/basic-hero/index"
-
+import AdBanner from "@/app/app/(dashboard)/site/[subdomain]/builder/sections/private/ad-banner/index";
+import HeroImage from "@/app/app/(dashboard)/site/[subdomain]/builder/sections/private/hero-image/index";
+import BasicHero from "@/app/app/(dashboard)/site/[subdomain]/builder/sections/private/basic-hero/index";
 
 export const PageBuilder = () => {
   const { page } = useSitePage();
@@ -26,18 +25,17 @@ export const PageBuilder = () => {
     }
   }, [page?.data?.components]);
 
-
   return (
     <AnimatePresence mode="wait">
       {!isLoading && (
         <motion.div
-          className="w-full h-full"
+          className="h-full w-full"
           initial={{ opacity: 0 }} // start from y: 50
           animate={{
             opacity: 1,
             transition: {
-              duration: 0.25
-            }
+              duration: 0.25,
+            },
           }} // animate to y: 0
           exit={{ opacity: 0 }}
         >
@@ -96,16 +94,22 @@ export const PageBuilder = () => {
                 Component = Subscribe;
                 break;
               default:
-                Component = function DefaultComponent() { return null; };
+                Component = function DefaultComponent() {
+                  return null;
+                };
                 break;
             }
 
             return (
-              <Component key={component.id} id={component.id} data={component.properties} />
+              <Component
+                key={component.id}
+                id={component.id}
+                data={component.properties}
+              />
             );
           })}
         </motion.div>
       )}
     </AnimatePresence>
-  )
-}
+  );
+};

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import {
   TrashIcon,
   MixerHorizontalIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
 } from "@radix-ui/react-icons";
 
 import {
@@ -82,41 +82,32 @@ const columns: ColumnDef<Person>[] = [
     cell: ({ row }) => <div>{row.getValue("coach")}</div>,
   },
   {
-  accessorKey: "actions",
-  header: "",
-    cell: ({ row }) => 
-    <>
-      <Link href={`/teams/${row.original.id}`} className="cursor hover:bg-gray-100 rounded">
-        <span className="flex items-center space-x-2 text-sm text-gray-700">
-          <ArrowRightIcon className="h-5 w-5" />
-        </span>
-      </Link>
-    </>
-
-  }
+    accessorKey: "actions",
+    header: "",
+    cell: ({ row }) => (
+      <>
+        <Link
+          href={`/teams/${row.original.id}`}
+          className="cursor rounded hover:bg-gray-100"
+        >
+          <span className="flex items-center space-x-2 text-sm text-gray-700">
+            <ArrowRightIcon className="h-5 w-5" />
+          </span>
+        </Link>
+      </>
+    ),
+  },
 ];
 
-
-
-
-
-export function TeamTable({ data, account }: { data: Person[], account: any}) {
-
-  const {refresh} = useRouter();
+export function TeamTable({ data, account }: { data: Person[]; account: any }) {
+  const { refresh } = useRouter();
   const supabase = createClientComponentClient();
   const [sorting, setSorting] = useState<SortingState>([]);
 
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-    []
-  );
-
-
-  const [columnVisibility, setColumnVisibility] =
-    useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-
-
 
   const table = useReactTable({
     data,
@@ -142,39 +133,37 @@ export function TeamTable({ data, account }: { data: Person[], account: any}) {
     table.setPageSize(30);
   }, []); //
 
-
   // const navigateTo = (id: any) => {
   //   router.push(`/teams/${id}`)
   // }
 
-
-  
   const handleDeleteSelected = async () => {
     const selectedRows = table.getSelectedRowModel().rows;
     // Logic to delete selected rows
-    await Promise.all(selectedRows.map((row) => {
-      return supabase
-        .from('teams')
-        .delete()
-        .eq("id", row.original.id)
-    }));
+    await Promise.all(
+      selectedRows.map((row) => {
+        return supabase.from("teams").delete().eq("id", row.original.id);
+      }),
+    );
 
     // Show a toast notification
     refresh();
-    toast.success('Selected teams have been deleted successfully.');
+    toast.success("Selected teams have been deleted successfully.");
   };
-  
+
   // Check if any row is selected
   const isAnyRowSelected = table?.getSelectedRowModel()?.rows?.length > 0;
 
   const selectedRows = table.getSelectedRowModel().rows;
-  
+
   const [primaryContacts, setPrimaryContacts] = useState<any>([]);
 
   useEffect(() => {
     const fetchPrimaryContacts = async () => {
-      const selectedPeople = selectedRows.flatMap(team => team.original.rosters);
-      const people = selectedPeople.flatMap(roster => roster.people);
+      const selectedPeople = selectedRows.flatMap(
+        (team) => team.original.rosters,
+      );
+      const people = selectedPeople.flatMap((roster) => roster.people);
       const primaryContactsPromises = people.map(async (person) => {
         const primaryContact = await getPrimaryContact(person);
         return {
@@ -183,13 +172,11 @@ export function TeamTable({ data, account }: { data: Person[], account: any}) {
         };
       });
       const primaryContacts = await Promise.all(primaryContactsPromises);
-      console.log("PRIMARY CONTACTS --------------->",primaryContacts)
+      console.log("PRIMARY CONTACTS --------------->", primaryContacts);
       setPrimaryContacts(primaryContacts);
     };
     fetchPrimaryContacts();
   }, [selectedRows]);
-
-
 
   // const teams = selectedRows.map((row) => row.original);
 
@@ -206,7 +193,10 @@ export function TeamTable({ data, account }: { data: Person[], account: any}) {
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto flex justify-between items-center">
+            <Button
+              variant="outline"
+              className="ml-auto flex items-center justify-between"
+            >
               <MixerHorizontalIcon className="mr-2 h-4 w-4" /> View
             </Button>
           </DropdownMenuTrigger>
@@ -226,15 +216,15 @@ export function TeamTable({ data, account }: { data: Person[], account: any}) {
                   >
                     {column.id}
                   </DropdownMenuCheckboxItem>
-                )
+                );
               })}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
       {isAnyRowSelected && (
-        <div className="flex justify-between space-x-4 py-2 mb-2">
-          <div className="flex items-center space-x-2"> 
+        <div className="mb-2 flex justify-between space-x-4 py-2">
+          <div className="flex items-center space-x-2">
             <SendButton channel="email" cta="Send Email">
               <SendEmailModal
                 people={primaryContacts}
@@ -243,7 +233,11 @@ export function TeamTable({ data, account }: { data: Person[], account: any}) {
               />
             </SendButton>
           </div>
-          <Button onClick={handleDeleteSelected} variant="outline" className="text-red-500">
+          <Button
+            onClick={handleDeleteSelected}
+            variant="outline"
+            className="text-red-500"
+          >
             <TrashIcon className="mr-2 h-4 w-4" /> Delete
           </Button>
         </div>
@@ -260,10 +254,10 @@ export function TeamTable({ data, account }: { data: Person[], account: any}) {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -275,18 +269,16 @@ export function TeamTable({ data, account }: { data: Person[], account: any}) {
                   // onClick={() => navigateTo(row.original.id)}
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className={"hover:bg-gray-50 cursor-pointer"}
+                  className={"cursor-pointer hover:bg-gray-50"}
                 >
-                
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
-               
                 </TableRow>
               ))
             ) : (
@@ -303,7 +295,7 @@ export function TeamTable({ data, account }: { data: Person[], account: any}) {
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
+        <div className="text-muted-foreground flex-1 text-sm">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
@@ -327,5 +319,5 @@ export function TeamTable({ data, account }: { data: Person[], account: any}) {
         </div>
       </div>
     </div>
-  )
+  );
 }

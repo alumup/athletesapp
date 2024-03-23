@@ -1,7 +1,7 @@
-import Link from 'next/link'
+import Link from "next/link";
 
-import { CirclesBackground } from '@/components/CirclesBackground'
-import { Logo } from '@/components/Logo'
+import { CirclesBackground } from "@/components/CirclesBackground";
+import { Logo } from "@/components/Logo";
 
 export function AuthLayout({ title, subtitle, children }) {
   return (
@@ -23,10 +23,10 @@ export function AuthLayout({ title, subtitle, children }) {
             <p className="mt-3 text-center text-lg text-gray-600">{subtitle}</p>
           )}
         </div>
-        <div className="-mx-4 mt-10 flex-auto bg-white px-4 py-10 shadow-2xl shadow-gray-900/10 sm:mx-0 sm:flex-none sm:rounded-5xl sm:p-24">
+        <div className="sm:rounded-5xl -mx-4 mt-10 flex-auto bg-white px-4 py-10 shadow-2xl shadow-gray-900/10 sm:mx-0 sm:flex-none sm:p-24">
           {children}
         </div>
       </div>
     </main>
-  )
+  );
 }

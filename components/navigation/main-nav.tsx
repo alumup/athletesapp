@@ -1,6 +1,6 @@
-import Link from "next/link"
+import Link from "next/link";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 export function MainNav({
   className,
@@ -8,7 +8,10 @@ export function MainNav({
 }: React.HTMLAttributes<HTMLElement>) {
   return (
     <nav
-      className={cn("hidden md:flex items-center space-x-4 lg:space-x-6", className)}
+      className={cn(
+        "hidden items-center space-x-4 md:flex lg:space-x-6",
+        className,
+      )}
       {...props}
     >
       <Link
@@ -19,22 +22,22 @@ export function MainNav({
       </Link>
       <Link
         href="/people"
-        className="text-sm font-medium text-muted-foreground transition-colors hover:text-zinc-900"
+        className="text-muted-foreground text-sm font-medium transition-colors hover:text-zinc-900"
       >
         People
       </Link>
       <Link
         href="/teams"
-        className="text-sm font-medium text-muted-foreground transition-colors hover:text-zinc-900"
+        className="text-muted-foreground text-sm font-medium transition-colors hover:text-zinc-900"
       >
         Teams
       </Link>
       <Link
         href="/events"
-        className="text-sm font-medium text-muted-foreground transition-colors hover:text-zinc-900"
+        className="text-muted-foreground text-sm font-medium transition-colors hover:text-zinc-900"
       >
         Events
       </Link>
     </nav>
-  )
+  );
 }

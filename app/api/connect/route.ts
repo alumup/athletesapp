@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
     const connected_account_id = response.stripe_user_id;
 
-    return NextResponse.json({connected_account_id});
+    return NextResponse.json({ connected_account_id });
   } catch (error) {
     return NextResponse.json(
       { error },

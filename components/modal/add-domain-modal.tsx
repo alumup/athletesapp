@@ -1,7 +1,7 @@
 "use client";
-import { useEffect} from "react";
+import { useEffect } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useForm } from 'react-hook-form';
+import { useForm } from "react-hook-form";
 import { useRouter, useParams } from "next/navigation";
 // @ts-expect-error
 import { experimental_useFormStatus as useFormStatus } from "react-dom";
@@ -11,17 +11,21 @@ import { useModal } from "./provider";
 import { addDomainToVercel } from "@/lib/domains";
 
 export default function AddDomainModal() {
-  const {refresh}= useRouter();
+  const { refresh } = useRouter();
   const params = useParams();
   const modal = useModal();
 
   const supabase = createClientComponentClient();
-  const { register, handleSubmit, formState: { errors }, } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const onSubmit = async (data: any) => {
     addDomainToVercel(data.domain)
-    .then(result => console.log(result))
-    .catch(error => console.error(error));
+      .then((result) => console.log(result))
+      .catch((error) => console.error(error));
   };
 
   return (
@@ -32,21 +36,20 @@ export default function AddDomainModal() {
       <div className="relative flex flex-col space-y-4 p-5 md:p-10">
         <h2 className="font-cal text-2xl dark:text-white">Add Domain</h2>
 
-
         <div className="flex flex-col space-y-2">
-          <label htmlFor="domain" className="text-sm font-medium text-gray-700 dark:text-stone-300">
+          <label
+            htmlFor="domain"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
             Domain
           </label>
           <input
             type="text"
             id="domain"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 focus:outline-none focus:border-stone-300 dark:focus:border-stone-300"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("domain", { required: true })}
           />
         </div>
-
-
-  
       </div>
       <div className="flex items-center justify-end rounded-b-lg border-t border-stone-200 bg-stone-50 p-3 dark:border-stone-700 dark:bg-stone-800 md:px-10">
         <AddDomainButton />
