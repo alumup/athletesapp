@@ -145,3 +145,64 @@ export function getCookie(name: string) {
     }
   }
 }
+
+export function getInitials(firstName: string, lastName: string) {
+  if (!firstName || !lastName) {
+    return "UN";
+  }
+
+  const firstInitial = firstName.charAt(0).toUpperCase();
+  const lastInitial = lastName.charAt(0).toUpperCase();
+  return firstInitial + lastInitial;
+}
+
+export function formatDate(date: string) {
+  const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
+  const monthsOfYear = [
+    "JAN",
+    "FEB",
+    "MAR",
+    "APR",
+    "MAY",
+    "JUN",
+    "JUL",
+    "AUG",
+    "SEP",
+    "OCT",
+    "NOV",
+    "DEC",
+  ];
+
+  const currentDate = new Date(date);
+
+  const dayOfWeek = daysOfWeek[currentDate.getDay()] || "";
+  const dateOfMonth = currentDate.getDate() || "";
+  const monthOfYear = monthsOfYear[currentDate.getMonth()] || "";
+
+  const formattedDate = `${dayOfWeek}\n ${dateOfMonth}\n ${monthOfYear}`;
+  return formattedDate;
+}
+
+export function formatTimeRange(startTime: string, endTime: string): string {
+  // Parse start time
+  const startHour = parseInt(startTime?.slice(0, 2), 10);
+  const startMinute = parseInt(startTime?.slice(3, 5), 10);
+  const formattedStartHour = startHour % 12 === 0 ? 12 : startHour % 12;
+  const startSuffix = startHour >= 12 ? "PM" : "AM";
+  const formattedStartTime = `${formattedStartHour}:${startMinute
+    .toString()
+    .padStart(2, "0")} ${startSuffix}`;
+
+  // Parse end time
+  const endHour = parseInt(endTime.slice(0, 2), 10);
+  const endMinute = parseInt(endTime.slice(3, 5), 10);
+  const formattedEndHour = endHour % 12 === 0 ? 12 : endHour % 12;
+  const endSuffix = endHour >= 12 ? "PM" : "AM";
+  const formattedEndTime = `${formattedEndHour}:${endMinute
+    .toString()
+    .padStart(2, "0")} ${endSuffix}`;
+
+  // Concatenate and return the time range
+  return `${formattedStartTime} - ${formattedEndTime}`;
+}
