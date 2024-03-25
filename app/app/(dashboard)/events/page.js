@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreateEventModal from "@/components/modal/create-event-modal";
+import { EventsTable } from "./table";
 
 import { getAccount } from "@/lib/fetchers/server";
 
@@ -35,26 +36,8 @@ export default async function EventsPage() {
             <CreateEventModal account={account} />
           </GenericButton>
         </div>
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-4">
-          {events.map((event) => (
-            <Link
-              href={`/events/${event.id}`}
-              key={event.id}
-              className="col-span-1 flex space-x-5 rounded border border-gray-100 px-3 shadow"
-            >
-              <div className="flex flex-col space-y-1">
-                <h2 className="font-cal text-lg font-bold dark:text-white sm:w-auto sm:text-2xl">
-                  {event.name}
-                </h2>
-                <p className="text-sm font-light dark:text-white sm:w-auto sm:text-base">
-                  {event.location?.name}
-                </p>
-                <p className="text-sm font-light dark:text-white sm:w-auto sm:text-base">
-                  {event.schedule?.start_date} - {event.schedule?.end_date}
-                </p>
-              </div>
-            </Link>
-          ))}
+        <div className="mt-10">
+          {events && <EventsTable data={events} account={account} />}
         </div>
       </div>
     </div>

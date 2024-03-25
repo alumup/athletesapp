@@ -1,6 +1,6 @@
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
-import { getAccount } from "@/lib/fetchers/server";
+import { getAccount, getPrimaryContacts } from "@/lib/fetchers/server";
 
 import { EventTable } from "./table";
 
@@ -38,10 +38,20 @@ export default async function EventPage({
     }
 
     if (data) {
-      console.log(data);
+      const participantsWithPrimaryContactsPromises = data.map(async (participant) => {
+        const primaryContacts = await getPrimaryContacts(participant.people);
+        return {
+          ...participant,
+          people: {
+            ...participant.people,
+            primary_contacts: primaryContacts,
+          },
+        };
+      });
+      const participantsWithPrimaryContacts = await Promise.all(participantsWithPrimaryContactsPromises);
+      console.log(participantsWithPrimaryContacts);
+      return participantsWithPrimaryContacts;
     }
-
-    return data;
   }
 
   const event = await fetchEvent();
@@ -59,13 +69,21 @@ export default async function EventPage({
             <h1 className="font-cal truncate text-base font-bold dark:text-white sm:w-auto sm:text-3xl md:text-xl">
               {event.name}
             </h1>
-            <p className="text-stone-500 dark:text-stone-400">
-              {event.location?.name}
+            <p className="text-stone-800 dark:text-stone-400">
+              {event.description}
             </p>
+            <div className="flex items-center space-x-2">
+              <p className="text-stone-500 dark:text-stone-400">
+                {event.location?.name}
+              </p>
+              <p className="text-stone-500 dark:text-stone-400">
+                {event.schedule?.start_date}
+              </p>
+            </div>
           </div>
         </div>
         <div className="mt-10">
-          <h2 className="mb-3 text-xs font-bold uppercase text-zinc-500">
+          <h2 className="mb-1 text-xs font-bold uppercase text-zinc-500">
             Participants
           </h2>
 

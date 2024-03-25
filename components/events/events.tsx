@@ -2,9 +2,9 @@
 
 import { formatDate, formatTimeRange } from "@/lib/utils";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { AlarmClock, Calendar, MapPin } from "lucide-react";
+import { AlarmClock, MapPin } from "lucide-react";
 import Link from "next/link";
-import { ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function AccountEvents({ dependent, profile }: any) {
   const supabase = createClientComponentClient();
@@ -30,8 +30,8 @@ export default function AccountEvents({ dependent, profile }: any) {
     <div>
       <div className="flex justify-between space-x-2 overflow-x-auto">
         {events?.map((event: any) => (
-          <div key={event.id} className="flex h-64">
-            <div className="flex items-center justify-center rounded-l-lg bg-lime-200 p-4">
+          <div key={event.id} className="flex h-64 border border-lime-200 rounded-lg">
+            <div className="min-w-[100px] flex items-center justify-center bg-lime-300 p-4">
               <div className="mb-2 text-center">
                 <span className="text-bold">
                   {formatDate(event?.schedule?.start_date)}
@@ -40,7 +40,7 @@ export default function AccountEvents({ dependent, profile }: any) {
             </div>
 
             <div className="flex w-64 flex-col justify-between rounded-r-lg bg-lime-50 p-4">
-              <h2 className="mb-2 pr-5 pt-5 text-lg font-semibold">
+              <h2 className="mb-2 pr-5 pt-5 text-lg font-bold">
                 {event.name}
               </h2>
 
@@ -49,9 +49,9 @@ export default function AccountEvents({ dependent, profile }: any) {
                 <span className="mr-2">
                   {event?.schedule
                     ? formatTimeRange(
-                        event?.schedule?.sessions?.[0]?.start_time || "",
-                        event?.schedule?.sessions?.[0]?.end_time || "",
-                      )
+                      event?.schedule?.sessions?.[0]?.start_time || "",
+                      event?.schedule?.sessions?.[0]?.end_time || "",
+                    )
                     : ""}
                 </span>
               </div>
@@ -73,7 +73,7 @@ export default function AccountEvents({ dependent, profile }: any) {
       <div className="my-2">
         <Link
           href={`/portal/events/${profile?.accounts?.id}`}
-          className="text-gray-600"
+          className="text-xs text-gray-600"
         >
           See All Events
         </Link>
