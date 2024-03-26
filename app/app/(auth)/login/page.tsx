@@ -114,7 +114,7 @@ export default function Login() {
   return (
     <div>
       <div className="flex items-center justify-center">
-        <img src="athletes.svg" className="h-auto w-[150px]" />
+        <img src="athletes-logo.svg" className="h-auto w-[75px]" />
       </div>
 
       <div className="mt-5 w-[300px] rounded border border-gray-100 bg-gray-50 p-3 shadow md:w-[400px]">

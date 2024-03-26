@@ -154,7 +154,7 @@ const PortalPage = () => {
           toRelationships?.map((relation: any) => (
             <div
               onClick={() => setSelectedDependent(relation)}
-              className="mx-2 flex items-center whitespace-nowrap rounded-full border p-2"
+              className="mx-2 flex items-center whitespace-nowrap rounded-full border p-2 hover:cursor-pointer hover:bg-gray-100"
               key={relation.id}
             >
               <Avatar className="mr-2 h-10 w-10 ">
@@ -167,10 +167,15 @@ const PortalPage = () => {
           ))
         ) : (
           <div className="fixed left-0 top-0 flex h-full w-full items-center justify-center">
-            <Loader className="h-10 w-10" />
+            <Loader className="h-10 w-10 animate-spin" />
           </div>
         )}
       </div>
+
+      <div className="mx-2 mt-5">
+        <h1 className="text-3xl font-bold">{selectedDependent?.to.first_name}</h1>
+      </div>
+
       {/* Events */}
       <div className="mx-2 my-5">
         {selectedDependent && (
@@ -178,7 +183,7 @@ const PortalPage = () => {
         )}
       </div>
       {/* Events */}
-      <span className="mx-2 font-bold">Teams</span>
+      <span className="mx-2 mt-10 font-bold">Teams</span>
       <div className="mx-2 my-5 mt-2">
         {rosters
           ?.filter(

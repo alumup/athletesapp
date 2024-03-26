@@ -47,18 +47,15 @@ import SendButton from "@/components/modal-buttons/send-button";
 import IconButton from "@/components/modal-buttons/icon-button";
 import LoadingSpinner from "@/components/form/loading-spinner";
 
-export type Person = {
+export type Event = {
   id: string;
-  first_name: string;
-  last_name: string;
   name: string;
-  tags: any;
-  email: string;
-  phone: string;
-  primary_contacts: any;
+  visibility: string;
+  schedule: any;
+  location: any;
 };
 
-const columns: ColumnDef<Person>[] = [
+const columns: ColumnDef<Event>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -79,65 +76,24 @@ const columns: ColumnDef<Person>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: "visibility",
+    header: "Visibility",
+    cell: ({ row }) => <div>{row.getValue("visibility")}</div>,
+  },
+  {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => <div>{row.getValue("name")}</div>,
   },
   {
-    accessorKey: "dependent",
-    header: "Dependent of",
-    cell: ({ row }) => (
-      <div className="space-x-2">
-        {row.getValue("dependent") &&
-          row.original.primary_contacts.map((contact: any, index: any) => (
-            <Link
-              key={index}
-              href={`/people/${contact?.id}`}
-              className="titlecase cursor-pointer rounded-full border border-gray-300 bg-gray-100 px-2 py-1 lowercase"
-            >
-              {contact?.name}
-            </Link>
-          ))}
-      </div>
-    ),
+    accessorKey: "location",
+    header: "Location",
+    cell: ({ row }) => <div>{row.getValue("location.name")}</div>,
   },
   {
-    accessorKey: "tags",
-    header: "Tags",
-    cell: ({ row }) => (
-      <div className="flex gap-1">
-        {((row.getValue("tags") as any[]) || []).map((tag: any, index: any) => (
-          <div
-            key={index}
-            className="rounded bg-lime-100 px-3 py-1 text-xs text-lime-800"
-          >
-            {tag}
-          </div>
-        ))}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "primary_contacts",
-    header: "Primary Contacts",
-    cell: ({ row }) => (
-      <div className="space-x-2">
-        {row.original.primary_contacts.map((contact: any, index: any) => (
-          <Link
-            key={index}
-            href={`/people/${contact?.id}`}
-            className="cursor-pointer rounded-full border border-gray-300 bg-gray-100 px-2 py-1 lowercase"
-          >
-            {contact?.email}
-          </Link>
-        ))}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "phone",
-    header: "Phone",
-    cell: ({ row }) => <div>{row.getValue("phone")}</div>,
+    accessorKey: "schedule",
+    header: "Schedule",
+    cell: ({ row }) => <div>{row.getValue("schedule.start_date")}</div>,
   },
   {
     accessorKey: "actions",
@@ -145,7 +101,7 @@ const columns: ColumnDef<Person>[] = [
     cell: ({ row }) => (
       <>
         <Link
-          href={`/people/${row.original.id}`}
+          href={`/events/${row.original.id}`}
           className="cursor rounded hover:bg-gray-100"
         >
           <span className="flex items-center space-x-2 text-sm text-gray-700">
@@ -157,11 +113,11 @@ const columns: ColumnDef<Person>[] = [
   },
 ];
 
-export function EventTable({
+export function EventsTable({
   data,
   account,
 }: {
-  data: Person[];
+  data: Event[];
   account: any;
 }) {
   const supabase = createClientComponentClient();
@@ -208,7 +164,7 @@ export function EventTable({
     // Logic to delete selected rows
     await Promise.all(
       selectedRows.map((row) => {
-        return supabase.from("people").delete().eq("id", row.original.id);
+        return supabase.from("events").delete().eq("id", row.original.id);
       }),
     );
   };
@@ -218,7 +174,7 @@ export function EventTable({
 
   const selectedRows = table.getSelectedRowModel().rows;
 
-  const people = selectedRows.map((row) => row.original);
+  const events = selectedRows.map((row) => row.original);
 
   return (
     <div className="w-full">
@@ -262,35 +218,6 @@ export function EventTable({
         </DropdownMenu>
       </div>
 
-      {isAnyRowSelected && (
-        <div className="mb-2 flex justify-between space-x-4 py-2">
-          <div className="flex items-center space-x-2">
-            <SendButton channel="email" cta="Send Email">
-              <SendEmailModal
-                people={people}
-                account={account}
-                onClose={() => table.toggleAllPageRowsSelected(false)}
-              />
-            </SendButton>
-            <IconButton
-              icon={<ListBulletIcon className="mr-2" />}
-              cta="Add to Team"
-            >
-              <AddToTeamModal
-                people={people}
-                onClose={() => table.toggleAllPageRowsSelected(false)}
-              />
-            </IconButton>
-          </div>
-          <Button
-            onClick={handleDeleteSelected}
-            variant="outline"
-            className="text-red-500"
-          >
-            <TrashIcon className="mr-2 h-4 w-4" /> Delete
-          </Button>
-        </div>
-      )}
       <div className="rounded-md border">
         {!tableReady ? (
           <div className="flex w-full items-center justify-center p-10">
@@ -307,9 +234,9 @@ export function EventTable({
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                       </TableHead>
                     );
                   })}

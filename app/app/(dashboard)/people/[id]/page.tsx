@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getAccount, getPrimaryContacts } from "@/lib/fetchers/client";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import EditPersonModal from "@/components/modal/edit-person-modal";
+import { CardTitle, CardHeader, CardContent, Card, CardDescription } from "@/components/ui/card"
 import { fullName } from "@/lib/utils";
 import { toast } from "sonner";
 import LoadingDots from "@/components/icons/loading-dots";
@@ -24,6 +25,56 @@ export default function PersonPage({ params }: { params: { id: string } }) {
   const [account, setAccount] = useState<any>(null);
   const [emailIsSending, setEmailIsSending] = useState<any>(false);
   const [profile, setProfile] = useState<boolean>(true);
+  const [roster, setRoster] = useState<any[]>([]);
+  // Added fetchRoster function
+  async function fetchRoster() {
+    const { data, error } = await supabase
+      .from("rosters")
+      .select("*, teams(*)")
+      .eq("person_id", params.id);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    setRoster(data.map(entry => entry.teams));
+  }
+
+  useEffect(() => {
+    async function fetchData() {
+      const fetchedPerson = await fetchPerson();
+      // Fetch primary contact for the person
+      const primaryPeople = await getPrimaryContacts(fetchedPerson);
+
+      setPerson({
+        ...fetchedPerson,
+        primary_contacts: primaryPeople,
+      });
+
+      const fetchedToRelationships = await fetchToRelationships();
+      setToRelationships(fetchedToRelationships);
+
+      const fetchedFromRelationships = await fetchFromRelationships();
+      setFromRelationships(fetchedFromRelationships);
+
+      const fetchedAccount = await getAccount();
+
+      const p = await hasProfile({
+        ...fetchedPerson,
+        primary_contacts: primaryPeople,
+      });
+
+      setAccount(fetchedAccount);
+      setProfile(p);
+
+      // Call fetchRoster to get the teams the person is on
+      fetchRoster();
+    }
+
+    fetchData();
+  }, [params.id]);
+
 
   const invitePerson = async ({
     person,
@@ -181,6 +232,8 @@ export default function PersonPage({ params }: { params: { id: string } }) {
               </button>
             )}
 
+            <button className="bg-black text-white px-3 py-2 rounded">Message</button>
+
             <SheetModal
               cta={`Edit ${person?.first_name}`}
               title={`Edit ${person?.first_name}`}
@@ -190,54 +243,190 @@ export default function PersonPage({ params }: { params: { id: string } }) {
             </SheetModal>
           </div>
         </div>
-        <div className="mt-10 space-y-5">
-          <h2 className="mb-3 text-xs font-bold uppercase text-zinc-500">
-            Relationships
-          </h2>
-          {toRelationships?.map((relation: any, i: Key | null | undefined) => (
-            <div key={i}>
-              <div className="flex items-center space-x-1 rounded border border-stone-200 px-3 py-2">
-                <div className="flex flex-col">
-                  <span>{relation.name} of</span>
-                  <a
-                    href={`/people/${relation.to.id}`}
-                    className="text-sm font-bold"
-                  >
-                    {relation.to.name || fullName(relation.to)}
-                  </a>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-5">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
+              <DollarSignIcon className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">$15,231.89</div>
+              <p className="text-xs text-muted-foreground">+20.1% from last year</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Events</CardTitle>
+              <UsersIcon className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">12</div>
+              <p className="text-xs text-muted-foreground">+180.1% from last year</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">People</CardTitle>
+              <ActivityIcon className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">+573</div>
+              <p className="text-xs text-muted-foreground">+201 since last hour</p>
+            </CardContent>
+          </Card>
+        </div>
 
-          {fromRelationships?.map(
-            (relation: any, i: Key | null | undefined) => (
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+          <div className="col-span-1 md:col-span-3"></div>
+
+          <div className="col-span-1 space-y-3">
+            <h2 className="mb-3 text-xs font-bold uppercase text-zinc-500">
+              Relationships
+            </h2>
+            {toRelationships?.map((relation: any, i: Key | null | undefined) => (
               <div key={i}>
                 <div className="flex items-center space-x-1 rounded border border-stone-200 px-3 py-2">
-                  <div className="flex w-full items-center justify-between">
-                    <div className="flex flex-col">
-                      <span>{relation.name} is</span>
-                      <Link
-                        href={`/people/${relation.from.id}`}
-                        className="text-sm font-bold"
-                      >
-                        {relation.from.name || fullName(relation.to)}
-                      </Link>
-                    </div>
-                    <div>
-                      {relation.primary ? (
-                        <CheckBadgeIcon className="h-8 w-8 text-lime-500" />
-                      ) : (
-                        ""
-                      )}
-                    </div>
+                  <div className="flex flex-col">
+                    <span>{relation.name} of</span>
+                    <Link
+                      href={`/people/${relation.to.id}`}
+                      className="text-sm font-bold"
+                    >
+                      {relation.to.name || fullName(relation.to)}
+                    </Link>
                   </div>
                 </div>
               </div>
-            ),
-          )}
+            ))}
+
+            {fromRelationships?.map(
+              (relation: any, i: Key | null | undefined) => (
+                <div key={i} className="mb-10">
+                  <div className="flex items-center space-x-1 rounded border border-stone-200 px-3 py-2">
+                    <div className="flex w-full items-center justify-between">
+                      <div className="flex flex-col">
+                        <span>{relation.name} is</span>
+                        <Link
+                          href={`/people/${relation.from.id}`}
+                          className="text-sm font-bold"
+                        >
+                          {relation.from.name || fullName(relation.to)}
+                        </Link>
+                      </div>
+                      <div>
+                        {relation.primary ? (
+                          <CheckBadgeIcon className="h-8 w-8 text-lime-500" />
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            )}
+            <h2 className="pt-10 mb-3 text-xs font-bold uppercase text-zinc-500">
+              All Teams
+            </h2>
+            {roster.length > 0 ? (
+              <ul className="space-y-3">
+                {roster.map((team, index) => (
+                  <Link key={index} href={`/teams/${team.id}`} className="flex items-center space-x-1 rounded border border-stone-200 px-3 py-2">
+                    {team.name}
+                  </Link>
+                ))}
+              </ul>
+            ) : (
+              <p>No teams found for this person.</p>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
+}
+
+function ActivityIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+    </svg>
+  )
+}
+
+
+
+function CreditCardIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect width="20" height="14" x="2" y="5" rx="2" />
+      <line x1="2" x2="22" y1="10" y2="10" />
+    </svg>
+  )
+}
+
+
+function DollarSignIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="12" x2="12" y1="2" y2="22" />
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+    </svg>
+  )
+}
+
+function UsersIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  )
 }

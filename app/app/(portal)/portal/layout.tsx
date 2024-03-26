@@ -11,7 +11,7 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
           <div className="mx-auto max-w-screen-2xl">
             <div className="flex h-16 items-center px-4">
               <Link href="/">
-                <img src="/athletes.svg" className="h-auto w-[125px]" />
+                <img src="/athletes-logo.svg" className="h-auto w-[50px]" />
               </Link>
               <div className="ml-auto flex items-center space-x-4">
                 <PortalUserNav />
