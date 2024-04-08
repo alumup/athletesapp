@@ -6,7 +6,7 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-} from "@/components/ui/carousel";
+} from "@/components/ui/carousel"; // will use carousel later instead of scroll
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -173,7 +173,9 @@ const PortalPage = () => {
       </div>
 
       <div className="mx-2 mt-5">
-        <h1 className="text-3xl font-bold">{selectedDependent?.to.first_name}</h1>
+        <h1 className="text-3xl font-bold">
+          {selectedDependent?.to.first_name}
+        </h1>
       </div>
 
       {/* Events */}

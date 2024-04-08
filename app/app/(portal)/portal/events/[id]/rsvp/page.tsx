@@ -1,10 +1,13 @@
 "use client";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreatePaymentModalMultipleParticipants from "@/components/modal/create-payment-modal-multiple-participants";
+import { formatDate } from "@/lib/utils";
 import { ArrowLeftIcon, ArrowRightIcon, PlusIcon } from "@radix-ui/react-icons";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import {
+  ArrowLeftCircleIcon,
   Calendar,
+  CalendarIcon,
   CheckCircle,
   HelpCircle,
   Loader,
@@ -13,17 +16,26 @@ import {
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const EventRSVP = ({ params }: { params: { id: string } }) => {
   const supabase = createClientComponentClient();
+  const searchParams = useSearchParams();
 
+  const { refresh } = useRouter();
   const [user, setUser] = useState<any>();
   const [profile, setProfile] = useState<any>();
-  const [dependants, setDependants] = useState<any>([]);
+  const [dependant, setDependant] = useState<any>();
   const [event, setEvents] = useState<any>();
   const [selectedDependants, setSelectedDependants] = useState<any>([]);
+  const [isGoing, setIsGoing] = useState<any>(false);
+  const [isParentPaid, setIsParentPaid] = useState<any>(false);
+
+  const currentDependent = searchParams.get("dependent");
+  const [isSession, setIsSession] = useState<boolean>(false);
+  const [parentEvent, setParentEvent] = useState<any>();
 
   useEffect(() => {
     const getUser = async () => {
@@ -39,17 +51,40 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
     const getEvents = async () => {
       const { data, error } = await supabase
         .from("events")
-        .select("*,accounts(*), fees(*), rsvp(*)")
+        .select("*,accounts(*), fees(*), rsvp(*, people(*)), parent_id(*)")
         .eq("id", params.id)
         .single();
-
+      console.log(data)
       if (!error && data) setEvents(data);
-      const rsvp: any = [];
-      data?.rsvp?.forEach((rsv: any) => {
-        rsvp.push(rsv.person_id);
-      });
+      if (currentDependent) {
+        const going = data?.rsvp?.find(
+          (rs: any) => rs.person_id === currentDependent,
+        );
+        setDependant(going?.people)
+        if (going && going.status === "paid") {
+          setIsGoing(true);
+        }
+      }
 
-      console.log(data, "--- EVENTS DATA ----");
+      if (data.parent_id) {
+        setIsSession(true);
+        const { data: parentData, error } = await supabase
+          .from("events")
+          .select("*,accounts(*), fees(*), rsvp(*)")
+          .eq("id", data.parent_id.id)
+          .single();
+
+        if (!error) {
+          setParentEvent(parentData);
+          const parentRsvp = parentData.rsvp.find(
+            (rs: any) => rs.person_id === currentDependent,
+          );
+          console.log(parentRsvp, "parent rsvp");
+          if (parentRsvp && parentRsvp.status === "paid") {
+            setIsParentPaid(true);
+          }
+        } else console.log("-- Error getting parent event ---");
+      }
     };
 
     getEvents();
@@ -58,14 +93,43 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     if (user) {
       const getDependents = async () => {
-        const { data, error } = await supabase
-          .from("relationships")
-          .select(
-            "*,from:person_id(*, accounts(*)),to:relation_id(*, accounts(*))",
-          )
-          .eq("person_id", user.user_metadata?.people_id);
+        if (searchParams && currentDependent) {
+          if (!selectedDependants.includes(currentDependent)) {
+            // create participants entry
 
-        if (!error && data) setDependants(data);
+            const { data: dependentRsvp, error: dependentRsvpError } =
+              await supabase
+                .from("rsvp")
+                .select("*")
+                .eq("events_id", event?.id || params.id)
+                .eq("person_id", currentDependent)
+                .eq("profile_id", user.id)
+                .single();
+
+            if (dependentRsvpError) {
+              console.error(
+                "Error fetching RSVP records:",
+                dependentRsvpError.message,
+              );
+            }
+
+            if (!dependentRsvp) {
+              const { data, error } = await supabase
+                .from("rsvp")
+                .insert({
+                  status: "undecided",
+                  events_id: event?.id || params.id,
+                  person_id: currentDependent,
+                  profile_id: user.id,
+                  payments_id: null,
+                })
+                .select("*, people(*), profiles(*)")
+                .single();
+            }
+
+            setSelectedDependants([currentDependent]);
+          }
+        }
       };
       getDependents();
 
@@ -83,58 +147,6 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
     }
   }, [user]);
 
-  useEffect(() => {
-    if (event && dependants.length > 0) {
-      const selectedUsers: any[] = [];
-      event.rsvp?.forEach((rsv: any) => {
-        if (
-          dependants?.find(
-            (d: any) => d.to.id === rsv.person_id && rsv.status !== "paid",
-          )
-        ) {
-          selectedUsers.push(rsv.person_id);
-        }
-      });
-      setSelectedDependants(selectedUsers);
-    }
-  }, [dependants]);
-
-  const handleDependantChange = async (e: any) => {
-    const dependant = e.target.value;
-    if (!selectedDependants.includes(dependant)) {
-      // check in event.rsvp as well
-      // create participants entry
-      const { data, error } = await supabase
-        .from("rsvp")
-        .insert({
-          status: "undecided",
-          events_id: event.id,
-          person_id: dependant,
-          profile_id: user.id,
-          payments_id: null,
-        })
-        .select("*, people(*), profiles(*)")
-        .single();
-
-      if (error) toast("Unable to select dependant.");
-      else setSelectedDependants([...selectedDependants, dependant]);
-    }
-  };
-
-  const handleRemoveClick = async (id: any) => {
-    const { error } = await supabase
-      .from("rsvp")
-      .delete()
-      .eq("person_id", id)
-      .eq("events_id", event.id);
-
-    if (error) toast("Unable to remove dependant.");
-    else
-      setSelectedDependants((prev: any) =>
-        prev.filter((dependantId: any) => dependantId !== id),
-      );
-  };
-
   const updateRSVP = async () => {
     const { data, error } = await supabase
       .from("rsvp")
@@ -146,142 +158,152 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
       .select();
 
     if (error) toast("Unable to RSVP.");
-    else toast("RSVP done.");
+    else {
+      toast("RSVP done.");
+      setIsGoing(true);
+      refresh();
+    }
   };
 
   return (
     <>
       {event ? (
-        <div className="mx-auto max-w-4xl rounded-xl border border-gray-300 bg-white px-5 pb-5 pt-10 shadow">
-          <div className="flex items-center justify-between">
+        <div className="relative mx-auto max-w-4xl rounded-xl border border-gray-300 bg-white px-5 pb-5 pt-10 shadow">
+          <div className="absolute flex items-center justify-between">
             <Link
               href={`/portal`}
-              className="cursor rounded px-6 hover:bg-gray-100"
+              className="cursor rounded p-2"
             >
               <span className="flex items-center space-x-2 text-sm text-gray-700">
-                <ArrowLeftIcon className="h-8 w-8" />
+                <ArrowLeftCircleIcon fill="white" className="h-8 w-8" />
               </span>
             </Link>
+            {/* <span className="text-sm text-white">For {dependant?.name}</span> */}
           </div>
-          <div>
-            <div className="bg-white px-4 md:mx-auto">
-              <div className="mt-5 p-6">
-                <h1 className="mb-8 text-center text-3xl text-4xl font-normal">
-                  {`${event?.name}`}
-                  <span className="text-xl font-medium text-gray-800">{` (${event?.accounts?.name})`}</span>
-                </h1>
-                <p className="mb-5 text-lg text-gray-800">
-                  {event?.description}
-                </p>
+          <img className="rounded-lg object-cover w-full" src={event?.cover_image || "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"} alt="" />
+          <div style={{ height: '10%' }} className="bottom-0 left-0 right-0 bg-white px-5 md:mx-auto rounded-t-lg">
+            <div className="mt-5 p-2">
+              <h1 className="mb-5 text-center text-4xl font-normal">
+                {`${event?.name}`}
+                {event?.parent_id && <span className="text-xl font-medium text-gray-600">{` (${event?.parent_id?.name})`}</span>}
+              </h1>
+              <p className="mb-5 text-lg text-gray-800">
+                {event?.description}
+              </p>
+              <div className="flex justify-between">
                 <div>
                   <div className="flex">
                     <MapPin className="mr-3 h-5 w-5" />
                     <p className="mb-2">
-                      <span className="text-lg text-gray-700">
-                        {event?.location?.name}
+                      <span className="text-lg text-black-700">
+                        {event?.location?.name || event?.location}
                       </span>
                     </p>
                   </div>
                   <div className="flex">
                     <Calendar className="mr-3 h-5 w-5" />
                     <p className="mb-2">
-                      <span className="text-lg text-gray-700">
+                      <span className="text-lg text-black-700">
                         {" "}
-                        {event?.schedule?.start_date}
+                        {new Date(event?.schedule?.start_date).toDateString()}
                       </span>
                     </p>
                   </div>
                   <div className="flex">
                     <Users className="mr-3 h-5 w-5" />
                     <p className="mb-2">
-                      <span className="text-lg text-gray-700">
+                      <span className="text-lg text-black-700">
                         {" "}
                         {event?.accounts?.name}
                       </span>
                     </p>
                   </div>
                 </div>
-                <div className="my-5 flex justify-between">
-                  <div className="flex">
+
+                <div className="mb-5 mt-2">
+                  <div className="flex mb-1">
                     <CheckCircle color="green" className="mr-3 h-5 w-5" />
                     Going
                   </div>
-                  <div className="flex">
+                  <div className="flex my-1">
                     <XCircle color="red" className="mr-3 h-5 w-5" />
                     Not Going
                   </div>
-                  <div className="flex">
+                  <div className="flex my-1">
                     <HelpCircle className="mr-3 h-5 w-5" />
                     Maybe
                   </div>
                 </div>
-                <div>
-                  <label className="text-gray-800">Select a dependant</label>
-                  <select
-                    value={selectedDependants}
-                    id="dependants"
-                    placeholder="Select a dependant"
-                    onChange={handleDependantChange}
-                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                  >
-                    <option>Select a dependant</option>
-                    {dependants?.map((dependant: any) => (
-                      <option key={dependant?.to?.id} value={dependant?.to?.id}>
-                        {dependant?.to?.name}
-                      </option>
-                    ))}
-                  </select>
-                  <ul className="mt-4">
-                    {selectedDependants?.map((id: any) => {
-                      const dependant = dependants?.find(
-                        (d: any) => d.to.id === id,
-                      );
-                      return (
-                        <li
-                          className="my-2 flex justify-between rounded border p-2"
-                          key={id}
-                        >
-                          <span>{dependant?.to?.name}</span>
-                          <button
-                            onClick={() => handleRemoveClick(id)}
-                            className="ml-2 text-red-500"
-                          >
-                            Remove
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-                <div className="col-span-1 mt-5 flex items-center justify-end">
-                  {event?.fees?.type !== "free" ? (
-                    <GenericButton
-                      size="sm"
-                      variant="default"
-                      cta={`Pay $${(
-                        selectedDependants.length * event?.fees?.amount
-                      ).toFixed(2)}`}
-                    >
-                      <CreatePaymentModalMultipleParticipants
-                        account={event?.accounts}
-                        profile={profile}
-                        persons={selectedDependants}
-                        fee={event?.fees}
-                        event={event}
-                      />
-                    </GenericButton>
-                  ) : (
+              </div>
+
+              {/* This section needs refactoring */}
+              {!isSession ? (
+                !isGoing ? (
+                  <div className="col-span-1 flex items-center justify-end">
+                    {event?.fees?.type !== "free" ? (
+                      <GenericButton
+                        size="sm"
+                        variant="default"
+                        cta={`Pay $${(event?.fees?.amount).toFixed(2)}`}
+                      >
+                        <CreatePaymentModalMultipleParticipants
+                          account={event?.accounts}
+                          profile={profile}
+                          persons={selectedDependants}
+                          fee={event?.fees}
+                          event={event}
+                        />
+                      </GenericButton>
+                    ) : (
+                      <button
+                        onClick={updateRSVP}
+                        className="flex rounded-full bg-white p-2 px-4 border-2 border-black hover:text-white hover:bg-black"
+                      >
+                        {/* <CheckCircle className='h-5 w-5 mr-3' /> */}
+                        <span>Enroll</span>
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex justify-end">
+                    <button className="flex rounded border p-2 px-4">
+                      <CheckCircle className="mr-3 h-5 w-5" color="green" />
+                      <span className="">Going</span>
+                    </button>
+                  </div>
+                )
+              ) : isParentPaid ? (
+                isGoing ? (
+                  <>
+                    <div className="flex justify-end">
+                      <button className="flex rounded border p-2 px-4">
+                        <CheckCircle className="mr-3 h-5 w-5" color="green" />
+                        <span className="">Going</span>
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex justify-end">
                     <button
                       onClick={updateRSVP}
-                      className="flex rounded bg-black p-2 px-4"
+                      className="flex rounded-full bg-white p-2 px-4 border-2 border-black hover:text-white hover:bg-black "
                     >
-                      {/* <CheckCircle className='h-5 w-5 mr-3' /> */}
-                      <span className="text-white">Enroll</span>
+                      <span className="">Parent Paid - Enroll</span>
                     </button>
-                  )}
+                  </div>
+                )
+              ) : (
+                <div className="col-span-1 mt-5 flex items-center justify-end">
+                  <Link
+                    href={`/portal/events/${parentEvent?.id}/rsvp?dependent=${currentDependent}`}
+                    className="rounded-full p-2 px-4 text-black border-2 border-black hover:text-white hover:bg-black"
+                  >
+                    Pay to Enroll
+                  </Link>
                 </div>
-              </div>
+              )}
             </div>
+
           </div>
         </div>
       ) : (

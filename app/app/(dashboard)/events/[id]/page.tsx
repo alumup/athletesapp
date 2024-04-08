@@ -38,17 +38,21 @@ export default async function EventPage({
     }
 
     if (data) {
-      const participantsWithPrimaryContactsPromises = data.map(async (participant) => {
-        const primaryContacts = await getPrimaryContacts(participant.people);
-        return {
-          ...participant,
-          people: {
-            ...participant.people,
-            primary_contacts: primaryContacts,
-          },
-        };
-      });
-      const participantsWithPrimaryContacts = await Promise.all(participantsWithPrimaryContactsPromises);
+      const participantsWithPrimaryContactsPromises = data.map(
+        async (participant) => {
+          const primaryContacts = await getPrimaryContacts(participant.people);
+          return {
+            ...participant,
+            people: {
+              ...participant.people,
+              primary_contacts: primaryContacts,
+            },
+          };
+        },
+      );
+      const participantsWithPrimaryContacts = await Promise.all(
+        participantsWithPrimaryContactsPromises,
+      );
       console.log(participantsWithPrimaryContacts);
       return participantsWithPrimaryContacts;
     }
