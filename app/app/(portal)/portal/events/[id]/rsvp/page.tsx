@@ -172,7 +172,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
           <div className="absolute flex items-center justify-between">
             <Link
               href={`/portal`}
-              className="cursor rounded p-2 hover:bg-gray-100"
+              className="cursor rounded p-2"
             >
               <span className="flex items-center space-x-2 text-sm text-gray-700">
                 <ArrowLeftCircleIcon fill="white" className="h-8 w-8" />
@@ -257,10 +257,10 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                     ) : (
                       <button
                         onClick={updateRSVP}
-                        className="flex rounded bg-black p-2 px-4"
+                        className="flex rounded-full bg-white p-2 px-4 border-2 border-black hover:text-white hover:bg-black"
                       >
                         {/* <CheckCircle className='h-5 w-5 mr-3' /> */}
-                        <span className="text-white">Enroll</span>
+                        <span>Enroll</span>
                       </button>
                     )}
                   </div>
@@ -286,9 +286,9 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                   <div className="flex justify-end">
                     <button
                       onClick={updateRSVP}
-                      className="flex rounded bg-black p-2 px-4 "
+                      className="flex rounded-full bg-white p-2 px-4 border-2 border-black hover:text-white hover:bg-black "
                     >
-                      <span className="text-white">Parent Paid - Enroll</span>
+                      <span className="">Parent Paid - Enroll</span>
                     </button>
                   </div>
                 )
@@ -296,7 +296,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                 <div className="col-span-1 mt-5 flex items-center justify-end">
                   <Link
                     href={`/portal/events/${parentEvent?.id}/rsvp?dependent=${currentDependent}`}
-                    className="rounded bg-black p-2 px-4 text-white"
+                    className="rounded-full p-2 px-4 text-black border-2 border-black hover:text-white hover:bg-black"
                   >
                     Pay to Enroll
                   </Link>
