@@ -16,7 +16,9 @@ export default function AccountEvents({ dependent, profile }: any) {
       const { data, error } = await supabase
         .from("events")
         .select("*,accounts(*), fees(*), rsvp(*), parent_id(*)")
-        .eq("account_id", dependent?.to?.accounts?.id);
+        .gte("date", new Date().toISOString())
+        .eq("account_id", dependent?.to?.accounts?.id)
+        .order("date", { ascending: true })
 
       if (error) console.log("ERROR getting events: ", error);
       else {
