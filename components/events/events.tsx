@@ -36,7 +36,7 @@ export default function AccountEvents({ dependent, profile }: any) {
             key={event.id}
             className="flex h-64 rounded-lg border border-lime-200"
           >
-            <div className="flex min-w-[100px] items-center justify-center bg-lime-300 p-4">
+            <div className="flex min-w-[100px] items-center justify-center bg-lime-200 p-4">
               <div className="mb-2 text-center">
                 <span className="text-bold">
                   {formatDate(event?.schedule?.start_date)}

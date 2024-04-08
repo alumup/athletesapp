@@ -62,6 +62,7 @@ export default function CreateEventModal({
         },
         visibility: data.visibility,
         fees: data.fees || null,
+        cover_image: data.cover_image || null
       },
     ]);
 
@@ -140,6 +141,20 @@ export default function CreateEventModal({
             id="location"
             className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("location", { required: true })}
+          />
+        </div>
+        <div className="flex flex-col space-y-2">
+          <label
+            htmlFor="cover_image"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
+            Cover Image
+          </label>
+          <input
+            type="text"
+            id="cover_image"
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
+            {...register("cover_image", { required: false })}
           />
         </div>
         <div className="flex justify-between justify-stretch">
