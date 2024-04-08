@@ -183,55 +183,59 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
           <img className="rounded-lg object-cover w-full" src={event?.cover_image || "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"} alt="" />
           <div style={{ height: '10%' }} className="bottom-0 left-0 right-0 bg-white px-5 md:mx-auto rounded-t-lg">
             <div className="mt-5 p-2">
-              <h1 className="mb-8 text-center text-3xl text-4xl font-normal">
+              <h1 className="mb-5 text-center text-4xl font-normal">
                 {`${event?.name}`}
                 {event?.parent_id && <span className="text-xl font-medium text-gray-600">{` (${event?.parent_id?.name})`}</span>}
               </h1>
               <p className="mb-5 text-lg text-gray-800">
                 {event?.description}
               </p>
-              <div>
-                <div className="flex">
-                  <MapPin className="mr-3 h-5 w-5" />
-                  <p className="mb-2">
-                    <span className="text-lg text-black-700">
-                      {event?.location?.name || event?.location}
-                    </span>
-                  </p>
+              <div className="flex justify-between">
+                <div>
+                  <div className="flex">
+                    <MapPin className="mr-3 h-5 w-5" />
+                    <p className="mb-2">
+                      <span className="text-lg text-black-700">
+                        {event?.location?.name || event?.location}
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex">
+                    <Calendar className="mr-3 h-5 w-5" />
+                    <p className="mb-2">
+                      <span className="text-lg text-black-700">
+                        {" "}
+                        {new Date(event?.schedule?.start_date).toDateString()}
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex">
+                    <Users className="mr-3 h-5 w-5" />
+                    <p className="mb-2">
+                      <span className="text-lg text-black-700">
+                        {" "}
+                        {event?.accounts?.name}
+                      </span>
+                    </p>
+                  </div>
                 </div>
-                <div className="flex">
-                  <Calendar className="mr-3 h-5 w-5" />
-                  <p className="mb-2">
-                    <span className="text-lg text-black-700">
-                      {" "}
-                      {new Date(event?.schedule?.start_date).toDateString()}
-                    </span>
-                  </p>
-                </div>
-                <div className="flex">
-                  <Users className="mr-3 h-5 w-5" />
-                  <p className="mb-2">
-                    <span className="text-lg text-black-700">
-                      {" "}
-                      {event?.accounts?.name}
-                    </span>
-                  </p>
+
+                <div className="mb-5 mt-2">
+                  <div className="flex mb-1">
+                    <CheckCircle color="green" className="mr-3 h-5 w-5" />
+                    Going
+                  </div>
+                  <div className="flex my-1">
+                    <XCircle color="red" className="mr-3 h-5 w-5" />
+                    Not Going
+                  </div>
+                  <div className="flex my-1">
+                    <HelpCircle className="mr-3 h-5 w-5" />
+                    Maybe
+                  </div>
                 </div>
               </div>
-              <div className="my-5 flex justify-between">
-                <div className="flex">
-                  <CheckCircle color="green" className="mr-3 h-5 w-5" />
-                  Going
-                </div>
-                <div className="flex">
-                  <XCircle color="red" className="mr-3 h-5 w-5" />
-                  Not Going
-                </div>
-                <div className="flex">
-                  <HelpCircle className="mr-3 h-5 w-5" />
-                  Maybe
-                </div>
-              </div>
+
               {/* This section needs refactoring */}
               {!isSession ? (
                 !isGoing ? (
