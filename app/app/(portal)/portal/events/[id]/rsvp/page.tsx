@@ -13,17 +13,26 @@ import {
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const EventRSVP = ({ params }: { params: { id: string } }) => {
   const supabase = createClientComponentClient();
+  const searchParams = useSearchParams();
 
+  const { refresh } = useRouter();
   const [user, setUser] = useState<any>();
   const [profile, setProfile] = useState<any>();
-  const [dependants, setDependants] = useState<any>([]);
+  const [dependant, setDependant] = useState<any>([]);
   const [event, setEvents] = useState<any>();
   const [selectedDependants, setSelectedDependants] = useState<any>([]);
+  const [isGoing, setIsGoing] = useState<any>(false);
+  const [isParentPaid, setIsParentPaid] = useState<any>(false);
+
+  const currentDependent = searchParams.get("dependent");
+  const [isSession, setIsSession] = useState<boolean>(false);
+  const [parentEvent, setParentEvent] = useState<any>();
 
   useEffect(() => {
     const getUser = async () => {
@@ -44,12 +53,34 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
         .single();
 
       if (!error && data) setEvents(data);
-      const rsvp: any = [];
-      data?.rsvp?.forEach((rsv: any) => {
-        rsvp.push(rsv.person_id);
-      });
+      if (currentDependent) {
+        const going = data?.rsvp?.find(
+          (rs: any) => rs.person_id === currentDependent,
+        );
+        if (going && going.status === "paid") {
+          setIsGoing(true);
+        }
+      }
 
-      console.log(data, "--- EVENTS DATA ----");
+      if (data.parent_id) {
+        setIsSession(true);
+        const { data: parentData, error } = await supabase
+          .from("events")
+          .select("*,accounts(*), fees(*), rsvp(*)")
+          .eq("id", data.parent_id)
+          .single();
+
+        if (!error) {
+          setParentEvent(parentData);
+          const parentRsvp = parentData.rsvp.find(
+            (rs: any) => rs.person_id === currentDependent,
+          );
+          console.log(parentRsvp, "parent rsvp");
+          if (parentRsvp && parentRsvp.status === "paid") {
+            setIsParentPaid(true);
+          }
+        } else console.log("-- Error getting parent event ---");
+      }
     };
 
     getEvents();
@@ -58,14 +89,43 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     if (user) {
       const getDependents = async () => {
-        const { data, error } = await supabase
-          .from("relationships")
-          .select(
-            "*,from:person_id(*, accounts(*)),to:relation_id(*, accounts(*))",
-          )
-          .eq("person_id", user.user_metadata?.people_id);
+        if (searchParams && currentDependent) {
+          if (!selectedDependants.includes(currentDependent)) {
+            // create participants entry
 
-        if (!error && data) setDependants(data);
+            const { data: dependentRsvp, error: dependentRsvpError } =
+              await supabase
+                .from("rsvp")
+                .select("*")
+                .eq("events_id", event?.id || params.id)
+                .eq("person_id", currentDependent)
+                .eq("profile_id", user.id)
+                .single();
+
+            if (dependentRsvpError) {
+              console.error(
+                "Error fetching RSVP records:",
+                dependentRsvpError.message,
+              );
+            }
+
+            if (!dependentRsvp) {
+              const { data, error } = await supabase
+                .from("rsvp")
+                .insert({
+                  status: "undecided",
+                  events_id: event?.id || params.id,
+                  person_id: currentDependent,
+                  profile_id: user.id,
+                  payments_id: null,
+                })
+                .select("*, people(*), profiles(*)")
+                .single();
+            }
+
+            setSelectedDependants([currentDependent]);
+          }
+        }
       };
       getDependents();
 
@@ -83,58 +143,6 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
     }
   }, [user]);
 
-  useEffect(() => {
-    if (event && dependants.length > 0) {
-      const selectedUsers: any[] = [];
-      event.rsvp?.forEach((rsv: any) => {
-        if (
-          dependants?.find(
-            (d: any) => d.to.id === rsv.person_id && rsv.status !== "paid",
-          )
-        ) {
-          selectedUsers.push(rsv.person_id);
-        }
-      });
-      setSelectedDependants(selectedUsers);
-    }
-  }, [dependants]);
-
-  const handleDependantChange = async (e: any) => {
-    const dependant = e.target.value;
-    if (!selectedDependants.includes(dependant)) {
-      // check in event.rsvp as well
-      // create participants entry
-      const { data, error } = await supabase
-        .from("rsvp")
-        .insert({
-          status: "undecided",
-          events_id: event.id,
-          person_id: dependant,
-          profile_id: user.id,
-          payments_id: null,
-        })
-        .select("*, people(*), profiles(*)")
-        .single();
-
-      if (error) toast("Unable to select dependant.");
-      else setSelectedDependants([...selectedDependants, dependant]);
-    }
-  };
-
-  const handleRemoveClick = async (id: any) => {
-    const { error } = await supabase
-      .from("rsvp")
-      .delete()
-      .eq("person_id", id)
-      .eq("events_id", event.id);
-
-    if (error) toast("Unable to remove dependant.");
-    else
-      setSelectedDependants((prev: any) =>
-        prev.filter((dependantId: any) => dependantId !== id),
-      );
-  };
-
   const updateRSVP = async () => {
     const { data, error } = await supabase
       .from("rsvp")
@@ -146,7 +154,11 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
       .select();
 
     if (error) toast("Unable to RSVP.");
-    else toast("RSVP done.");
+    else {
+      toast("RSVP done.");
+      setIsGoing(true);
+      refresh();
+    }
   };
 
   return (
@@ -178,7 +190,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                     <MapPin className="mr-3 h-5 w-5" />
                     <p className="mb-2">
                       <span className="text-lg text-gray-700">
-                        {event?.location?.name}
+                        {event?.location?.name || event?.location}
                       </span>
                     </p>
                   </div>
@@ -215,71 +227,72 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                     Maybe
                   </div>
                 </div>
-                <div>
-                  <label className="text-gray-800">Select a dependant</label>
-                  <select
-                    value={selectedDependants}
-                    id="dependants"
-                    placeholder="Select a dependant"
-                    onChange={handleDependantChange}
-                    className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                  >
-                    <option>Select a dependant</option>
-                    {dependants?.map((dependant: any) => (
-                      <option key={dependant?.to?.id} value={dependant?.to?.id}>
-                        {dependant?.to?.name}
-                      </option>
-                    ))}
-                  </select>
-                  <ul className="mt-4">
-                    {selectedDependants?.map((id: any) => {
-                      const dependant = dependants?.find(
-                        (d: any) => d.to.id === id,
-                      );
-                      return (
-                        <li
-                          className="my-2 flex justify-between rounded border p-2"
-                          key={id}
+                {/* This section needs refactoring */}
+                {!isSession ? (
+                  !isGoing ? (
+                    <div className="col-span-1 mt-5 flex items-center justify-end">
+                      {event?.fees?.type !== "free" ? (
+                        <GenericButton
+                          size="sm"
+                          variant="default"
+                          cta={`Pay $${(event?.fees?.amount).toFixed(2)}`}
                         >
-                          <span>{dependant?.to?.name}</span>
-                          <button
-                            onClick={() => handleRemoveClick(id)}
-                            className="ml-2 text-red-500"
-                          >
-                            Remove
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-                <div className="col-span-1 mt-5 flex items-center justify-end">
-                  {event?.fees?.type !== "free" ? (
-                    <GenericButton
-                      size="sm"
-                      variant="default"
-                      cta={`Pay $${(
-                        selectedDependants.length * event?.fees?.amount
-                      ).toFixed(2)}`}
-                    >
-                      <CreatePaymentModalMultipleParticipants
-                        account={event?.accounts}
-                        profile={profile}
-                        persons={selectedDependants}
-                        fee={event?.fees}
-                        event={event}
-                      />
-                    </GenericButton>
+                          <CreatePaymentModalMultipleParticipants
+                            account={event?.accounts}
+                            profile={profile}
+                            persons={selectedDependants}
+                            fee={event?.fees}
+                            event={event}
+                          />
+                        </GenericButton>
+                      ) : (
+                        <button
+                          onClick={updateRSVP}
+                          className="flex rounded bg-black p-2 px-4"
+                        >
+                          {/* <CheckCircle className='h-5 w-5 mr-3' /> */}
+                          <span className="text-white">Enroll</span>
+                        </button>
+                      )}
+                    </div>
                   ) : (
-                    <button
-                      onClick={updateRSVP}
-                      className="flex rounded bg-black p-2 px-4"
+                    <div className="flex justify-end">
+                      <button className="flex rounded border p-2 px-4">
+                        <CheckCircle className="mr-3 h-5 w-5" color="green" />
+                        <span className="">Going</span>
+                      </button>
+                    </div>
+                  )
+                ) : isParentPaid ? (
+                  isGoing ? (
+                    <>
+                      <div className="flex justify-end">
+                        <button className="flex rounded border p-2 px-4">
+                          <CheckCircle className="mr-3 h-5 w-5" color="green" />
+                          <span className="">Going</span>
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-end">
+                      <button
+                        onClick={updateRSVP}
+                        className="flex rounded bg-black p-2 px-4 "
+                      >
+                        <span className="text-white">Parent Paid - Enroll</span>
+                      </button>
+                    </div>
+                  )
+                ) : (
+                  <div className="col-span-1 mt-5 flex items-center justify-end">
+                    <Link
+                      href={`/portal/events/${parentEvent?.id}/rsvp?dependent=${currentDependent}`}
+                      className="rounded bg-black p-2 px-4 text-white"
                     >
-                      {/* <CheckCircle className='h-5 w-5 mr-3' /> */}
-                      <span className="text-white">Enroll</span>
-                    </button>
-                  )}
-                </div>
+                      Pay to Enroll
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           </div>

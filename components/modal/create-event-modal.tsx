@@ -52,7 +52,9 @@ export default function CreateEventModal({
         name: data.name,
         description: data.description,
         team_id: data.team || null,
-        location: data.location,
+        location: {
+          name: data.location,
+        },
         schedule: {
           start_date: data.start_date,
           end_date: data.end_date,
