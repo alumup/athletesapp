@@ -18,7 +18,7 @@ export default function AccountEvents({ dependent, profile }: any) {
         .select("*,accounts(*), fees(*), rsvp(*), parent_id(*)")
         .gte("date", new Date().toISOString())
         .eq("account_id", dependent?.to?.accounts?.id)
-        .order("date", { ascending: true })
+        .order("date", { ascending: true });
 
       if (error) console.log("ERROR getting events: ", error);
       else {
