@@ -8,14 +8,16 @@ export default function IconButton({
   children,
   cta,
   icon,
+  className
 }: {
   children: ReactNode;
   cta: string;
   icon: ReactNode;
+  className?: string;
 }) {
   const modal = useModal();
   return (
-    <Button variant="outline" onClick={() => modal?.show(children)}>
+    <Button className={className} variant="outline" onClick={() => modal?.show(children)}>
       <span className="flex items-center">
         {icon}
         {cta}
