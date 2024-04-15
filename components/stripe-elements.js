@@ -95,8 +95,8 @@ export const StripeElements = ({ modal, fee, person }) => {
     } else {
       setMessage({ type: "success", text: "Payment succeeded!" });
       setPaymentSuccess(true);
-      router.refresh();
-      router.push("/thank-you");
+      // router.refresh();
+      router.push("/portal/thank-you");
       modal.show(<LoadingSpinner />);
       toast.success("Payment successful!");
     }
@@ -113,13 +113,10 @@ export const StripeElements = ({ modal, fee, person }) => {
       {message && message.text && (
         <div
           id="message"
-          className={`mb-5 rounded bg-${
-            message.type === "error" ? "red-50" : "green-50"
-          } border border-${
-            message.type === "error" ? "red-100" : "green-100"
-          } p-2 text-center text-${
-            message.type === "error" ? "red-500" : "green-500"
-          }`}
+          className={`mb-5 rounded bg-${message.type === "error" ? "red-50" : "green-50"
+            } border border-${message.type === "error" ? "red-100" : "green-100"
+            } p-2 text-center text-${message.type === "error" ? "red-500" : "green-500"
+            }`}
         >
           {message.text}
         </div>
