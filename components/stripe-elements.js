@@ -113,10 +113,13 @@ export const StripeElements = ({ modal, fee, person }) => {
       {message && message.text && (
         <div
           id="message"
-          className={`mb-5 rounded bg-${message.type === "error" ? "red-50" : "green-50"
-            } border border-${message.type === "error" ? "red-100" : "green-100"
-            } p-2 text-center text-${message.type === "error" ? "red-500" : "green-500"
-            }`}
+          className={`mb-5 rounded bg-${
+            message.type === "error" ? "red-50" : "green-50"
+          } border border-${
+            message.type === "error" ? "red-100" : "green-100"
+          } p-2 text-center text-${
+            message.type === "error" ? "red-500" : "green-500"
+          }`}
         >
           {message.text}
         </div>

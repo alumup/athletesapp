@@ -120,7 +120,9 @@ const PublicAccountEventsDetail = ({
             <Separator className="my-4" />
             <div className="mx-5 flex justify-center">
               <Button asChild className="w-full">
-                <Link href={`/login?account_id=${params.id}&sign_up=true&from_events=true`}>
+                <Link
+                  href={`/login?account_id=${params.id}&sign_up=true&from_events=true`}
+                >
                   {event?.fees.type !== "free"
                     ? `$${event.fees.amount} - RSVP`
                     : "RSVP"}

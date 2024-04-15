@@ -18,7 +18,10 @@ export default function Login() {
 
   const account_id = searchParams.get("account_id");
   const people_id = searchParams.get("people_id");
-  const email = searchParams.get("email") as string || decryptId(searchParams.get("email") as string) || "";
+  const email =
+    (searchParams.get("email") as string) ||
+    decryptId(searchParams.get("email") as string) ||
+    "";
   const sign_up = searchParams.get("sign_up");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -99,7 +102,10 @@ export default function Login() {
 
     const formData = new FormData(event.target);
 
-    const url = from_events === "" ? "/api/auth/sign-up" : "/api/auth/sign-up?from_events=true"
+    const url =
+      from_events === ""
+        ? "/api/auth/sign-up"
+        : "/api/auth/sign-up?from_events=true";
     const response = await fetch(url, {
       method: "POST",
       body: formData,
@@ -111,7 +117,8 @@ export default function Login() {
     }
 
     if (response.ok) {
-      const url = from_events === "" ? "/dashboard" : "/dashboard?from_events=true"
+      const url =
+        from_events === "" ? "/dashboard" : "/dashboard?from_events=true";
       router.push(url);
     }
   };
@@ -232,7 +239,6 @@ export default function Login() {
                 className="mb-6  rounded-md border bg-inherit px-4 py-2"
                 name="last_name"
                 placeholder="Last Name"
-
                 defaultValue={lastName || ""}
                 required
               />
@@ -247,7 +253,7 @@ export default function Login() {
                 className="mb-6 hidden rounded-md border bg-inherit px-4 py-2"
                 name="people_id"
                 defaultValue={people_id || ""}
-              // required
+                // required
               />
               <label className="text-md" htmlFor="email">
                 Email

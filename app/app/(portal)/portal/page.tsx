@@ -28,7 +28,7 @@ import AccountPublicEvents from "@/components/events/public-events";
 const PortalPage = () => {
   const supabase = createClientComponentClient();
 
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams();
 
   const [account, setAccount] = useState<any>();
   const [user, setUser] = useState<any>();
@@ -157,7 +157,7 @@ const PortalPage = () => {
     return false;
   }
 
-  console.log(selectedDependent, "-- selected dependent ----")
+  console.log(selectedDependent, "-- selected dependent ----");
 
   return (
     <div className="">
@@ -183,10 +183,15 @@ const PortalPage = () => {
             <Loader className="h-10 w-10 animate-spin" />
           </div>
         )}
-        {toRelationships?.length < 1 && <IconButton className="mt-2 rounded-full p-4" cta="New Dependent" icon={<PlusCircle className="h-5 w-5" />}>
-          <CreateDependentModal person={profile} />
-        </IconButton>}
-
+        {toRelationships?.length < 1 && (
+          <IconButton
+            className="mt-2 rounded-full p-4"
+            cta="New Dependent"
+            icon={<PlusCircle className="h-5 w-5" />}
+          >
+            <CreateDependentModal person={profile} />
+          </IconButton>
+        )}
       </div>
 
       <div className="mx-2 mt-5">
@@ -202,10 +207,9 @@ const PortalPage = () => {
         )}
       </div>
       {/* Events */}
-      {rosters
-        ?.filter(
-          (roster: any) => roster.person_id === selectedDependent?.to?.id,
-        ).length > 0 && <span className="mx-2 mt-10 font-bold">Teams</span>}
+      {rosters?.filter(
+        (roster: any) => roster.person_id === selectedDependent?.to?.id,
+      ).length > 0 && <span className="mx-2 mt-10 font-bold">Teams</span>}
       <div className="mx-2 my-5 mt-2">
         {rosters
           ?.filter(
@@ -244,14 +248,18 @@ const PortalPage = () => {
           ))}
       </div>
       <div>
-        {
-          account && (
-            <>
-              <h1 className="text-md my-2 font-semibold">Upcoming Events for {account?.name}</h1>
-              <AccountPublicEvents account={account} profile={profile} selectedDependent={selectedDependent} />
-            </>
-          )
-        }
+        {account && (
+          <>
+            <h1 className="text-md my-2 font-semibold">
+              Upcoming Events for {account?.name}
+            </h1>
+            <AccountPublicEvents
+              account={account}
+              profile={profile}
+              selectedDependent={selectedDependent}
+            />
+          </>
+        )}
       </div>
     </div>
   );
