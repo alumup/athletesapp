@@ -6,10 +6,13 @@ import { AlarmClock, CheckCircle, MapPin } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export default function AccountEvents({ dependent, profile }: any) {
+export default function AccountPublicEvents({
+  account,
+  profile,
+  selectedDependent,
+}: any) {
   const supabase = createClientComponentClient();
   const [events, setEvents] = useState<any>([]);
-  const [isGoing, setIsGoing] = useState<boolean>(false);
 
   useEffect(() => {
     const getEvents = async () => {
@@ -17,18 +20,20 @@ export default function AccountEvents({ dependent, profile }: any) {
         .from("events")
         .select("*,accounts(*), fees(*), rsvp(*), parent_id(*)")
         .gte("date", new Date().toISOString())
-        .eq("account_id", dependent?.to?.accounts?.id)
+        .eq("account_id", account?.id)
+        // .eq("visibility", "public")
+        // .is("parent_id", null)
         .order("date", { ascending: true });
 
       if (error) console.log("ERROR getting events: ", error);
       else {
         setEvents(data);
-        console.log(data, "--- events data --- events.tsx");
+        console.log(data, "--- events data --- public-events.tsx");
       }
     };
 
-    if (dependent) getEvents();
-  }, [dependent]);
+    getEvents();
+  }, [account, selectedDependent]);
 
   return (
     <div>
@@ -72,10 +77,14 @@ export default function AccountEvents({ dependent, profile }: any) {
 
               {event?.rsvp?.find(
                 (rs: any) =>
-                  rs.person_id === dependent.to.id && rs.status === "paid",
+                  rs.person_id ===
+                    (selectedDependent?.to?.id || profile?.people?.id) &&
+                  rs.status === "paid",
               ) ? (
                 <Link
-                  href={`/portal/events/${event.id}/rsvp?dependent=${dependent.to.id}`}
+                  href={`/portal/events/${event.id}/rsvp?dependent=${
+                    selectedDependent?.to?.id || profile?.people?.id
+                  }`}
                   className=" self-end rounded border bg-white px-3 py-2 font-bold"
                 >
                   <div className="flex justify-between">
@@ -85,7 +94,9 @@ export default function AccountEvents({ dependent, profile }: any) {
                 </Link>
               ) : (
                 <Link
-                  href={`/portal/events/${event.id}/rsvp?dependent=${dependent.to.id}`}
+                  href={`/portal/events/${event.id}/rsvp?dependent=${
+                    selectedDependent?.to?.id || profile?.people?.id
+                  }`}
                   className="w-24 self-end rounded bg-black px-6 py-2 font-bold text-white"
                 >
                   RSVP

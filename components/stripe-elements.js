@@ -95,8 +95,8 @@ export const StripeElements = ({ modal, fee, person }) => {
     } else {
       setMessage({ type: "success", text: "Payment succeeded!" });
       setPaymentSuccess(true);
-      router.refresh();
-      router.push("/thank-you");
+      // router.refresh();
+      router.push("/portal/thank-you");
       modal.show(<LoadingSpinner />);
       toast.success("Payment successful!");
     }

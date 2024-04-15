@@ -29,9 +29,18 @@ export default async function middleware(req: NextRequest) {
       console.log("ERROR IN MIDDLEWARE: ", error.message);
     }
 
-    const noRedirectPaths = ["/login", "/forgot-password", "/update-password"];
+    const noRedirectPaths = [
+      "/login",
+      "/forgot-password",
+      "/update-password",
+      "/public",
+    ];
 
-    if (!session && !noRedirectPaths.includes(path)) {
+    if (
+      !session &&
+      !noRedirectPaths.includes(path) &&
+      !path.includes("/public/")
+    ) {
       return NextResponse.redirect(new URL("/login", req.url));
     } else if (session && path == "/login") {
       return NextResponse.redirect(new URL("/", req.url));
@@ -56,7 +65,7 @@ export default async function middleware(req: NextRequest) {
 
         const role = profile?.role;
 
-        if (role === "general" && path !== "/portal") {
+        if (role === "general" && !path.includes("/portal")) {
           const redirectUrl =
             process.env.NODE_ENV === "production"
               ? `https://app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/portal`

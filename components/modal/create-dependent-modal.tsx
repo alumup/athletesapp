@@ -14,7 +14,7 @@ export default function CreateDependentModal({
   modalUpdate,
 }: {
   person: any;
-  modalUpdate: any;
+  modalUpdate?: any;
 }) {
   const { refresh } = useRouter();
   const modal = useModal();

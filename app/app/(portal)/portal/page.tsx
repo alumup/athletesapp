@@ -15,13 +15,20 @@ import {
   Clock,
   Loader,
   MapPin,
+  PlusCircle,
 } from "lucide-react";
 import AccountEvents from "@/components/events/events";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreatePaymentModal from "@/components/modal/create-payment-modal";
+import { useSearchParams } from "next/navigation";
+import CreateDependentModal from "@/components/modal/create-dependent-modal";
+import IconButton from "@/components/modal-buttons/icon-button";
+import AccountPublicEvents from "@/components/events/public-events";
 
 const PortalPage = () => {
   const supabase = createClientComponentClient();
+
+  const searchParams = useSearchParams();
 
   const [account, setAccount] = useState<any>();
   const [user, setUser] = useState<any>();
@@ -32,6 +39,10 @@ const PortalPage = () => {
   const [loading, setLoading] = useState<any>(true);
   const [error, setError] = useState<any>(null);
   const [selectedDependent, setSelectedDependent] = useState<any>();
+
+  const from_events = searchParams.get("from_events");
+
+  // const modal = useModal()
 
   useEffect(() => {
     const getAccount = async () => {
@@ -146,6 +157,8 @@ const PortalPage = () => {
     return false;
   }
 
+  console.log(selectedDependent, "-- selected dependent ----");
+
   return (
     <div className="">
       {/* Relationships */}
@@ -170,6 +183,15 @@ const PortalPage = () => {
             <Loader className="h-10 w-10 animate-spin" />
           </div>
         )}
+        {toRelationships?.length < 1 && (
+          <IconButton
+            className="mt-2 rounded-full p-4"
+            cta="New Dependent"
+            icon={<PlusCircle className="h-5 w-5" />}
+          >
+            <CreateDependentModal person={profile} />
+          </IconButton>
+        )}
       </div>
 
       <div className="mx-2 mt-5">
@@ -185,11 +207,13 @@ const PortalPage = () => {
         )}
       </div>
       {/* Events */}
-      <span className="mx-2 mt-10 font-bold">Teams</span>
+      {rosters?.filter(
+        (roster: any) => roster.person_id === selectedDependent?.to?.id,
+      ).length > 0 && <span className="mx-2 mt-10 font-bold">Teams</span>}
       <div className="mx-2 my-5 mt-2">
         {rosters
           ?.filter(
-            (roster: any) => roster.person_id === selectedDependent.to.id,
+            (roster: any) => roster.person_id === selectedDependent?.to?.id,
           )
           .map((roster: any, i: any) => (
             <div key={i}>
@@ -222,6 +246,20 @@ const PortalPage = () => {
               <div className="-mx-1 my-1 h-px bg-zinc-100 dark:bg-zinc-800"></div>
             </div>
           ))}
+      </div>
+      <div>
+        {account && (
+          <>
+            <h1 className="text-md my-2 font-semibold">
+              Upcoming Events for {account?.name}
+            </h1>
+            <AccountPublicEvents
+              account={account}
+              profile={profile}
+              selectedDependent={selectedDependent}
+            />
+          </>
+        )}
       </div>
     </div>
   );

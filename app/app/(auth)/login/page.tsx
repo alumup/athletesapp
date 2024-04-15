@@ -18,12 +18,18 @@ export default function Login() {
 
   const account_id = searchParams.get("account_id");
   const people_id = searchParams.get("people_id");
-  const email = decryptId(searchParams.get("email") as string) || "";
+  const email =
+    (searchParams.get("email") as string) ||
+    decryptId(searchParams.get("email") as string) ||
+    "";
   const sign_up = searchParams.get("sign_up");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [account, setAccount] = useState<any>(null);
+  const from_events = searchParams.get("from_events");
+
+  const isDisabled = email !== "";
 
   useEffect(() => {
     const fetchPersonData = async () => {
@@ -96,7 +102,11 @@ export default function Login() {
 
     const formData = new FormData(event.target);
 
-    const response = await fetch("/api/auth/sign-up", {
+    const url =
+      from_events === ""
+        ? "/api/auth/sign-up"
+        : "/api/auth/sign-up?from_events=true";
+    const response = await fetch(url, {
       method: "POST",
       body: formData,
     });
@@ -107,7 +117,9 @@ export default function Login() {
     }
 
     if (response.ok) {
-      router.push("/dashboard");
+      const url =
+        from_events === "" ? "/dashboard" : "/dashboard?from_events=true";
+      router.push(url);
     }
   };
 
@@ -210,21 +222,30 @@ export default function Login() {
               className="flex w-full flex-1 flex-col justify-center gap-2 text-foreground"
               onSubmit={handleSignUp}
             >
+              <label className="text-md" htmlFor="first_name">
+                First Name
+              </label>
               <input
-                className="mb-6 hidden rounded-md border bg-inherit px-4 py-2"
+                className="mb-6  rounded-md border bg-inherit px-4 py-2"
                 name="first_name"
+                placeholder="First Name"
                 defaultValue={firstName || ""}
                 required
               />
+              <label className="text-md" htmlFor="last_name">
+                Last Name
+              </label>
               <input
-                className="mb-6 hidden rounded-md border bg-inherit px-4 py-2"
+                className="mb-6  rounded-md border bg-inherit px-4 py-2"
                 name="last_name"
+                placeholder="Last Name"
                 defaultValue={lastName || ""}
                 required
               />
               <input
                 className="mb-6 hidden rounded-md border bg-inherit px-4 py-2"
                 name="account_id"
+                placeholder="First Name"
                 defaultValue={account_id || ""}
                 required
               />
@@ -232,7 +253,7 @@ export default function Login() {
                 className="mb-6 hidden rounded-md border bg-inherit px-4 py-2"
                 name="people_id"
                 defaultValue={people_id || ""}
-                required
+                // required
               />
               <label className="text-md" htmlFor="email">
                 Email
@@ -241,8 +262,9 @@ export default function Login() {
                 className="mb-6 cursor-not-allowed rounded-md border bg-inherit px-4 py-2 disabled:opacity-75"
                 name="email"
                 placeholder="you@example.com"
-                value={email}
+                defaultValue={email}
                 required
+                disabled={isDisabled}
               />
               <label className="text-md" htmlFor="password">
                 Password

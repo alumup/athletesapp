@@ -54,13 +54,13 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
         .select("*,accounts(*), fees(*), rsvp(*, people(*)), parent_id(*)")
         .eq("id", params.id)
         .single();
-      console.log(data)
+      console.log(data);
       if (!error && data) setEvents(data);
       if (currentDependent) {
         const going = data?.rsvp?.find(
           (rs: any) => rs.person_id === currentDependent,
         );
-        setDependant(going?.people)
+        setDependant(going?.people);
         if (going && going.status === "paid") {
           setIsGoing(true);
         }
@@ -170,32 +170,39 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
       {event ? (
         <div className="relative mx-auto max-w-4xl rounded-xl border border-gray-300 bg-white px-5 pb-5 pt-10 shadow">
           <div className="absolute flex items-center justify-between">
-            <Link
-              href={`/portal`}
-              className="cursor rounded p-2"
-            >
+            <Link href={`/portal`} className="cursor rounded p-2">
               <span className="flex items-center space-x-2 text-sm text-gray-700">
                 <ArrowLeftCircleIcon fill="white" className="h-8 w-8" />
               </span>
             </Link>
             {/* <span className="text-sm text-white">For {dependant?.name}</span> */}
           </div>
-          <img className="rounded-lg object-cover w-full" src={event?.cover_image || "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"} alt="" />
-          <div style={{ height: '10%' }} className="bottom-0 left-0 right-0 bg-white px-5 md:mx-auto rounded-t-lg">
+          <img
+            className="w-full rounded-lg object-cover"
+            src={
+              event?.cover_image ||
+              "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"
+            }
+            alt=""
+          />
+          <div
+            style={{ height: "10%" }}
+            className="bottom-0 left-0 right-0 rounded-t-lg bg-white px-5 md:mx-auto"
+          >
             <div className="mt-5 p-2">
               <h1 className="mb-5 text-center text-4xl font-normal">
                 {`${event?.name}`}
-                {event?.parent_id && <span className="text-xl font-medium text-gray-600">{` (${event?.parent_id?.name})`}</span>}
+                {event?.parent_id && (
+                  <span className="text-xl font-medium text-gray-600">{` (${event?.parent_id?.name})`}</span>
+                )}
               </h1>
-              <p className="mb-5 text-lg text-gray-800">
-                {event?.description}
-              </p>
+              <p className="mb-5 text-lg text-gray-800">{event?.description}</p>
               <div className="flex justify-between">
                 <div>
                   <div className="flex">
                     <MapPin className="mr-3 h-5 w-5" />
                     <p className="mb-2">
-                      <span className="text-lg text-black-700">
+                      <span className="text-black-700 text-lg">
                         {event?.location?.name || event?.location}
                       </span>
                     </p>
@@ -203,7 +210,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                   <div className="flex">
                     <Calendar className="mr-3 h-5 w-5" />
                     <p className="mb-2">
-                      <span className="text-lg text-black-700">
+                      <span className="text-black-700 text-lg">
                         {" "}
                         {new Date(event?.schedule?.start_date).toDateString()}
                       </span>
@@ -212,7 +219,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                   <div className="flex">
                     <Users className="mr-3 h-5 w-5" />
                     <p className="mb-2">
-                      <span className="text-lg text-black-700">
+                      <span className="text-black-700 text-lg">
                         {" "}
                         {event?.accounts?.name}
                       </span>
@@ -221,15 +228,15 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                 </div>
 
                 <div className="mb-5 mt-2">
-                  <div className="flex mb-1">
+                  <div className="mb-1 flex">
                     <CheckCircle color="green" className="mr-3 h-5 w-5" />
                     Going
                   </div>
-                  <div className="flex my-1">
+                  <div className="my-1 flex">
                     <XCircle color="red" className="mr-3 h-5 w-5" />
                     Not Going
                   </div>
-                  <div className="flex my-1">
+                  <div className="my-1 flex">
                     <HelpCircle className="mr-3 h-5 w-5" />
                     Maybe
                   </div>
@@ -257,7 +264,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                     ) : (
                       <button
                         onClick={updateRSVP}
-                        className="flex rounded-full bg-white p-2 px-4 border-2 border-black hover:text-white hover:bg-black"
+                        className="flex rounded-full border-2 border-black bg-white p-2 px-4 hover:bg-black hover:text-white"
                       >
                         {/* <CheckCircle className='h-5 w-5 mr-3' /> */}
                         <span>Enroll</span>
@@ -286,7 +293,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                   <div className="flex justify-end">
                     <button
                       onClick={updateRSVP}
-                      className="flex rounded-full bg-white p-2 px-4 border-2 border-black hover:text-white hover:bg-black "
+                      className="flex rounded-full border-2 border-black bg-white p-2 px-4 hover:bg-black hover:text-white "
                     >
                       <span className="">Parent Paid - Enroll</span>
                     </button>
@@ -296,14 +303,13 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                 <div className="col-span-1 mt-5 flex items-center justify-end">
                   <Link
                     href={`/portal/events/${parentEvent?.id}/rsvp?dependent=${currentDependent}`}
-                    className="rounded-full p-2 px-4 text-black border-2 border-black hover:text-white hover:bg-black"
+                    className="rounded-full border-2 border-black p-2 px-4 text-black hover:bg-black hover:text-white"
                   >
                     Pay to Enroll
                   </Link>
                 </div>
               )}
             </div>
-
           </div>
         </div>
       ) : (

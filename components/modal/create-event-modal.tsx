@@ -63,7 +63,7 @@ export default function CreateEventModal({
         visibility: data.visibility,
         fees: data.fees || null,
         cover_image: data.cover_image || null,
-        date: data.start_date
+        date: data.start_date,
       },
     ]);
 
