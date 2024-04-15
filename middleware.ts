@@ -65,7 +65,7 @@ export default async function middleware(req: NextRequest) {
 
         const role = profile?.role;
 
-        if (role === "general" && path !== "/portal") {
+        if (role === "general" && !path.includes("/portal")) {
           const redirectUrl =
             process.env.NODE_ENV === "production"
               ? `https://app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/portal`
