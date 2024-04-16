@@ -261,7 +261,7 @@ export default function CreateEventModal({
               </div>
               <div className="flex flex-col space-y-2">
                 <label
-                  htmlFor={`session[${index}].start-time`}
+                  htmlFor={`session[${index}].start_time`}
                   className="text-sm font-medium text-gray-700 dark:text-stone-300"
                 >
                   Start Time:
@@ -269,13 +269,13 @@ export default function CreateEventModal({
                 <input
                   className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
                   type="time"
-                  id={`session[${index}].start-time`}
-                  {...register(`session[${index}].start-time`)}
+                  id={`session[${index}].start_time`}
+                  {...register(`session[${index}].start_time`)}
                 />
               </div>
               <div className="flex flex-col space-y-2">
                 <label
-                  htmlFor={`session[${index}].end-time`}
+                  htmlFor={`session[${index}].end_time`}
                   className="text-sm font-medium text-gray-700 dark:text-stone-300"
                 >
                   End Time:
@@ -283,8 +283,8 @@ export default function CreateEventModal({
                 <input
                   className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
                   type="time"
-                  id={`session[${index}].end-time`}
-                  {...register(`session[${index}].end-time`)}
+                  id={`session[${index}].end_time`}
+                  {...register(`session[${index}].end_time`)}
                 />
               </div>
               <button className="" type="button" onClick={() => remove(index)}>
