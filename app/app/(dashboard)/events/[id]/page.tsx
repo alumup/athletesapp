@@ -28,9 +28,9 @@ export default async function EventPage({
 
   async function fetchParticipants() {
     const { data, error } = await supabase
-      .from("participants")
-      .select("*, people(*)")
-      .eq("event_id", params.id);
+      .from("rsvp")
+      .select("*, people(*), profiles(*)")
+      .eq("events_id", params.id);
 
     if (error) {
       console.error(error);
