@@ -27,7 +27,7 @@ export default function CreateEventModal({
       const { data } = await supabase
         .from("fees")
         .select("*")
-        .eq("account_id", account.id);
+        .eq("account_id", account?.id);
 
       console.log(data);
       setFees(data);
@@ -48,7 +48,7 @@ export default function CreateEventModal({
   const onSubmit = async (data: any) => {
     const { error } = await supabase.from("events").insert([
       {
-        account_id: account.id,
+        account_id: account?.id,
         name: data.name,
         description: data.description,
         team_id: data.team || null,
@@ -126,7 +126,7 @@ export default function CreateEventModal({
             disabled
             value={team?.id}
             className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            {...register("team", { required: false, value: team.id })}
+            {...register("team", { required: false, value: team?.id })}
           />
         </div>
 
