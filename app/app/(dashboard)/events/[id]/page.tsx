@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import { getAccount, getPrimaryContacts } from "@/lib/fetchers/server";
 
 import { EventTable } from "./table";
+import GenericButton from "@/components/modal-buttons/generic-button";
+import CreateEventModal from "@/components/modal/create-event-modal";
 
 export default async function EventPage({
   params,
@@ -68,22 +70,29 @@ export default async function EventPage({
   return (
     <div className="flex flex-col space-y-12">
       <div className="flex flex-col space-y-6">
-        <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
-          <div className="flex flex-col space-y-0.5">
-            <h1 className="font-cal truncate text-base font-bold dark:text-white sm:w-auto sm:text-3xl md:text-xl">
-              {event.name}
-            </h1>
-            <p className="text-stone-800 dark:text-stone-400">
-              {event.description}
-            </p>
-            <div className="flex items-center space-x-2">
-              <p className="text-stone-500 dark:text-stone-400">
-                {event.location?.name}
+        <div className="flex justify-between">
+          <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
+            <div className="flex flex-col space-y-0.5">
+              <h1 className="font-cal truncate text-base font-bold dark:text-white sm:w-auto sm:text-3xl md:text-xl">
+                {event.name}
+              </h1>
+              <p className="text-stone-800 dark:text-stone-400">
+                {event.description}
               </p>
-              <p className="text-stone-500 dark:text-stone-400">
-                {event.schedule?.start_date}
-              </p>
+              <div className="flex items-center space-x-2">
+                <p className="text-stone-500 dark:text-stone-400">
+                  {event.location?.name}
+                </p>
+                <p className="text-stone-500 dark:text-stone-400">
+                  {event.schedule?.start_date}
+                </p>
+              </div>
             </div>
+          </div>
+          <div className="mt-5">
+            <GenericButton cta="+ New Session" size="default" variant="default">
+              <CreateEventModal account={account} event={event} />
+            </GenericButton>
           </div>
         </div>
         <div className="mt-10">

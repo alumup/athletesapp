@@ -151,7 +151,7 @@ export default function CreateDependentModal({
             type="email"
             id="email"
             className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            {...register("email", { required: true })}
+            {...register("email", { required: false })}
           />
           {errors.email && (
             <span className="text-sm text-red-500">This field is required</span>
@@ -169,7 +169,7 @@ export default function CreateDependentModal({
             type="text"
             id="phone"
             className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            {...register("phone", { required: true })}
+            {...register("phone", { required: false })}
           />
           {errors.phone && (
             <span className="text-sm text-red-500">This field is required</span>

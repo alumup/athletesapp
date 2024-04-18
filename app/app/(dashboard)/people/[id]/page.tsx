@@ -89,7 +89,12 @@ export default function PersonPage({ params }: { params: { id: string } }) {
     account: any;
   }) => {
     setEmailIsSending(true);
-    const email = encryptId(person.primary_contacts[0].email);
+    let email = person.primary_contacts[0].email;
+    let encryptedEmail = encryptId(person.primary_contacts[0].email);
+    if (person.email !== "") {
+      encryptedEmail = encryptId(person.email);
+      email = person.email;
+    }
     const response = await fetch("/api/invite-person", {
       method: "POST",
       headers: {
@@ -97,6 +102,7 @@ export default function PersonPage({ params }: { params: { id: string } }) {
       },
       body: JSON.stringify({
         email: email,
+        encryptedEmail: encryptedEmail,
         person: person,
         account: account,
         subject: `You've Been Invited to Athletes App!`,
@@ -146,10 +152,14 @@ export default function PersonPage({ params }: { params: { id: string } }) {
   }, []);
 
   async function hasProfile(person: any) {
+    let email = person?.primary_contacts[0].email;
+    if (person.dependent && person.email !== "") {
+      email = person.email;
+    }
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
-      .eq("email", person?.primary_contacts[0].email)
+      .eq("email", email)
       .single();
 
     if (error) {
@@ -225,6 +235,19 @@ export default function PersonPage({ params }: { params: { id: string } }) {
           </div>
           <div className="flex items-center space-x-2">
             {!person?.dependent && !profile && (
+              <button
+                onClick={() => invitePerson({ person, account })}
+                className="text-md rounded bg-lime-500 px-3 py-1.5 text-white"
+              >
+                {emailIsSending ? (
+                  <LoadingDots color="#808080" />
+                ) : (
+                  <span>Invite to Portal</span>
+                )}
+              </button>
+            )}
+
+            {person?.dependent && person.email !== "" && !profile && (
               <button
                 onClick={() => invitePerson({ person, account })}
                 className="text-md rounded bg-lime-500 px-3 py-1.5 text-white"
