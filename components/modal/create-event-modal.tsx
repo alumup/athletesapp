@@ -12,11 +12,11 @@ import { useModal } from "./provider";
 export default function CreateEventModal({
   account,
   team,
-  event
+  event,
 }: {
   account: any;
   team?: any;
-  event?: any
+  event?: any;
 }) {
   const { refresh } = useRouter();
   const params = useParams();
@@ -62,14 +62,14 @@ export default function CreateEventModal({
           start_date: data.start_date,
           end_date: data.end_date || null,
           start_time: data.start_time,
-          end_time: data.end_time
+          end_time: data.end_time,
         },
         visibility: data.visibility,
         fees: data.fees || null,
         cover_image: data.cover_image || null,
         date: data.start_date,
-        parent_id: event?.id
-      }
+        parent_id: event?.id,
+      },
     ]);
 
     if (error) {
@@ -87,22 +87,24 @@ export default function CreateEventModal({
     >
       <div className="relative flex flex-col space-y-4 p-5 md:p-10">
         <h2 className="font-cal text-2xl dark:text-white">New event</h2>
-        {event && <div className="flex flex-col space-y-2">
-          <label
-            htmlFor="team"
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
-          >
-            Parent Event
-          </label>
-          <input
-            type="text"
-            id="team"
-            disabled
-            value={event?.name}
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            {...register("team", { required: false, value: event?.id })}
-          />
-        </div>}
+        {event && (
+          <div className="flex flex-col space-y-2">
+            <label
+              htmlFor="team"
+              className="text-sm font-medium text-gray-700 dark:text-stone-300"
+            >
+              Parent Event
+            </label>
+            <input
+              type="text"
+              id="team"
+              disabled
+              value={event?.name}
+              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
+              {...register("team", { required: false, value: event?.id })}
+            />
+          </div>
+        )}
         <div className="flex flex-col space-y-2">
           <label
             htmlFor="name"
@@ -133,22 +135,24 @@ export default function CreateEventModal({
           />
         </div>
 
-        {team && <div className="flex flex-col space-y-2">
-          <label
-            htmlFor="team"
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
-          >
-            Team
-          </label>
-          <input
-            type="text"
-            id="team"
-            disabled
-            value={team?.name}
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            {...register("team", { required: false, value: team?.id })}
-          />
-        </div>}
+        {team && (
+          <div className="flex flex-col space-y-2">
+            <label
+              htmlFor="team"
+              className="text-sm font-medium text-gray-700 dark:text-stone-300"
+            >
+              Team
+            </label>
+            <input
+              type="text"
+              id="team"
+              disabled
+              value={team?.name}
+              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
+              {...register("team", { required: false, value: team?.id })}
+            />
+          </div>
+        )}
 
         <div className="flex flex-col space-y-2">
           <label

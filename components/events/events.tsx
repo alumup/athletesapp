@@ -59,8 +59,14 @@ export default function AccountEvents({ dependent, profile }: any) {
                   <AlarmClock className="h-5 w-5" />
                   <span className="mr-2">
                     {formatTimeRange(
-                      event?.schedule?.start_time || event?.schedule?.sessions?.[0]?.start_time || event?.schedule?.sessions?.[0]["start-time"] || "",
-                      event?.schedule?.end_time || event?.schedule?.sessions?.[0]?.end_time || event?.schedule?.sessions?.[0]["end-time"] || "",
+                      event?.schedule?.start_time ||
+                        event?.schedule?.sessions?.[0]?.start_time ||
+                        event?.schedule?.sessions?.[0]["start-time"] ||
+                        "",
+                      event?.schedule?.end_time ||
+                        event?.schedule?.sessions?.[0]?.end_time ||
+                        event?.schedule?.sessions?.[0]["end-time"] ||
+                        "",
                     )}
                   </span>
                 </div>
