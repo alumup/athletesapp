@@ -18,7 +18,8 @@ export async function POST(req) {
   const person = data?.person;
   const subject = data?.subject;
   const email = data?.email;
-  const message = `You've been invited to join ${account.name} to manage your athletes. If you have an Athletes App account please ${sign_in}. If you don't click this link to get access to your account. ${domain}/login?email=${email}&account_id=${account.id}&people_id=${person.id}&sign_up=true`;
+  const encryptedEmail = data?.encryptedEmail;
+  const message = `You've been invited to join ${account.name} to manage your athletes. If you have an Athletes App account please ${sign_in}. If you don't click this link to get access to your account. ${domain}/login?email=${encryptedEmail}&account_id=${account.id}&people_id=${person.id}&sign_up=true`;
 
   try {
     // loop through the people array and send an email to each person
@@ -32,7 +33,7 @@ export async function POST(req) {
       // Your existing code
       const data = await resend.emails.send({
         from: `${account.name} <${account.senders[0].email}>`,
-        to: person.primary_contacts[0].email,
+        to: email || person.primary_contacts[0].email,
         subject: subject,
         react: BasicTemplate({ message: message }),
       });
