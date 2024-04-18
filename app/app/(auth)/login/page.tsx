@@ -16,18 +16,19 @@ export default function Login() {
   const supabase = createClientComponentClient();
   const [emailIsSending, setEmailIsSending] = useState(false);
 
+  const from_events = searchParams.get("from_events");
+
   const account_id = searchParams.get("account_id");
   const people_id = searchParams.get("people_id");
   const email =
-    (searchParams.get("email") as string) ||
-    decryptId(searchParams.get("email") as string) ||
-    "";
+    from_events === "" || !from_events
+      ? decryptId(searchParams.get("email") as string)
+      : (searchParams.get("email") as string) || "";
   const sign_up = searchParams.get("sign_up");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [account, setAccount] = useState<any>(null);
-  const from_events = searchParams.get("from_events");
 
   const isDisabled = email !== "";
 
@@ -264,7 +265,7 @@ export default function Login() {
                 placeholder="you@example.com"
                 defaultValue={email}
                 required
-                disabled={isDisabled}
+                readOnly={isDisabled}
               />
               <label className="text-md" htmlFor="password">
                 Password
