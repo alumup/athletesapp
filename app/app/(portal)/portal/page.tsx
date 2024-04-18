@@ -163,7 +163,7 @@ const PortalPage = () => {
     <div className="">
       {/* Relationships */}
       <div className="flex overflow-x-auto">
-        {toRelationships ? (
+        {toRelationships &&
           toRelationships?.map((relation: any) => (
             <div
               onClick={() => setSelectedDependent(relation)}
@@ -177,12 +177,7 @@ const PortalPage = () => {
               </Avatar>
               <span className="font-medium">{relation.to?.name}</span>
             </div>
-          ))
-        ) : (
-          <div className="fixed left-0 top-0 flex h-full w-full items-center justify-center">
-            <Loader className="h-10 w-10 animate-spin" />
-          </div>
-        )}
+          ))}
         {toRelationships?.length < 1 && (
           <IconButton
             className="mt-2 rounded-full p-4"
