@@ -12,9 +12,11 @@ import { useModal } from "./provider";
 export default function CreateEventModal({
   account,
   team,
+  event
 }: {
   account: any;
   team?: any;
+  event?: any
 }) {
   const { refresh } = useRouter();
   const params = useParams();
@@ -22,6 +24,7 @@ export default function CreateEventModal({
 
   const supabase = createClientComponentClient();
   const [fees, setFees] = useState<any>([]);
+
   useEffect(() => {
     const getFees = async () => {
       const { data } = await supabase
@@ -51,20 +54,22 @@ export default function CreateEventModal({
         account_id: account?.id,
         name: data.name,
         description: data.description,
-        team_id: data.team || null,
+        team_id: team?.id || null,
         location: {
           name: data.location,
         },
         schedule: {
           start_date: data.start_date,
-          end_date: data.end_date,
-          sessions: data.session,
+          end_date: data.end_date || null,
+          start_time: data.start_time,
+          end_time: data.end_time
         },
         visibility: data.visibility,
         fees: data.fees || null,
         cover_image: data.cover_image || null,
         date: data.start_date,
-      },
+        parent_id: event?.id
+      }
     ]);
 
     if (error) {
@@ -82,7 +87,22 @@ export default function CreateEventModal({
     >
       <div className="relative flex flex-col space-y-4 p-5 md:p-10">
         <h2 className="font-cal text-2xl dark:text-white">New event</h2>
-
+        {event && <div className="flex flex-col space-y-2">
+          <label
+            htmlFor="team"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
+            Parent Event
+          </label>
+          <input
+            type="text"
+            id="team"
+            disabled
+            value={event?.name}
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
+            {...register("team", { required: false, value: event?.id })}
+          />
+        </div>}
         <div className="flex flex-col space-y-2">
           <label
             htmlFor="name"
@@ -113,7 +133,7 @@ export default function CreateEventModal({
           />
         </div>
 
-        <div className="flex flex-col space-y-2">
+        {team && <div className="flex flex-col space-y-2">
           <label
             htmlFor="team"
             className="text-sm font-medium text-gray-700 dark:text-stone-300"
@@ -124,11 +144,11 @@ export default function CreateEventModal({
             type="text"
             id="team"
             disabled
-            value={team?.id}
+            value={team?.name}
             className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("team", { required: false, value: team?.id })}
           />
-        </div>
+        </div>}
 
         <div className="flex flex-col space-y-2">
           <label
@@ -227,74 +247,32 @@ export default function CreateEventModal({
           </select>
         </div>
         <div className="flex flex-col space-y-2">
-          <label className="text-sm font-medium text-gray-700 dark:text-stone-300">
-            Session
+          <label
+            htmlFor={`start_time`}
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
+            Start Time:
           </label>
-          {fields.map((session, index) => (
-            <div key={session.id} className="mx-2">
-              <div className="flex flex-col space-y-2">
-                <label
-                  htmlFor={`session[${index}].group`}
-                  className="text-sm font-medium text-gray-700 dark:text-stone-300"
-                >
-                  Group:
-                </label>
-                <input
-                  className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-                  id={`session[${index}].group`}
-                  {...register(`session[${index}].group`)}
-                />
-              </div>
-              <div className="flex flex-col space-y-2">
-                <label
-                  htmlFor={`session[${index}].date`}
-                  className="text-sm font-medium text-gray-700 dark:text-stone-300"
-                >
-                  Date:
-                </label>
-                <input
-                  className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-                  type="date"
-                  id={`session[${index}].date`}
-                  {...register(`session[${index}].date`)}
-                />
-              </div>
-              <div className="flex flex-col space-y-2">
-                <label
-                  htmlFor={`session[${index}].start_time`}
-                  className="text-sm font-medium text-gray-700 dark:text-stone-300"
-                >
-                  Start Time:
-                </label>
-                <input
-                  className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-                  type="time"
-                  id={`session[${index}].start_time`}
-                  {...register(`session[${index}].start_time`)}
-                />
-              </div>
-              <div className="flex flex-col space-y-2">
-                <label
-                  htmlFor={`session[${index}].end_time`}
-                  className="text-sm font-medium text-gray-700 dark:text-stone-300"
-                >
-                  End Time:
-                </label>
-                <input
-                  className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-                  type="time"
-                  id={`session[${index}].end_time`}
-                  {...register(`session[${index}].end_time`)}
-                />
-              </div>
-              <button className="" type="button" onClick={() => remove(index)}>
-                Remove Session
-              </button>
-            </div>
-          ))}
-          <button type="button" onClick={() => append({})}>
-            Add Session
-          </button>
+          <input
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
+            type="time"
+            id={`start_time`}
+            {...register(`start_time`)}
+          />
+        </div>
+        <div className="flex flex-col space-y-2">
+          <label
+            htmlFor={`end_time`}
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
+            End Time:
+          </label>
+          <input
+            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
+            type="time"
+            id={`end_time`}
+            {...register(`end_time`)}
+          />
         </div>
       </div>
 
