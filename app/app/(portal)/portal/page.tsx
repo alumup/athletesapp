@@ -53,7 +53,10 @@ const PortalPage = () => {
 
       if (error) console.log("Error fetching user: ", error.message);
 
-      setUser(user);
+      // Convert email to lowercase
+      const emailLowercase = user?.email?.toLowerCase();
+
+      setUser({ ...user, email: emailLowercase });
 
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
@@ -201,6 +204,8 @@ const PortalPage = () => {
           <AccountEvents dependent={selectedDependent} profile={profile} />
         )}
       </div>
+
+
       {/* Events */}
       {rosters?.filter(
         (roster: any) => roster.person_id === selectedDependent?.to?.id,
@@ -242,7 +247,7 @@ const PortalPage = () => {
             </div>
           ))}
       </div>
-      <div>
+      {/* <div>
         {account && (
           <>
             <h1 className="text-md my-2 font-semibold">
@@ -255,7 +260,7 @@ const PortalPage = () => {
             />
           </>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };
