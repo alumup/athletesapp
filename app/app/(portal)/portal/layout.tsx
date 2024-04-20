@@ -20,7 +20,7 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
           </div>
         </div>
       </div>
-      <div className="mx-auto my-10 min-h-screen w-full max-w-screen-2xl px-4">
+      <div className="mx-auto my-10 min-h-screen w-full max-w-screen-md px-4">
         {children}
       </div>
     </>
