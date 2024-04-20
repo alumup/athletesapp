@@ -37,14 +37,14 @@ export default function CreatePaymentModal({
   // This useEffect hook changes hasRendered to true after the component has mounted
   useEffect(() => {
     const setupStripe = async () => {
-      const accountDetais = account;
+      const accountDetails = account;
 
       let loadedStripe;
-      if (accountDetais.stripe_id) {
+      if (accountDetails.stripe_id) {
         loadedStripe = await loadStripe(
           process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "",
           {
-            stripeAccount: accountDetais.stripe_id,
+            stripeAccount: accountDetails.stripe_id,
           },
         );
       } else {
