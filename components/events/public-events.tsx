@@ -1,6 +1,6 @@
 "use client";
 
-import { formatDate, formatTimeRange } from "@/lib/utils";
+import { formatDay, formatMonth, formatStartTime } from "@/lib/utils";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { AlarmClock, CheckCircle, MapPin } from "lucide-react";
 import Link from "next/link";
@@ -21,8 +21,8 @@ export default function AccountPublicEvents({
         .select("*,accounts(*), fees(*), rsvp(*), parent_id(*)")
         .gte("date", new Date().toISOString())
         .eq("account_id", account?.id)
-        // .eq("visibility", "public")
-        // .is("parent_id", null)
+        .eq("visibility", "public")
+        .is("team_id", null)
         .order("date", { ascending: true });
 
       if (error) console.log("ERROR getting events: ", error);
@@ -37,60 +37,61 @@ export default function AccountPublicEvents({
 
   return (
     <div>
-      <div className="flex justify-between space-x-2 overflow-x-auto">
+      <div className="flex space-x-2 overflow-x-auto">
+
         {events?.map((event: any) => (
           <div
             key={event.id}
-            className="flex h-64 rounded-lg border border-lime-200"
+            className="flex rounded-lg border border-gray-200"
           >
-            <div className="flex min-w-[100px] items-center justify-center bg-lime-200 p-4">
-              <div className="mb-2 text-center">
-                <span className="text-bold">
-                  {formatDate(event?.schedule?.start_date)}
-                </span>
+            <div className="flex w-64 flex-col justify-between rounded-r-lg bg-gray-50 p-2">
+              <div className="relative">
+                <img
+                  className="w-full rounded-lg object-cover w-full h-32"
+                  src={
+                    event?.cover_image ||
+                    "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"
+                  }
+                  alt={event?.name}
+                />
+                <div className="absolute left-2 top-2 rounded bg-gray-300 text-black p-2">
+                  <div className="flex flex-col items-center">
+                    <span className="text-md font-bold">{formatDay(event?.schedule?.start_date)}</span>
+                    <span className="text-xs">{formatMonth(event?.schedule?.start_date)}</span>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div className="flex w-64 flex-col justify-between rounded-r-lg bg-lime-50 p-4">
-              <h2 className="mb-2 pr-5 pt-5 text-lg font-bold">
-                {event.name}{" "}
-                {event?.parent_id && (
-                  <span className="text-sm">({event.parent_id?.name})</span>
-                )}
+              <h2 className="mb-2 pr-5 pt-2 text-lg font-bold">
+                {event.name}
               </h2>
+              <span className="rounded-full bg-lime-100 text-lime-500">
+                {event?.parent_id && (
+                  <span className="text-xs">({event.parent_id?.name})</span>
+                )}
+              </span>
+              <div className="mb-4 flex items-center space-x-2">
+                <MapPin className="h-4 w-4" />
+                <span className="text-xs">{event?.location?.name || event?.location}</span>
+              </div>
 
               {event?.schedule && (
-                <div className="flex items-center space-x-2">
-                  <AlarmClock className="h-5 w-5" />
-                  <span className="mr-2">
-                    {formatTimeRange(
-                      event?.schedule?.start_time ||
-                        event?.schedule?.sessions?.[0]?.start_time ||
-                        event?.schedule?.sessions?.[0]["start-time"] ||
-                        "",
-                      event?.schedule?.end_time ||
-                        event?.schedule?.sessions?.[0]?.end_time ||
-                        event?.schedule?.sessions?.[0]["end-time"] ||
-                        "",
-                    )}
+                <div>
+                  <span className="text-xs flex items-center space-x-2">
+                    <AlarmClock className="h-4 w-4 mr-2" />
+                    {event?.schedule?.start_time ? formatStartTime(event.schedule.start_time) :
+                      event?.schedule?.sessions?.[0] ? formatStartTime(event.schedule.sessions[0].start_time || event.schedule.sessions[0]["start-time"]) :
+                        ""}
                   </span>
                 </div>
               )}
-              <div className="mb-4 flex items-center space-x-2">
-                <MapPin className="h-5 w-5" />
-                <span>{event?.location?.name || event?.location}</span>
-              </div>
+
 
               {event?.rsvp?.find(
                 (rs: any) =>
-                  rs.person_id ===
-                    (selectedDependent?.to?.id || profile?.people?.id) &&
-                  rs.status === "paid",
+                  rs.person_id === selectedDependent.to.id && rs.status === "paid",
               ) ? (
                 <Link
-                  href={`/portal/events/${event.id}/rsvp?dependent=${
-                    selectedDependent?.to?.id || profile?.people?.id
-                  }`}
+                  href={`/portal/events/${event.id}/rsvp?dependent=${selectedDependent}`}
                   className=" self-end rounded border bg-white px-3 py-2 font-bold"
                 >
                   <div className="flex justify-between">
@@ -100,9 +101,7 @@ export default function AccountPublicEvents({
                 </Link>
               ) : (
                 <Link
-                  href={`/portal/events/${event.id}/rsvp?dependent=${
-                    selectedDependent?.to?.id || profile?.people?.id
-                  }`}
+                  href={`/portal/events/${event.id}/rsvp?dependent=${selectedDependent}`}
                   className="w-24 self-end rounded bg-black px-6 py-2 font-bold text-white"
                 >
                   RSVP
@@ -112,14 +111,8 @@ export default function AccountPublicEvents({
           </div>
         ))}
       </div>
-      <div className="my-2">
-        <Link
-          href={`/portal/events/${profile?.accounts?.id}`}
-          className="text-xs text-gray-600"
-        >
-          See All Events
-        </Link>
-      </div>
     </div>
   );
 }
+
+

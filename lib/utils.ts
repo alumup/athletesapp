@@ -180,7 +180,42 @@ export function formatDate(date: string) {
   const dateOfMonth = currentDate.getDate() || "";
   const monthOfYear = monthsOfYear[currentDate.getMonth()] || "";
 
-  const formattedDate = `${dayOfWeek}\n ${dateOfMonth}\n ${monthOfYear}`;
+  const formattedDate = `${dateOfMonth}\n ${monthOfYear}`;
+  return formattedDate;
+}
+
+export function formatDay(date: string) {
+
+  const currentDate = new Date(date);
+  const dateOfMonth = currentDate.getDate() || "";
+
+  const formattedDate = `${dateOfMonth}`;
+  return formattedDate;
+}
+
+export function formatMonth(date: string) {
+
+  const monthsOfYear = [
+    "JAN",
+    "FEB",
+    "MAR",
+    "APR",
+    "MAY",
+    "JUN",
+    "JUL",
+    "AUG",
+    "SEP",
+    "OCT",
+    "NOV",
+    "DEC",
+  ];
+
+  const currentDate = new Date(date);
+
+
+  const monthOfYear = monthsOfYear[currentDate.getMonth()] || "";
+
+  const formattedDate = `${monthOfYear}`;
   return formattedDate;
 }
 
@@ -205,4 +240,19 @@ export function formatTimeRange(startTime: string, endTime: string): string {
 
   // Concatenate and return the time range
   return `${formattedStartTime} - ${formattedEndTime}`;
+}
+
+export function formatStartTime(startTime: string): string {
+  // Parse start time
+  const startHour = parseInt(startTime?.slice(0, 2), 10);
+  const startMinute = parseInt(startTime?.slice(3, 5), 10);
+  const formattedStartHour = startHour % 12 === 0 ? 12 : startHour % 12;
+  const startSuffix = startHour >= 12 ? "PM" : "AM";
+  const formattedStartTime = `${formattedStartHour}:${startMinute
+    .toString()
+    .padStart(2, "0")} ${startSuffix}`;
+
+
+  // Concatenate and return the time range
+  return `${formattedStartTime}`;
 }

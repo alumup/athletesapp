@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -20,7 +24,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     }
   },
   "include": [
@@ -33,7 +39,10 @@
     "components/modal/reg-modal.jsx",
     "app/app/(dashboard)/people/page.jsx",
     "app/[domain]/components/products.jsx",
-    "components/ui/sheet.jsx"
-, "app/app/(portal)/portal/page.jsx"  ],
-  "exclude": ["node_modules"]
+    "components/ui/sheet.jsx",
+    "app/app/(portal)/portal/page.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
