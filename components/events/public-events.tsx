@@ -88,10 +88,10 @@ export default function AccountPublicEvents({
 
               {event?.rsvp?.find(
                 (rs: any) =>
-                  rs.person_id === selectedDependent.to.id && rs.status === "paid",
+                  rs.person_id === selectedDependent?.to?.id && rs.status === "paid",
               ) ? (
                 <Link
-                  href={`/portal/events/${event.id}/rsvp?dependent=${selectedDependent}`}
+                  href={`/portal/events/${event.id}/rsvp?dependent=${selectedDependent?.to?.id}`}
                   className=" self-end rounded border bg-white px-3 py-2 font-bold"
                 >
                   <div className="flex justify-between">
@@ -101,7 +101,7 @@ export default function AccountPublicEvents({
                 </Link>
               ) : (
                 <Link
-                  href={`/portal/events/${event.id}/rsvp?dependent=${selectedDependent}`}
+                  href={`/portal/events/${event.id}/rsvp?dependent=${selectedDependent?.to?.id}`}
                   className="w-24 self-end rounded bg-black px-6 py-2 font-bold text-white"
                 >
                   RSVP
