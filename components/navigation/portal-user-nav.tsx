@@ -98,7 +98,7 @@ export function PortalUserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
+        {!profile?.people?.dependent && <DropdownMenuGroup>
           <DropdownMenuItem>
             <Users className="mr-2 h-3 w-3" />
             <Link href={`/portal/dependants/${profile?.people_id}`}>
@@ -111,7 +111,7 @@ export function PortalUserNav() {
             New Dependent
             <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
           </DropdownMenuItem>
-        </DropdownMenuGroup>
+        </DropdownMenuGroup>}
         <DropdownMenuSeparator />
         <DropdownMenuSeparator />
         <DropdownMenuGroup>

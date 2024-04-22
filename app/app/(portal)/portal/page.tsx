@@ -163,7 +163,7 @@ const PortalPage = () => {
   return (
     <div className="">
       {/* Relationships */}
-      <div className="flex overflow-x-auto">
+      {!profile?.people?.dependent && <div className="flex overflow-x-auto">
         {toRelationships &&
           toRelationships?.map((relation: any) => (
             <div
@@ -188,7 +188,7 @@ const PortalPage = () => {
             <CreateDependentModal person={profile?.people} dependent={true} />
           </IconButton>
         )}
-      </div>
+      </div>}
 
       <div className="mx-2 mt-5">
         <h1 className="text-3xl font-bold">
