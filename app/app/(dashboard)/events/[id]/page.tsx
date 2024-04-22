@@ -97,15 +97,17 @@ export default async function EventPage({
             </div>
           </div>
           <div className="mt-5 flex">
-            <IconButton
-              cta=""
-              icon={<Share className="h-5 w-5" />}
-              className="mx-2"
-            >
-              <ShareModal
-                content={`${domain}/public/${account.id}/event/${event.id}`}
-              />
-            </IconButton>
+            {event.visibility === "public" && (
+              <IconButton
+                cta=""
+                icon={<Share className="h-5 w-5" />}
+                className="mx-2"
+              >
+                <ShareModal
+                  content={`${domain}/public/${account.id}/event/${event.id}`}
+                />
+              </IconButton>
+            )}
             <GenericButton cta="+ New Session" size="default" variant="default">
               <CreateEventModal account={account} event={event} />
             </GenericButton>
