@@ -98,20 +98,22 @@ export function PortalUserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        {!profile?.people?.dependent && <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <Users className="mr-2 h-3 w-3" />
-            <Link href={`/portal/dependants/${profile?.people_id}`}>
-              Dependents
-            </Link>
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Plus className="mr-2 h-3 w-3" />
-            New Dependent
-            <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>}
+        {!profile?.people?.dependent && (
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              <Users className="mr-2 h-3 w-3" />
+              <Link href={`/portal/dependants/${profile?.people_id}`}>
+                Dependents
+              </Link>
+              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Plus className="mr-2 h-3 w-3" />
+              New Dependent
+              <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
