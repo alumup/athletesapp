@@ -137,7 +137,8 @@ const PortalPage = () => {
   function hasPaidFee(relation: any, roster: any) {
     // Check if there is a payment for the fee by the person
     const paymentsForPerson = roster.fees.payments.filter(
-      (payment: { person_id: any }) => payment.person_id === relation.to.id,
+      (payment: { person_id: any }) =>
+        payment.person_id === (relation?.to?.id || relation?.people?.id),
     );
 
     // Sort the payments by date, most recent first
@@ -160,37 +161,40 @@ const PortalPage = () => {
     return false;
   }
 
-  console.log(selectedDependent, "-- selected dependent ----");
-
   return (
     <div className="">
       {/* Relationships */}
-      <div className="flex overflow-x-auto">
-        {toRelationships &&
-          toRelationships?.map((relation: any) => (
-            <div
-              onClick={() => setSelectedDependent(relation)}
-              className="mx-2 flex items-center whitespace-nowrap rounded-full border p-2 hover:cursor-pointer hover:bg-gray-100"
-              key={relation.id}
+      {!profile?.people?.dependent && (
+        <div className="flex overflow-x-auto">
+          {toRelationships &&
+            toRelationships?.map((relation: any) => (
+              <div
+                onClick={() => setSelectedDependent(relation)}
+                className="mx-2 flex items-center whitespace-nowrap rounded-full border p-2 hover:cursor-pointer hover:bg-gray-100"
+                key={relation.id}
+              >
+                <Avatar className="mr-2 h-10 w-10 ">
+                  <AvatarFallback className="text-black">
+                    {getInitials(
+                      relation.to?.first_name,
+                      relation.to?.last_name,
+                    )}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="font-medium">{relation.to?.name}</span>
+              </div>
+            ))}
+          {toRelationships?.length < 1 && (
+            <IconButton
+              className="mt-2 rounded-full p-4"
+              cta="New Dependent"
+              icon={<PlusCircle className="h-5 w-5" />}
             >
-              <Avatar className="mr-2 h-10 w-10 ">
-                <AvatarFallback className="text-black">
-                  {getInitials(relation.to?.first_name, relation.to?.last_name)}
-                </AvatarFallback>
-              </Avatar>
-              <span className="font-medium">{relation.to?.name}</span>
-            </div>
-          ))}
-        {toRelationships?.length < 1 && (
-          <IconButton
-            className="mt-2 rounded-full p-4"
-            cta="New Dependent"
-            icon={<PlusCircle className="h-5 w-5" />}
-          >
-            <CreateDependentModal person={profile?.people} dependent={true} />
-          </IconButton>
-        )}
-      </div>
+              <CreateDependentModal person={profile?.people} dependent={true} />
+            </IconButton>
+          )}
+        </div>
+      )}
 
       <div className="mx-2 mt-5">
         <h1 className="text-3xl font-bold">
@@ -200,12 +204,16 @@ const PortalPage = () => {
 
       {/* Events */}
       {rosters?.filter(
-        (roster: any) => roster.person_id === selectedDependent?.to?.id,
+        (roster: any) =>
+          roster.person_id ===
+          (selectedDependent?.to?.id || profile?.people?.id),
       ).length > 0 && <span className="mx-2 mt-10 font-bold">Teams</span>}
       <div className="mx-2 my-5 mt-2">
         {rosters
           ?.filter(
-            (roster: any) => roster.person_id === selectedDependent?.to?.id,
+            (roster: any) =>
+              roster.person_id ===
+              (selectedDependent?.to?.id || profile?.people?.id),
           )
           .map((roster: any, i: any) => (
             <div key={i}>
@@ -214,7 +222,7 @@ const PortalPage = () => {
                   <span className="text-sm">{roster.teams?.name}</span>
                 </div>
                 <div className="col-span-1 flex items-center justify-end">
-                  {hasPaidFee(selectedDependent, roster) ? (
+                  {hasPaidFee(selectedDependent || profile, roster) ? (
                     <CheckCircleIcon className="h-5 w-5 text-lime-500" />
                   ) : (
                     <GenericButton
@@ -227,7 +235,7 @@ const PortalPage = () => {
                         profile={profile}
                         roster={roster}
                         fee={roster.fees}
-                        person={selectedDependent.to}
+                        person={selectedDependent?.to || profile?.people}
                       />
                     </GenericButton>
                   )}
