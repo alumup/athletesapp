@@ -11,9 +11,11 @@ import { useModal } from "./provider";
 
 export default function CreateDependentModal({
   person,
+  dependent,
   modalUpdate,
 }: {
   person: any;
+  dependent?: boolean;
   modalUpdate?: any;
 }) {
   const { refresh } = useRouter();
@@ -32,7 +34,7 @@ export default function CreateDependentModal({
       .from("people")
       .insert([
         {
-          account_id: person?.accounts?.id,
+          account_id: person?.accounts?.id || person?.account_id,
           name: data.name,
           first_name: data.first_name,
           last_name: data.last_name,
@@ -40,6 +42,7 @@ export default function CreateDependentModal({
           phone: data.phone,
           birthdate: data.birthdate === "" ? null : data.birthdate,
           grade: data.grade,
+          dependent: dependent ? true : false,
         },
       ])
       .select("id")
@@ -66,7 +69,7 @@ export default function CreateDependentModal({
       console.log("Failed to add relationship: ", addRelationshipError);
     }
 
-    modalUpdate(true);
+    if (modalUpdate) modalUpdate(true);
 
     modal?.hide();
     refresh();
