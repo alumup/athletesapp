@@ -5,6 +5,9 @@ import { getAccount, getPrimaryContacts } from "@/lib/fetchers/server";
 import { EventTable } from "./table";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreateEventModal from "@/components/modal/create-event-modal";
+import IconButton from "@/components/modal-buttons/icon-button";
+import { Share } from "lucide-react";
+import ShareModal from "@/components/modal/share-modal";
 
 export default async function EventPage({
   params,
@@ -67,6 +70,10 @@ export default async function EventPage({
 
   const people = participants?.map((participant) => participant.people) || [];
 
+  const domain =
+    process.env.NODE_ENV === "production"
+      ? "https://app.athletes.app"
+      : "http://app.localhost:3000";
   return (
     <div className="flex flex-col space-y-12">
       <div className="flex flex-col space-y-6">
@@ -89,7 +96,16 @@ export default async function EventPage({
               </div>
             </div>
           </div>
-          <div className="mt-5">
+          <div className="mt-5 flex">
+            <IconButton
+              cta=""
+              icon={<Share className="h-5 w-5" />}
+              className="mx-2"
+            >
+              <ShareModal
+                content={`${domain}/public/${account.id}/event/${event.id}`}
+              />
+            </IconButton>
             <GenericButton cta="+ New Session" size="default" variant="default">
               <CreateEventModal account={account} event={event} />
             </GenericButton>
