@@ -185,7 +185,6 @@ export function formatDate(date: string) {
 }
 
 export function formatDay(date: string) {
-
   const currentDate = new Date(date);
   const dateOfMonth = currentDate.getDate() || "";
 
@@ -194,7 +193,6 @@ export function formatDay(date: string) {
 }
 
 export function formatMonth(date: string) {
-
   const monthsOfYear = [
     "JAN",
     "FEB",
@@ -211,7 +209,6 @@ export function formatMonth(date: string) {
   ];
 
   const currentDate = new Date(date);
-
 
   const monthOfYear = monthsOfYear[currentDate.getMonth()] || "";
 
@@ -251,7 +248,6 @@ export function formatStartTime(startTime: string): string {
   const formattedStartTime = `${formattedStartHour}:${startMinute
     .toString()
     .padStart(2, "0")} ${startSuffix}`;
-
 
   // Concatenate and return the time range
   return `${formattedStartTime}`;

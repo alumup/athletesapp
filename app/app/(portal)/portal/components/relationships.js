@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
@@ -20,7 +20,10 @@ const Relationships = ({ user, onDependentSelect }) => {
         .eq("email", user.email);
 
       if (independentsError) {
-        console.error("Error fetching independents: ", independentsError.message);
+        console.error(
+          "Error fetching independents: ",
+          independentsError.message,
+        );
         return;
       }
 
@@ -35,7 +38,7 @@ const Relationships = ({ user, onDependentSelect }) => {
     const fetchToRelationships = async () => {
       if (independents.length === 0) return;
 
-      let independentIds = independents.map(independent => independent.id);
+      let independentIds = independents.map((independent) => independent.id);
 
       const { data, error } = await supabase
         .from("relationships")
@@ -69,7 +72,7 @@ const Relationships = ({ user, onDependentSelect }) => {
               {getInitials(relation.to?.first_name, relation.to?.last_name)}
             </AvatarFallback>
           </Avatar>
-          <span className="font-medium">{relation.to?.name || 'Unnamed'}</span>
+          <span className="font-medium">{relation.to?.name || "Unnamed"}</span>
         </div>
       ))}
     </div>

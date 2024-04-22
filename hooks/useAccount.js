@@ -1,5 +1,5 @@
-'use client'
-import React, { useState, useEffect } from 'react';
+"use client";
+import React, { useState, useEffect } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 // Other imports as necessary
 
@@ -13,7 +13,10 @@ const useAccount = () => {
     const getAccount = async () => {
       try {
         setLoading(true);
-        const { data: { user }, error } = await supabase.auth.getUser();
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
         if (error) throw error;
         setAccount(user);
       } catch (error) {

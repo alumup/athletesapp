@@ -78,11 +78,9 @@ const PortalPage = () => {
       const { data: roster, error } = await supabase
         .from("rosters")
         .select("*, teams(*), fees(*, payments(*))")
-        .order('created_at', { ascending: false });
-
+        .order("created_at", { ascending: false });
 
       setRosters(roster);
-
     };
 
     fetchRosters();
@@ -213,9 +211,7 @@ const PortalPage = () => {
             <div key={i}>
               <div className="grid grid-cols-3 items-center gap-4">
                 <div className="col-span-2">
-                  <span className="text-sm">
-                    {roster.teams?.name}
-                  </span>
+                  <span className="text-sm">{roster.teams?.name}</span>
                 </div>
                 <div className="col-span-1 flex items-center justify-end">
                   {hasPaidFee(selectedDependent, roster) ? (
@@ -239,10 +235,14 @@ const PortalPage = () => {
               </div>
               <div className="my-5">
                 {selectedDependent && (
-                  <TeamEvents dependent={selectedDependent} profile={profile} team={roster.teams?.id} />
+                  <TeamEvents
+                    dependent={selectedDependent}
+                    profile={profile}
+                    team={roster.teams?.id}
+                  />
                 )}
               </div>
-              <div className="-mx-1 my-1 h-px bg-zinc-100 dark:bg-zinc-800 mb-5"></div>
+              <div className="-mx-1 my-1 mb-5 h-px bg-zinc-100 dark:bg-zinc-800"></div>
             </div>
           ))}
       </div>

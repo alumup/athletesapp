@@ -33,7 +33,6 @@ export default function TeamEvents({ dependent, profile, team }: any) {
   return (
     <div>
       <div className="flex space-x-2 overflow-x-auto">
-
         {events?.map((event: any) => (
           <div
             key={event.id}
@@ -42,45 +41,53 @@ export default function TeamEvents({ dependent, profile, team }: any) {
             <div className="flex w-64 flex-col justify-between rounded-r-lg bg-gray-50 p-2">
               <div className="relative">
                 <img
-                  className="w-full rounded-lg object-cover w-full h-32"
+                  className="h-32 w-full w-full rounded-lg object-cover"
                   src={
                     event?.cover_image ||
                     "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"
                   }
                   alt={event?.name}
                 />
-                <div className="absolute left-2 top-2 rounded bg-gray-300 text-black p-2">
+                <div className="absolute left-2 top-2 rounded bg-gray-300 p-2 text-black">
                   <div className="flex flex-col items-center">
-                    <span className="text-md font-bold">{formatDay(event?.schedule?.start_date)}</span>
-                    <span className="text-xs">{formatMonth(event?.schedule?.start_date)}</span>
+                    <span className="text-md font-bold">
+                      {formatDay(event?.schedule?.start_date)}
+                    </span>
+                    <span className="text-xs">
+                      {formatMonth(event?.schedule?.start_date)}
+                    </span>
                   </div>
                 </div>
                 {event?.parent_id && (
-                  <div className="absolute right-2 top-2 rounded bg-gray-300 text-black p-2">
-                    <Group className="w-4 h-4" />
+                  <div className="absolute right-2 top-2 rounded bg-gray-300 p-2 text-black">
+                    <Group className="h-4 w-4" />
                   </div>
                 )}
               </div>
-              <h2 className="mb-2 pt-2 text-md font-bold">
-                {event.name}
-              </h2>
-  
+              <h2 className="text-md mb-2 pt-2 font-bold">{event.name}</h2>
+
               <div className="mb-4 flex items-center space-x-2">
                 <MapPin className="h-4 w-4" />
-                <span className="text-xs">{event?.location?.name || event?.location}</span>
+                <span className="text-xs">
+                  {event?.location?.name || event?.location}
+                </span>
               </div>
 
               {event?.schedule && (
                 <div>
-                  <span className="text-xs flex items-center space-x-2">
-                    <AlarmClock className="h-4 w-4 mr-2" />
-                    {event?.schedule?.start_time ? formatStartTime(event.schedule.start_time) :
-                      event?.schedule?.sessions?.[0] ? formatStartTime(event.schedule.sessions[0].start_time || event.schedule.sessions[0]["start-time"]) :
-                        ""}
+                  <span className="flex items-center space-x-2 text-xs">
+                    <AlarmClock className="mr-2 h-4 w-4" />
+                    {event?.schedule?.start_time
+                      ? formatStartTime(event.schedule.start_time)
+                      : event?.schedule?.sessions?.[0]
+                      ? formatStartTime(
+                          event.schedule.sessions[0].start_time ||
+                            event.schedule.sessions[0]["start-time"],
+                        )
+                      : ""}
                   </span>
                 </div>
               )}
-
 
               {event?.rsvp?.find(
                 (rs: any) =>
