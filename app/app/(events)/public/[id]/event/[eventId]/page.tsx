@@ -89,7 +89,7 @@ const PublicAccountEventsDetail = ({
                 {event.description}
               </p>
             </div>
-            {schedule.length && (
+            {schedule.length > 0 && (
               <div className="mx-2 px-3">
                 <p className="mb-2 text-lg font-normal">Schedule</p>
                 <div>
@@ -123,8 +123,8 @@ const PublicAccountEventsDetail = ({
                 <Link
                   href={`/login?account_id=${params.id}&sign_up=true&from_events=true`}
                 >
-                  {event?.fees.type !== "free"
-                    ? `$${event.fees.amount} - RSVP`
+                  {event?.fees && event?.fees?.type !== "free"
+                    ? `$${event?.fees?.amount} - RSVP`
                     : "RSVP"}
                 </Link>
               </Button>

@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { CheckCircleIcon } from "lucide-react";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreatePaymentModal from "@/components/modal/create-payment-modal";
-import useAccount from '@/hooks/useAccount';
+import useAccount from "@/hooks/useAccount";
 
 const Teams = ({ selectedDependent, profile }) => {
   const [rosters, setRosters] = useState([]);
@@ -27,7 +27,7 @@ const Teams = ({ selectedDependent, profile }) => {
       }
 
       setRosters(roster);
-      console.log('roster')
+      console.log("roster");
     };
 
     fetchRosters();
@@ -41,8 +41,7 @@ const Teams = ({ selectedDependent, profile }) => {
 
     // Sort the payments by date, most recent first
     paymentsForPerson.sort(
-      (a, b) =>
-        new Date(b.date).getTime() - new Date(a.date).getTime(),
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
     );
 
     // Check if any of the payments status are 'succeeded'
@@ -73,26 +72,25 @@ const Teams = ({ selectedDependent, profile }) => {
               {hasPaidFee(selectedDependent, roster) ? (
                 <CheckCircleIcon className="h-5 w-5 text-green-500" />
               ) : (
-                  <GenericButton
-                    size="sm"
-                    variant="default"
-                    cta={`Pay $${roster.fees?.amount}`}
-                  >
-                    <CreatePaymentModal
-                      account={account}
-                      profile={profile}
-                      roster={roster}
-                      fee={1200}
-                      person={selectedDependent.to}
-                    />
-                  </GenericButton>
+                <GenericButton
+                  size="sm"
+                  variant="default"
+                  cta={`Pay $${roster.fees?.amount}`}
+                >
+                  <CreatePaymentModal
+                    account={account}
+                    profile={profile}
+                    roster={roster}
+                    fee={1200}
+                    person={selectedDependent.to}
+                  />
+                </GenericButton>
               )}
             </div>
           </div>
         </div>
-      ))
-      }
-    </div >
+      ))}
+    </div>
   );
 };
 

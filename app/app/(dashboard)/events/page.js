@@ -21,10 +21,8 @@ export default async function EventsPage() {
 
   const account = await getAccount();
 
-  const { data: events, error } = await supabase
-    .from("events")
-    .select("*");
-    // .is("parent_id", null);
+  const { data: events, error } = await supabase.from("events").select("*");
+  // .is("parent_id", null);
 
   return (
     <div className="flex flex-col space-y-12">
