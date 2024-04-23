@@ -92,8 +92,7 @@ export default function TeamEvents({ dependent, team }: any) {
               )}
 
               {event?.rsvp?.find(
-                (rs: any) =>
-                  rs.person_id === personId && rs.status === "paid",
+                (rs: any) => rs.person_id === personId && rs.status === "paid",
               ) ? (
                 <Link
                   href={`/portal/events/${event.id}/rsvp?dependent=${personId}`}
