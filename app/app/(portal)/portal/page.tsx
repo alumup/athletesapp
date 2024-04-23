@@ -6,14 +6,11 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 //   Carousel,
 //   CarouselContent,
 //   CarouselItem,
-// } from "@/components/ui/carousel"; 
+// } from "@/components/ui/carousel";
 // will use carousel later instead of scroll
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  CheckCircleIcon,
-  PlusCircle,
-} from "lucide-react";
+import { CheckCircleIcon, PlusCircle } from "lucide-react";
 import AccountEvents from "@/components/events/account-events";
 import TeamEvents from "@/components/events/team-events";
 import GenericButton from "@/components/modal-buttons/generic-button";
@@ -132,7 +129,6 @@ const PortalPage = () => {
   }, [independents]);
 
   function hasPaidFee(relation: any, roster: any) {
-
     // Immediately return true if the fee is 0
     if (roster.fees.amount === 0) {
       return true;
@@ -245,9 +241,9 @@ const PortalPage = () => {
                 </div>
               </div>
               <div className="my-5">
-                {selectedDependent || profile?.people && (
+                {(selectedDependent || profile?.people) && (
                   <TeamEvents
-                    dependent={selectedDependent || profile?.people }
+                    dependent={selectedDependent?.to || profile?.people}
                     team={roster.teams?.id}
                   />
                 )}
