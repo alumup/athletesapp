@@ -6,10 +6,12 @@ import { AlarmClock, CheckCircle, MapPin, Group } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export default function TeamEvents({ dependent, profile, team }: any) {
+export default function TeamEvents({ dependent, team }: any) {
   const supabase = createClientComponentClient();
   const [events, setEvents] = useState<any>([]);
   const [isGoing, setIsGoing] = useState<boolean>(false);
+
+  const personId = dependent?.to?.id || dependent?.id;
 
   useEffect(() => {
     const getEvents = async () => {
@@ -91,10 +93,10 @@ export default function TeamEvents({ dependent, profile, team }: any) {
 
               {event?.rsvp?.find(
                 (rs: any) =>
-                  rs.person_id === dependent.to.id && rs.status === "paid",
+                  rs.person_id === personId && rs.status === "paid",
               ) ? (
                 <Link
-                  href={`/portal/events/${event.id}/rsvp?dependent=${dependent.to.id}`}
+                  href={`/portal/events/${event.id}/rsvp?dependent=${personId}`}
                   className=" self-end rounded border bg-white px-3 py-2 font-bold"
                 >
                   <div className="flex justify-between">
@@ -104,7 +106,7 @@ export default function TeamEvents({ dependent, profile, team }: any) {
                 </Link>
               ) : (
                 <Link
-                  href={`/portal/events/${event.id}/rsvp?dependent=${dependent.to.id}`}
+                  href={`/portal/events/${event.id}/rsvp?dependent=${personId}`}
                   className="w-24 self-end rounded bg-black px-6 py-2 font-bold text-white"
                 >
                   RSVP

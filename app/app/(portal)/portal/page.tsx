@@ -2,19 +2,16 @@
 import React, { useEffect, useState } from "react";
 
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel"; // will use carousel later instead of scroll
+// import {
+//   Carousel,
+//   CarouselContent,
+//   CarouselItem,
+// } from "@/components/ui/carousel"; 
+// will use carousel later instead of scroll
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
-  AlarmClock,
   CheckCircleIcon,
-  Clock,
-  Loader,
-  MapPin,
   PlusCircle,
 } from "lucide-react";
 import AccountEvents from "@/components/events/account-events";
@@ -135,6 +132,12 @@ const PortalPage = () => {
   }, [independents]);
 
   function hasPaidFee(relation: any, roster: any) {
+
+    // Immediately return true if the fee is 0
+    if (roster.fees.amount === 0) {
+      return true;
+    }
+
     // Check if there is a payment for the fee by the person
     const paymentsForPerson = roster.fees.payments.filter(
       (payment: { person_id: any }) =>
@@ -242,10 +245,9 @@ const PortalPage = () => {
                 </div>
               </div>
               <div className="my-5">
-                {selectedDependent && (
+                {selectedDependent || profile?.people && (
                   <TeamEvents
-                    dependent={selectedDependent}
-                    profile={profile}
+                    dependent={selectedDependent || profile?.people }
                     team={roster.teams?.id}
                   />
                 )}
