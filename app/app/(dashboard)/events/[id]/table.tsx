@@ -203,14 +203,22 @@ export function EventTable({
     }
   }, [data, table]);
 
-  const handleDeleteSelected = async () => {
+  const handleRemoveSelected = async () => {
     const selectedRows = table.getSelectedRowModel().rows;
-    // Logic to delete selected rows
-    await Promise.all(
-      selectedRows.map((row) => {
-        return supabase.from("people").delete().eq("id", row.original.id);
-      }),
-    );
+
+    await Promise.all(selectedRows.map(async (row) => {
+      // First, delete the person from the 'rsvp' table
+      const rsvpDeleteResponse = await supabase
+        .from("rsvp")
+        .delete()
+        .eq("person_id", row.original.id);
+
+      if (rsvpDeleteResponse.error) {
+        console.error("Failed to delete RSVP entry:", rsvpDeleteResponse.error);
+        return;
+      }
+ 
+    }));
   };
 
   // Check if any row is selected
@@ -283,11 +291,11 @@ export function EventTable({
             </IconButton>
           </div>
           <Button
-            onClick={handleDeleteSelected}
+            onClick={handleRemoveSelected}
             variant="outline"
             className="text-red-500"
           >
-            <TrashIcon className="mr-2 h-4 w-4" /> Delete
+            <TrashIcon className="mr-2 h-4 w-4" /> Remove
           </Button>
         </div>
       )}
