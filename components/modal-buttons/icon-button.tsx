@@ -22,10 +22,8 @@ export default function IconButton({
       variant="outline"
       onClick={() => modal?.show(children)}
     >
-      <span className="flex items-center">
-        {icon}
-        {cta}
-      </span>
+      <span className="mr-2 relative flex items-center justify-center h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gray-100">{icon}</span>
+      <span className="font-medium">{cta}</span>
     </Button>
   );
 }

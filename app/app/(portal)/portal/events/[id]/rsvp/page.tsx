@@ -166,9 +166,9 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
   };
 
   return (
-    <>
+    <div className="px-5">
       {event ? (
-        <div className="relative mx-auto max-w-4xl rounded-xl border border-gray-300 bg-white px-5 pb-5 pt-10 shadow">
+        <div className="mt-10 relative mx-auto max-w-4xl rounded-xl border border-gray-300 bg-white px-5 pb-5 pt-10 shadow">
           <div className="absolute flex items-center justify-between">
             <Link href={`/portal`} className="cursor rounded p-2">
               <span className="flex items-center space-x-2 text-sm text-gray-700">
@@ -189,13 +189,86 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
             style={{ height: "10%" }}
             className="bottom-0 left-0 right-0 rounded-t-lg bg-white px-5 md:mx-auto"
           >
-            <div className="mt-5 p-2">
-              <h1 className="mb-5 text-center text-4xl font-normal">
-                {`${event?.name}`}
-                {event?.parent_id && (
-                  <span className="text-xl font-medium text-gray-600">{` (${event?.parent_id?.name})`}</span>
+            <div>
+              <div className="mt-5 flex-col md:flex-row flex justify-between items-center">
+                <div>
+                  <h2>
+                    {event?.parent_id && (
+                      <span className="text-xl font-medium text-gray-600">{` (${event?.parent_id?.name})`}</span>
+                    )}
+                  </h2>
+                  <h1 className="text-2xl font-bold">
+                    {`${event?.name}`}
+                  </h1>
+                </div>
+
+                {!isSession ? (
+                  !isGoing ? (
+                    <div className="flex items-center justify-end">
+                      {event?.fees?.type !== "free" ? (
+                        <GenericButton
+                          size="sm"
+                          variant="default"
+                          cta={`Pay $${(event?.fees?.amount).toFixed(2)}`}
+                        >
+                          <CreatePaymentModalMultipleParticipants
+                            account={event?.accounts}
+                            profile={profile}
+                            persons={selectedDependants}
+                            fee={event?.fees}
+                            event={event}
+                          />
+                        </GenericButton>
+                      ) : (
+                        <button
+                          onClick={updateRSVP}
+                          className="flex rounded-full border-2 border-black bg-white p-2 px-4 hover:bg-black hover:text-white"
+                        >
+                          {/* <CheckCircle className='h-5 w-5 mr-3' /> */}
+                          <span>Enroll</span>
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex justify-end">
+                      <button className="flex rounded border p-2 px-4">
+                        <CheckCircle className="mr-3 h-5 w-5" color="green" />
+                        <span className="">Going</span>
+                      </button>
+                    </div>
+                  )
+                ) : isParentPaid ? (
+                  isGoing ? (
+                    <>
+                      <div className="flex justify-end">
+                        <button className="flex rounded border p-2 px-4">
+                          <CheckCircle className="mr-3 h-5 w-5" color="green" />
+                          <span className="">Going</span>
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-end">
+                      <button
+                        onClick={updateRSVP}
+                        className="flex rounded-full border-2 border-black bg-white p-2 px-4 hover:bg-black hover:text-white "
+                      >
+                        <span className="">Parent Paid - Enroll</span>
+                      </button>
+                    </div>
+                  )
+                ) : (
+                  <div className="col-span-1 mt-5 flex items-center justify-end">
+                    <Link
+                      href={`/portal/events/${parentEvent?.id}/rsvp?dependent=${currentDependent}`}
+                      className="rounded-full border-2 border-black p-2 px-4 text-black hover:bg-black hover:text-white"
+                    >
+                      Pay to Enroll
+                    </Link>
+                  </div>
                 )}
-              </h1>
+
+              </div>
               <p className="mb-5 text-lg text-gray-800">{event?.description}</p>
               <div className="flex justify-between">
                 <div>
@@ -226,89 +299,10 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                     </p>
                   </div>
                 </div>
-
-                <div className="mb-5 mt-2">
-                  <div className="mb-1 flex">
-                    <CheckCircle color="green" className="mr-3 h-5 w-5" />
-                    Going
-                  </div>
-                  <div className="my-1 flex">
-                    <XCircle color="red" className="mr-3 h-5 w-5" />
-                    Not Going
-                  </div>
-                  <div className="my-1 flex">
-                    <HelpCircle className="mr-3 h-5 w-5" />
-                    Maybe
-                  </div>
-                </div>
               </div>
 
               {/* This section needs refactoring */}
-              {!isSession ? (
-                !isGoing ? (
-                  <div className="col-span-1 flex items-center justify-end">
-                    {event?.fees?.type !== "free" ? (
-                      <GenericButton
-                        size="sm"
-                        variant="default"
-                        cta={`Pay $${(event?.fees?.amount).toFixed(2)}`}
-                      >
-                        <CreatePaymentModalMultipleParticipants
-                          account={event?.accounts}
-                          profile={profile}
-                          persons={selectedDependants}
-                          fee={event?.fees}
-                          event={event}
-                        />
-                      </GenericButton>
-                    ) : (
-                      <button
-                        onClick={updateRSVP}
-                        className="flex rounded-full border-2 border-black bg-white p-2 px-4 hover:bg-black hover:text-white"
-                      >
-                        {/* <CheckCircle className='h-5 w-5 mr-3' /> */}
-                        <span>Enroll</span>
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex justify-end">
-                    <button className="flex rounded border p-2 px-4">
-                      <CheckCircle className="mr-3 h-5 w-5" color="green" />
-                      <span className="">Going</span>
-                    </button>
-                  </div>
-                )
-              ) : isParentPaid ? (
-                isGoing ? (
-                  <>
-                    <div className="flex justify-end">
-                      <button className="flex rounded border p-2 px-4">
-                        <CheckCircle className="mr-3 h-5 w-5" color="green" />
-                        <span className="">Going</span>
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex justify-end">
-                    <button
-                      onClick={updateRSVP}
-                      className="flex rounded-full border-2 border-black bg-white p-2 px-4 hover:bg-black hover:text-white "
-                    >
-                      <span className="">Parent Paid - Enroll</span>
-                    </button>
-                  </div>
-                )
-              ) : (
-                <div className="col-span-1 mt-5 flex items-center justify-end">
-                  <Link
-                    href={`/portal/events/${parentEvent?.id}/rsvp?dependent=${currentDependent}`}
-                    className="rounded-full border-2 border-black p-2 px-4 text-black hover:bg-black hover:text-white"
-                  >
-                    Pay to Enroll
-                  </Link>
-                </div>
-              )}
+
             </div>
           </div>
         </div>
@@ -317,7 +311,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
           <Loader className="h-10 w-10" />
         </div>
       )}
-    </>
+    </div>
   );
 };
 

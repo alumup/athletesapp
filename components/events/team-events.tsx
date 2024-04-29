@@ -38,7 +38,7 @@ export default function TeamEvents({ dependent, team }: any) {
         {events?.map((event: any) => (
           <div
             key={event.id}
-            className="flex rounded-lg border border-gray-200"
+            className="my-3 flex rounded-lg border border-gray-200"
           >
             <div className="flex w-64 flex-col justify-between rounded-r-lg bg-gray-50 p-2">
               <div className="relative">
@@ -82,11 +82,11 @@ export default function TeamEvents({ dependent, team }: any) {
                     {event?.schedule?.start_time
                       ? formatStartTime(event.schedule.start_time)
                       : event?.schedule?.sessions?.[0]
-                      ? formatStartTime(
+                        ? formatStartTime(
                           event.schedule.sessions[0].start_time ||
-                            event.schedule.sessions[0]["start-time"],
+                          event.schedule.sessions[0]["start-time"],
                         )
-                      : ""}
+                        : ""}
                   </span>
                 </div>
               )}

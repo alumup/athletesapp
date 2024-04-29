@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
 
+
 export default function CreateDependentModal({
   person,
   dependent,
@@ -18,7 +19,7 @@ export default function CreateDependentModal({
   dependent?: boolean;
   modalUpdate?: any;
 }) {
-  const { refresh } = useRouter();
+  const { push } = useRouter();
   const modal = useModal();
   const supabase = createClientComponentClient();
 
@@ -71,8 +72,8 @@ export default function CreateDependentModal({
 
     if (modalUpdate) modalUpdate(true);
 
+    push(`/portal/${newPerson.id}`)
     modal?.hide();
-    refresh();
   };
 
   return (

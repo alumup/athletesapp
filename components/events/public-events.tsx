@@ -110,9 +110,9 @@ export default function AccountPublicEvents({
               ) : (
                 <Link
                   href={`/portal/events/${event.id}/rsvp?dependent=${selectedDependent?.to?.id}`}
-                  className="w-24 self-end rounded bg-black px-6 py-2 font-bold text-white"
+                  className="text-xs self-end rounded bg-black px-6 py-2 font-bold text-white"
                 >
-                  RSVP
+                 SEE MORE
                 </Link>
               )}
             </div>
