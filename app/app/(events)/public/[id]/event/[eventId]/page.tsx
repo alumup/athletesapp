@@ -1,5 +1,5 @@
 "use client";
-
+import Image from 'next/image'
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -54,25 +54,26 @@ const PublicAccountEventsDetail = ({
     getSchedules();
   }, [event]);
   return (
-    <>
+    <div className="w-full flex justify-center items-center">
       {event && (
-        <div className="mb-5 rounded-lg border border-gray-200 shadow dark:border-gray-700 dark:bg-gray-800">
-          <div className="p-3">
-            <img
-              className="w-full rounded"
+        <div className="w-full max-w-5xl">
+          <div className="w-full h-[500px] relative rounded overflow-hidden">
+            <Image
+              fill={true}
               src={
                 event.cover_image ||
                 "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"
               }
+              objectFit='cover'
               alt=""
             />
           </div>
-          <div className="mb-3 pt-0">
-            <div className="mx-2 p-3">
+          <div className="grid grid-cols-3">
+            <div className="mt-5 col-span-3 md:col-span-2">
               <Badge variant="secondary" className="mb-1">
                 {event.accounts.name}
               </Badge>
-              <h5 className="mb-2 text-2xl font-medium tracking-tight text-gray-900 dark:text-white">
+              <h5 className="mb-2 text-2xl md:text-4xl font-medium tracking-tight text-gray-900 dark:text-white">
                 {event.name}
               </h5>
               <p className="mb-1 font-normal text-gray-900 dark:text-gray-400">
@@ -80,6 +81,7 @@ const PublicAccountEventsDetail = ({
               </p>
               <p className="mb-1 font-normal text-gray-900 dark:text-gray-400">
                 {new Date(event.date).toLocaleDateString("en-US", {
+                  timeZone: "America/Denver",
                   day: "numeric",
                   month: "long",
                   year: "numeric",
@@ -90,7 +92,7 @@ const PublicAccountEventsDetail = ({
               </p>
             </div>
             {schedule.length > 0 && (
-              <div className="mx-2 px-3">
+              <div>
                 <p className="mb-2 text-lg font-normal">Schedule</p>
                 <div>
                   {schedule.map((scheduleItem: any) => (
@@ -117,22 +119,26 @@ const PublicAccountEventsDetail = ({
                 </div>
               </div>
             )}
-            <Separator className="my-4" />
-            <div className="mx-5 flex justify-center">
-              <Button asChild className="w-full">
-                <Link
-                  href={`/login?account_id=${params.id}&sign_up=true&from_events=true`}
-                >
-                  {event?.fees && event?.fees?.type !== "free"
-                    ? `$${event?.fees?.amount} - RSVP`
-                    : "RSVP"}
-                </Link>
-              </Button>
+            <div className="mt-5 col-span-3 md:col-span-1">
+              <div className="flex-col justify-center border border-gray-1 rounded p-3">
+                <Button asChild className="w-full">
+                  <Link
+                    href={`/login?account_id=${params.id}&sign_up=true&from_events=true`}
+                  >
+                    {event?.fees && event?.fees?.type !== "free"
+                      ? `$${event?.fees?.amount} - RSVP`
+                      : "RSVP"}
+                  </Link>
+                </Button>
+                <div className="mt-2 text-center">
+                  <span className="text-[10px] text-gray-700 text-center">You can RSVP and pay through your <a href="https://app.athletes.app/portal" className="text-lime-700 underline">Athletes App Account</a>.</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

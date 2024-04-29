@@ -17,6 +17,7 @@ module.exports = {
       "illustrations.popsy.co",
       "zkoxnmdrhgbjovfvparc.supabase.co",
       "cdn.shopify.com",
+      "framerusercontent.com"
     ],
   },
   reactStrictMode: false,

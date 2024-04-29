@@ -1,47 +1,46 @@
 "use client";
-import React, { useEffect, useState } from "react";
-
+import Image from 'next/image'
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-// import {
-//   Carousel,
-//   CarouselContent,
-//   CarouselItem,
-// } from "@/components/ui/carousel";
-// will use carousel later instead of scroll
+import { ArrowRight, ChevronLeft } from "lucide-react";
 import Link from "next/link";
-import { getInitials } from "@/lib/utils";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { CheckCircleIcon, PlusCircle } from "lucide-react";
-import AccountEvents from "@/components/events/account-events";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import TeamEvents from "@/components/events/team-events";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreatePaymentModal from "@/components/modal/create-payment-modal";
-import { useSearchParams } from "next/navigation";
-import CreateDependentModal from "@/components/modal/create-dependent-modal";
-import IconButton from "@/components/modal-buttons/icon-button";
+import { CheckCircleIcon, PlusCircle } from "lucide-react";
+import AccountEvents from "@/components/events/account-events";
 import AccountPublicEvents from "@/components/events/public-events";
-import SelectPerson from "./components/select-person"
-import { Separator } from '@/components/ui/separator';
 
+interface Params {
+  id: string;
+}
 
-const PortalPage = () => {
+const PersonPage = ({ params }: { params: Params }) => {
   const supabase = createClientComponentClient();
-
-  const searchParams = useSearchParams();
-
   const [account, setAccount] = useState<any>();
   const [user, setUser] = useState<any>();
   const [profile, setProfile] = useState<any>();
   const [independents, setIndependents] = useState<any>(null);
   const [toRelationships, setToRelationships] = useState<any>(null);
   const [rosters, setRosters] = useState<any>(null);
-  const [loading, setLoading] = useState<any>(true);
-  const [error, setError] = useState<any>(null);
-  const [selectedDependent, setSelectedDependent] = useState<any>();
 
-  const from_events = searchParams.get("from_events");
+  const [person, setPerson] = useState<any>(null);
+  useEffect(() => {
+    const getPerson = async () => {
+      const { data, error } = await supabase
+        .from("people")
+        .select("*, accounts(*)")
+        .eq("id", params.id)
+        .single();
 
-  // const modal = useModal()
+      if (error) toast("Error fetching person.");
+      else setPerson(data);
+    };
+
+    getPerson();
+  }, []);
+
 
   useEffect(() => {
     const getAccount = async () => {
@@ -126,8 +125,6 @@ const PortalPage = () => {
       }
 
       setToRelationships(data);
-      setSelectedDependent(data[0]);
-      console.log("SELECTED DEPENDENT", data[0])
     };
 
     if (independents && independents.length > 0) fetchToRelationships();
@@ -142,7 +139,7 @@ const PortalPage = () => {
     // Check if there is a payment for the fee by the person
     const paymentsForPerson = roster.fees.payments.filter(
       (payment: { person_id: any }) =>
-        payment.person_id === (relation?.to?.id || relation?.people?.id),
+        payment.person_id === (person?.id || profile?.people.id),
     );
 
     // Sort the payments by date, most recent first
@@ -166,26 +163,84 @@ const PortalPage = () => {
   }
 
   return (
-    <div className="mt-10 p-5">
-
+    <div className="p-5">
+      <Link href="/portal"><span className="flex items-center"><ChevronLeft className="w-4 h-4" /> Back</span></Link>
       <div className="mt-5">
-        <IconButton
-          className="w-full flex justify-start whitespace-nowrap rounded bg-gray-50 border p-2 hover:cursor-pointer hover:bg-gray-100"
-          cta="New Dependent"
-          icon={<PlusCircle className="h-5 w-5" />}
-        >
-          <CreateDependentModal person={profile?.people} dependent={true} />
-        </IconButton>
+        <h1 className="text-3xl font-bold">
+          {person?.first_name}
+        </h1>
       </div>
 
+      {/* Events */}
+      {rosters?.filter(
+        (roster: any) =>
+          roster.person_id ===
+          (person?.id || profile?.people?.id),
+      ).length > 0 && <div className="mt-5"><h2 className="font-bold text-md"></h2>Teams</div>}
+      <div className="my-2">
+        {rosters
+          ?.filter(
+            (roster: any) =>
+              roster.person_id ===
+              (person?.id || profile?.people?.id),
+          )
+          .map((roster: any, i: any) => (
+            <div key={i} className="">
+              <div className="flex justify-between w-full">
+                <div>
+                  <span className="text-sm">{roster.teams?.name}</span>
+                </div>
+                <div className="flex items-center justify-end">
+                  {hasPaidFee(person || profile, roster) ? (
+                    <CheckCircleIcon className="h-5 w-5 text-lime-500" />
+                  ) : (
+                    <GenericButton
+                      size="sm"
+                      variant="default"
+                      cta={`Pay $${roster.fees?.amount}`}
+                    >
+                      <CreatePaymentModal
+                        account={account}
+                        profile={profile}
+                        roster={roster}
+                        fee={roster.fees}
+                        person={person || profile?.people}
+                      />
+                    </GenericButton>
+                  )}
+                </div>
+              </div>
+              <div>
+                {(person || profile?.people) && (
 
-      {!profile?.people?.dependent && (
-        <div className="mt-5">
-          <SelectPerson relationships={toRelationships} params={undefined} />
-        </div>
-      )}
+                  <TeamEvents
+                    dependent={person || profile?.people}
+                    team={roster.teams?.id}
+                  />
+
+                )}
+              </div>
+              <div className="-mx-1 my-1 mb-5 h-px bg-zinc-100 dark:bg-zinc-800"></div>
+            </div>
+          ))}
+      </div>
+      <div>
+        {/* This will need to be refactored to handled multiple accounts per person */}
+        {person?.accounts && (
+          <>
+            <h1 className="text-sm my-2 font-semibold">
+              Upcoming Events for {person?.accounts.name}
+            </h1>
+            <AccountPublicEvents
+              account={person?.accounts}
+              profile={profile}
+              selectedDependent={person}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 };
 
-export default PortalPage;
+export default PersonPage;
