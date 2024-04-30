@@ -1,20 +1,18 @@
-'use client'
-import React, { useState, useEffect } from 'react';
+"use client";
+import React, { useState, useEffect } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import Link from 'next/link';
+import Link from "next/link";
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from '@/components/ui/separator';
-import { ChevronRight } from 'lucide-react';
+import { Separator } from "@/components/ui/separator";
+import { ChevronRight } from "lucide-react";
 
 const SelectPerson = ({ params, relationships }) => {
   const [selectedName, setSelectedName] = useState("Select Dependent");
-  const [isLoading, setIsLoading] = useState(true);  // Added loading state
+  const [isLoading, setIsLoading] = useState(true); // Added loading state
   const supabase = createClientComponentClient();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
-
-
 
   useEffect(() => {
     const getAccount = async () => {
@@ -43,24 +41,21 @@ const SelectPerson = ({ params, relationships }) => {
     };
 
     getAccount();
-
   }, []);
 
-
   useEffect(() => {
-
     const fetchPerson = async () => {
-      setIsLoading(true);  // Set loading to true at the start of data fetch
+      setIsLoading(true); // Set loading to true at the start of data fetch
       if (params?.id) {
         const { data, error } = await supabase
-          .from('people')
-          .select('name')
-          .eq('id', params.id)
+          .from("people")
+          .select("name")
+          .eq("id", params.id)
           .single();
 
         if (error) {
-          console.error('Error fetching person:', error);
-          setIsLoading(false);  // Set loading to false on error
+          console.error("Error fetching person:", error);
+          setIsLoading(false); // Set loading to false on error
           return;
         }
 
@@ -70,7 +65,7 @@ const SelectPerson = ({ params, relationships }) => {
           setSelectedName("Select Dependent");
         }
       }
-      setIsLoading(false);  // Set loading to false after data operations
+      setIsLoading(false); // Set loading to false after data operations
     };
 
     fetchPerson();
@@ -78,61 +73,72 @@ const SelectPerson = ({ params, relationships }) => {
 
   return (
     <>
-
-      <div className="relative flex py-5 items-center w-full">
-        <div className="flex-grow border-t border-50"></div>
-        <span className="flex-shrink mx-4 text-gray-400 border rounded-full px-2">Select a Dependent</span>
-        <div className="flex-grow border-t border-50"></div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-5 mb-5 ">
-        {isLoading ? (
-          <div className="flex items-center justify-center">Loading...</div>  // Display loading message when data is being fetched
-        ) : (
-          relationships && relationships.map((relation) => (
-            <Link
-              className="p-3 w-full flex items-center justify-between  bg-gray-50 whitespace-nowrap hover:cursor-pointer rounded  border border-gray-300 hover:bg-gray-100"
-              key={relation.to?.id}
-              href={`/portal/${relation.to?.id}`}
-            >
-              <div className="flex items-center">
-                <Avatar className="mr-2">
-                  <AvatarFallback className="text-black">
-                    {getInitials(relation.to?.first_name, relation.to?.last_name)}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="font-medium">{relation.to?.name}</span>
-              </div>
-              <ChevronRight className='w-5 h-5' />
-            </Link>
-          ))
-        )}
-
-      </div>
-
-      <div className="relative flex py-5 items-center w-full">
-        <div className="flex-grow border-t border-50"></div>
-        <span className="flex-shrink mx-4 text-gray-400 border rounded-full px-2">Continue as Yourself</span>
-        <div className="flex-grow border-t border-50"></div>
-      </div>
-
-      <div className="mt-5">
-        <Link
-          className="p-3 w-full flex items-center justify-between bg-gray-50 whitespace-nowrap hover:cursor-pointer rounded  border border-gray-300 hover:bg-gray-100"
-          key={profile?.id}
-          href={`/portal/${profile?.people.id}`}
-        >
-          <div className="flex items-center">
-            <Avatar className="mr-2">
-              <AvatarFallback className="text-black">
-                {getInitials(profile?.first_name, profile?.last_name)}
-              </AvatarFallback>
-            </Avatar>
-            <span className="font-medium">{profile?.people.name}</span>
+      {!profile?.people?.dependent && (
+        <>
+          <div className="relative flex w-full items-center py-5">
+            <div className="border-50 flex-grow border-t"></div>
+            <span className="mx-4 flex-shrink rounded-full border px-2 text-gray-400">
+              Select a Dependent
+            </span>
+            <div className="border-50 flex-grow border-t"></div>
           </div>
-          <ChevronRight className='w-5 h-5' />
-        </Link>
-      </div>
+
+          <div className="mb-5 grid grid-cols-1 gap-5 md:grid-cols-1 ">
+            {isLoading ? (
+              <div className="flex items-center justify-center">Loading...</div> // Display loading message when data is being fetched
+            ) : (
+              relationships &&
+              relationships.map((relation) => (
+                <Link
+                  className="flex w-full items-center justify-between whitespace-nowrap  rounded border border-gray-300 bg-gray-50  p-3 hover:cursor-pointer hover:bg-gray-100"
+                  key={relation.to?.id}
+                  href={`/portal/${relation.to?.id}`}
+                >
+                  <div className="flex items-center">
+                    <Avatar className="mr-2">
+                      <AvatarFallback className="text-black">
+                        {getInitials(
+                          relation.to?.first_name,
+                          relation.to?.last_name,
+                        )}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="font-medium">{relation.to?.name}</span>
+                  </div>
+                  <ChevronRight className="h-5 w-5" />
+                </Link>
+              ))
+            )}
+          </div>
+          <div className="relative flex w-full items-center py-5">
+            <div className="border-50 flex-grow border-t"></div>
+            <span className="mx-4 flex-shrink rounded-full border px-2 text-gray-400">
+              Continue as Yourself
+            </span>
+            <div className="border-50 flex-grow border-t"></div>
+          </div>
+        </>
+      )}
+
+      {profile && (
+        <div className="mt-5">
+          <Link
+            className="flex w-full items-center justify-between whitespace-nowrap rounded border border-gray-300 bg-gray-50  p-3 hover:cursor-pointer hover:bg-gray-100"
+            key={profile?.id}
+            href={`/portal/${profile?.people.id}`}
+          >
+            <div className="flex items-center">
+              <Avatar className="mr-2">
+                <AvatarFallback className="text-black">
+                  {getInitials(profile?.first_name, profile?.last_name)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="font-medium">{profile?.people.name}</span>
+            </div>
+            <ChevronRight className="h-5 w-5" />
+          </Link>
+        </div>
+      )}
     </>
   );
 };
