@@ -2,16 +2,11 @@
 import React, { useEffect, useState } from "react";
 
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-// import {
-//   Carousel,
-//   CarouselContent,
-//   CarouselItem,
-// } from "@/components/ui/carousel";
-// will use carousel later instead of scroll
+
 import Link from "next/link";
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { CheckCircleIcon, PlusCircle } from "lucide-react";
+import { BellIcon, CheckCircleIcon, PlusCircle } from "lucide-react";
 import AccountEvents from "@/components/events/account-events";
 import TeamEvents from "@/components/events/team-events";
 import GenericButton from "@/components/modal-buttons/generic-button";
@@ -20,9 +15,8 @@ import { useSearchParams } from "next/navigation";
 import CreateDependentModal from "@/components/modal/create-dependent-modal";
 import IconButton from "@/components/modal-buttons/icon-button";
 import AccountPublicEvents from "@/components/events/public-events";
-import SelectPerson from "./components/select-person"
-import { Separator } from '@/components/ui/separator';
-
+import SelectPerson from "./components/select-person";
+import { Separator } from "@/components/ui/separator";
 
 const PortalPage = () => {
   const supabase = createClientComponentClient();
@@ -127,7 +121,7 @@ const PortalPage = () => {
 
       setToRelationships(data);
       setSelectedDependent(data[0]);
-      console.log("SELECTED DEPENDENT", data[0])
+      console.log("SELECTED DEPENDENT", data[0]);
     };
 
     if (independents && independents.length > 0) fetchToRelationships();
@@ -167,23 +161,36 @@ const PortalPage = () => {
 
   return (
     <div className="mt-10 p-5">
+      {!profile?.people?.dependent && (
+        <>
+          <div className="flex w-full justify-start rounded-md border bg-lime-50 px-2 py-1 hover:cursor-pointer hover:bg-gray-100">
+            <div className="flex items-center">
+              <BellIcon className="h-7 w-7" color="green" />
+            </div>
+            <div className="ml-2">
+              <span className="text-sm font-semibold">
+                REGISTERING FOR YOUR CHILD OR DEPENDENT?
+              </span>
+              <p className="break-words text-sm">
+                ADD THEM TO YOUR ACCOUNT OR SELECT FROM THE LIST BELOW
+              </p>
+            </div>
+          </div>
+          <div className="mt-5">
+            <IconButton
+              className="flex w-full justify-start whitespace-nowrap rounded border bg-gray-50 p-2 hover:cursor-pointer hover:bg-gray-100"
+              cta="New Dependent"
+              icon={<PlusCircle className="h-5 w-5" />}
+            >
+              <CreateDependentModal person={profile?.people} dependent={true} />
+            </IconButton>
+          </div>
+        </>
+      )}
 
       <div className="mt-5">
-        <IconButton
-          className="w-full flex justify-start whitespace-nowrap rounded bg-gray-50 border p-2 hover:cursor-pointer hover:bg-gray-100"
-          cta="New Dependent"
-          icon={<PlusCircle className="h-5 w-5" />}
-        >
-          <CreateDependentModal person={profile?.people} dependent={true} />
-        </IconButton>
+        <SelectPerson relationships={toRelationships} params={undefined} />
       </div>
-
-
-      {!profile?.people?.dependent && (
-        <div className="mt-5">
-          <SelectPerson relationships={toRelationships} params={undefined} />
-        </div>
-      )}
     </div>
   );
 };

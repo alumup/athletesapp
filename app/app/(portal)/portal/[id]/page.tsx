@@ -1,5 +1,5 @@
 "use client";
-import Image from 'next/image'
+import Image from "next/image";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { ArrowRight, ChevronLeft } from "lucide-react";
 import Link from "next/link";
@@ -40,7 +40,6 @@ const PersonPage = ({ params }: { params: Params }) => {
 
     getPerson();
   }, []);
-
 
   useEffect(() => {
     const getAccount = async () => {
@@ -164,29 +163,33 @@ const PersonPage = ({ params }: { params: Params }) => {
 
   return (
     <div className="p-5">
-      <Link href="/portal"><span className="flex items-center"><ChevronLeft className="w-4 h-4" /> Back</span></Link>
+      <Link href="/portal">
+        <span className="flex items-center">
+          <ChevronLeft className="h-4 w-4" /> Back
+        </span>
+      </Link>
       <div className="mt-5">
-        <h1 className="text-3xl font-bold">
-          {person?.first_name}
-        </h1>
+        <h1 className="text-3xl font-bold">{person?.first_name}</h1>
       </div>
 
       {/* Events */}
       {rosters?.filter(
         (roster: any) =>
-          roster.person_id ===
-          (person?.id || profile?.people?.id),
-      ).length > 0 && <div className="mt-5"><h2 className="font-bold text-md"></h2>Teams</div>}
+          roster.person_id === (person?.id || profile?.people?.id),
+      ).length > 0 && (
+        <div className="mt-5">
+          <h2 className="text-md font-bold"></h2>Teams
+        </div>
+      )}
       <div className="my-2">
         {rosters
           ?.filter(
             (roster: any) =>
-              roster.person_id ===
-              (person?.id || profile?.people?.id),
+              roster.person_id === (person?.id || profile?.people?.id),
           )
           .map((roster: any, i: any) => (
             <div key={i} className="">
-              <div className="flex justify-between w-full">
+              <div className="flex w-full justify-between">
                 <div>
                   <span className="text-sm">{roster.teams?.name}</span>
                 </div>
@@ -212,12 +215,11 @@ const PersonPage = ({ params }: { params: Params }) => {
               </div>
               <div>
                 {(person || profile?.people) && (
-
                   <TeamEvents
                     dependent={person || profile?.people}
                     team={roster.teams?.id}
+                    profile={profile}
                   />
-
                 )}
               </div>
               <div className="-mx-1 my-1 mb-5 h-px bg-zinc-100 dark:bg-zinc-800"></div>
@@ -228,7 +230,7 @@ const PersonPage = ({ params }: { params: Params }) => {
         {/* This will need to be refactored to handled multiple accounts per person */}
         {person?.accounts && (
           <>
-            <h1 className="text-sm my-2 font-semibold">
+            <h1 className="my-2 text-sm font-semibold">
               Upcoming Events for {person?.accounts.name}
             </h1>
             <AccountPublicEvents

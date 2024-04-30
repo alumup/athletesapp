@@ -206,19 +206,23 @@ export function EventTable({
   const handleRemoveSelected = async () => {
     const selectedRows = table.getSelectedRowModel().rows;
 
-    await Promise.all(selectedRows.map(async (row) => {
-      // First, delete the person from the 'rsvp' table
-      const rsvpDeleteResponse = await supabase
-        .from("rsvp")
-        .delete()
-        .eq("person_id", row.original.id);
+    await Promise.all(
+      selectedRows.map(async (row) => {
+        // First, delete the person from the 'rsvp' table
+        const rsvpDeleteResponse = await supabase
+          .from("rsvp")
+          .delete()
+          .eq("person_id", row.original.id);
 
-      if (rsvpDeleteResponse.error) {
-        console.error("Failed to delete RSVP entry:", rsvpDeleteResponse.error);
-        return;
-      }
- 
-    }));
+        if (rsvpDeleteResponse.error) {
+          console.error(
+            "Failed to delete RSVP entry:",
+            rsvpDeleteResponse.error,
+          );
+          return;
+        }
+      }),
+    );
   };
 
   // Check if any row is selected

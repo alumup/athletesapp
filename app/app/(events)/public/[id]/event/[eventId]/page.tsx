@@ -1,5 +1,5 @@
 "use client";
-import Image from 'next/image'
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -54,26 +54,26 @@ const PublicAccountEventsDetail = ({
     getSchedules();
   }, [event]);
   return (
-    <div className="w-full flex justify-center items-center">
+    <div className="flex w-full items-center justify-center">
       {event && (
         <div className="w-full max-w-5xl">
-          <div className="w-full h-[500px] relative rounded overflow-hidden">
+          <div className="relative h-[500px] w-full overflow-hidden rounded">
             <Image
               fill={true}
               src={
                 event.cover_image ||
                 "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"
               }
-              objectFit='cover'
+              objectFit="cover"
               alt=""
             />
           </div>
           <div className="grid grid-cols-3">
-            <div className="mt-5 col-span-3 md:col-span-2">
+            <div className="col-span-3 mt-5 md:col-span-2">
               <Badge variant="secondary" className="mb-1">
                 {event.accounts.name}
               </Badge>
-              <h5 className="mb-2 text-2xl md:text-4xl font-medium tracking-tight text-gray-900 dark:text-white">
+              <h5 className="mb-2 text-2xl font-medium tracking-tight text-gray-900 dark:text-white md:text-4xl">
                 {event.name}
               </h5>
               <p className="mb-1 font-normal text-gray-900 dark:text-gray-400">
@@ -119,8 +119,8 @@ const PublicAccountEventsDetail = ({
                 </div>
               </div>
             )}
-            <div className="mt-5 col-span-3 md:col-span-1">
-              <div className="flex-col justify-center border border-gray-1 rounded p-3">
+            <div className="col-span-3 mt-5 md:col-span-1">
+              <div className="border-gray-1 flex-col justify-center rounded border p-3">
                 <Button asChild className="w-full">
                   <Link
                     href={`/login?account_id=${params.id}&sign_up=true&from_events=true`}
@@ -131,7 +131,16 @@ const PublicAccountEventsDetail = ({
                   </Link>
                 </Button>
                 <div className="mt-2 text-center">
-                  <span className="text-[10px] text-gray-700 text-center">You can RSVP and pay through your <a href="https://app.athletes.app/portal" className="text-lime-700 underline">Athletes App Account</a>.</span>
+                  <span className="text-center text-[10px] text-gray-700">
+                    You can RSVP and pay through your{" "}
+                    <a
+                      href="https://app.athletes.app/portal"
+                      className="text-lime-700 underline"
+                    >
+                      Athletes App Account
+                    </a>
+                    .
+                  </span>
                 </div>
               </div>
             </div>
