@@ -6,7 +6,7 @@ import { AlarmClock, CheckCircle, MapPin, Group } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export default function TeamEvents({ dependent, team }: any) {
+export default function TeamEvents({ dependent, team, profile }: any) {
   const supabase = createClientComponentClient();
   const [events, setEvents] = useState<any>([]);
   const [isGoing, setIsGoing] = useState<boolean>(false);
@@ -17,13 +17,30 @@ export default function TeamEvents({ dependent, team }: any) {
     const getEvents = async () => {
       const { data, error } = await supabase
         .from("events")
-        .select("*,accounts(*), fees(*), rsvp(*), parent_id(*)")
+        .select("*,accounts(*), fees(*), rsvp(*), parent_id(*, rsvp(*))")
         .gte("date", new Date().toISOString())
         .eq("team_id", team)
         .order("date", { ascending: true });
 
       if (error) console.log("ERROR getting events: ", error);
       else {
+        const filteredData: any = [];
+        data.forEach((event: any) => {
+          if (event.parent_id === null) filteredData.push(event);
+          else {
+            const isParentPaid = event?.parent_id?.rsvp?.find((rs: any) => {
+              if (
+                rs.person_id === personId &&
+                rs.profile_id === profile?.id &&
+                rs.status === "paid"
+              ) {
+                return event;
+              }
+            });
+
+            if (isParentPaid) filteredData.push(event);
+          }
+        });
         setEvents(data);
         console.log(data, "--- events data --- events.tsx");
       }
@@ -82,11 +99,11 @@ export default function TeamEvents({ dependent, team }: any) {
                     {event?.schedule?.start_time
                       ? formatStartTime(event.schedule.start_time)
                       : event?.schedule?.sessions?.[0]
-                        ? formatStartTime(
+                      ? formatStartTime(
                           event.schedule.sessions[0].start_time ||
-                          event.schedule.sessions[0]["start-time"],
+                            event.schedule.sessions[0]["start-time"],
                         )
-                        : ""}
+                      : ""}
                   </span>
                 </div>
               )}

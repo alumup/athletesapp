@@ -1,7 +1,6 @@
 "use client";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreatePaymentModalMultipleParticipants from "@/components/modal/create-payment-modal-multiple-participants";
-import { formatDate } from "@/lib/utils";
 import { ArrowLeftIcon, ArrowRightIcon, PlusIcon } from "@radix-ui/react-icons";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import {
@@ -9,6 +8,7 @@ import {
   Calendar,
   CalendarIcon,
   CheckCircle,
+  ChevronLeft,
   HelpCircle,
   Loader,
   MapPin,
@@ -60,7 +60,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
         const going = data?.rsvp?.find(
           (rs: any) => rs.person_id === currentDependent,
         );
-        setDependant(going?.people);
+        // setDependant(going?.people);
         if (going && going.status === "paid") {
           setIsGoing(true);
         }
@@ -88,6 +88,19 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
     };
 
     getEvents();
+
+    const getDependentDetails = async () => {
+      const { data, error } = await supabase
+        .from("people")
+        .select("*")
+        .eq("id", currentDependent)
+        .single();
+
+      if (data) setDependant(data);
+      else console.log("----error getting dependent data ----", error);
+    };
+
+    getDependentDetails();
   }, []);
 
   useEffect(() => {
@@ -168,14 +181,13 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
   return (
     <div className="px-5">
       {event ? (
-        <div className="mt-10 relative mx-auto max-w-4xl rounded-xl border border-gray-300 bg-white px-5 pb-5 pt-10 shadow">
-          <div className="absolute flex items-center justify-between">
-            <Link href={`/portal`} className="cursor rounded p-2">
-              <span className="flex items-center space-x-2 text-sm text-gray-700">
-                <ArrowLeftCircleIcon fill="white" className="h-8 w-8" />
+        <div className="relative mx-auto mt-10 max-w-4xl rounded-xl border border-gray-300 bg-white px-5 pb-5 pt-5 shadow">
+          <div className="mb-2 flex items-center justify-between">
+            <Link href="/portal">
+              <span className="flex items-center">
+                <ChevronLeft className="h-4 w-4" /> Back
               </span>
             </Link>
-            {/* <span className="text-sm text-white">For {dependant?.name}</span> */}
           </div>
           <img
             className="w-full rounded-lg object-cover"
@@ -190,16 +202,14 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
             className="bottom-0 left-0 right-0 rounded-t-lg bg-white px-5 md:mx-auto"
           >
             <div>
-              <div className="mt-5 flex-col md:flex-row flex justify-between items-center">
+              <div className="mt-5 flex flex-col items-center justify-between md:flex-row">
                 <div>
                   <h2>
                     {event?.parent_id && (
                       <span className="text-xl font-medium text-gray-600">{` (${event?.parent_id?.name})`}</span>
                     )}
                   </h2>
-                  <h1 className="text-2xl font-bold">
-                    {`${event?.name}`}
-                  </h1>
+                  <h1 className="text-2xl font-bold">{`${event?.name}`}</h1>
                 </div>
 
                 {!isSession ? (
@@ -209,7 +219,10 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                         <GenericButton
                           size="sm"
                           variant="default"
-                          cta={`Pay $${(event?.fees?.amount).toFixed(2)}`}
+                          cta={`${dependant
+                              ? `Pay for ${dependant?.first_name}`
+                              : "Pay"
+                            } $${(event?.fees?.amount).toFixed(2)}`}
                         >
                           <CreatePaymentModalMultipleParticipants
                             account={event?.accounts}
@@ -222,10 +235,13 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                       ) : (
                         <button
                           onClick={updateRSVP}
-                          className="flex rounded-full border-2 border-black bg-white p-2 px-4 hover:bg-black hover:text-white"
+                          className="flex rounded-full border-2 border-black bg-black p-2 px-4 text-white hover:bg-black hover:text-white"
                         >
                           {/* <CheckCircle className='h-5 w-5 mr-3' /> */}
-                          <span>Enroll</span>
+                          <span>{`${dependant
+                              ? `Register for ${dependant?.first_name}`
+                              : "Register"
+                            }`}</span>
                         </button>
                       )}
                     </div>
@@ -251,9 +267,12 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                     <div className="flex justify-end">
                       <button
                         onClick={updateRSVP}
-                        className="flex rounded-full border-2 border-black bg-white p-2 px-4 hover:bg-black hover:text-white "
+                        className="flex rounded-full border-2 border-black bg-black p-2 px-4 text-white hover:bg-black hover:text-white "
                       >
-                        <span className="">Parent Paid - Enroll</span>
+                        <span>{`${dependant
+                            ? `Register for ${dependant?.first_name}`
+                            : "Register"
+                          }`}</span>
                       </button>
                     </div>
                   )
@@ -267,7 +286,6 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                     </Link>
                   </div>
                 )}
-
               </div>
               <p className="mb-5 text-lg text-gray-800">{event?.description}</p>
               <div className="flex justify-between">
@@ -302,7 +320,6 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
               </div>
 
               {/* This section needs refactoring */}
-
             </div>
           </div>
         </div>
