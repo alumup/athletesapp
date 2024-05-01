@@ -8,14 +8,14 @@ import SelectPerson from "./components/select-person";
 export default function PortalLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      <div className="sticky top-0 flex w-full justify-between border border-b border-gray-300 bg-gray-50 p-5">
+      <div className="sticky top-0 z-10 flex w-full justify-between border border-b border-gray-300 bg-gray-50 p-5">
         <Link href="/">
           <img src="/athletes-logo.svg" className="h-auto w-[50px]" />
         </Link>
         <PortalUserNav />
       </div>
 
-      <div className="mx-auto w-full max-w-2xl">{children}</div>
+      <div className="mx-auto w-full max-w-2xl mb-32">{children}</div>
     </>
   );
 }
