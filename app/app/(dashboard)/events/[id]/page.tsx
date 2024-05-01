@@ -108,7 +108,7 @@ export default async function EventPage({
                 />
               </IconButton>
             )}
-            <GenericButton cta="+ New Session" size="default" variant="default">
+            <GenericButton cta="+ New Session" size="default" variant="default" classNames="">
               <CreateEventModal account={account} event={event} />
             </GenericButton>
           </div>

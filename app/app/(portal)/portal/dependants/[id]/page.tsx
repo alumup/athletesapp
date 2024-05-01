@@ -53,7 +53,7 @@ const Dependants = ({ params }: { params: { id: string } }) => {
             </span>
           </Link>
           <div className="cursor-pointer rounded px-6">
-            <GenericButton cta={`Add New`} size="sm" variant="outline">
+            <GenericButton cta={`Add New`} size="sm" variant="outline" classNames="">
               <CreateDependentModal
                 person={dependants?.[0]?.from}
                 modalUpdate={setModalUpdate}

@@ -60,6 +60,7 @@ const Teams = ({ rosters, person, profile }) => {
                 <GenericButton
                   size="sm"
                   variant="default"
+                  classNames=""
                   cta={`Pay $${roster.fees?.amount}`}
                 >
                   <CreatePaymentModal

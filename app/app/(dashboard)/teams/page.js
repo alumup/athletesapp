@@ -34,7 +34,7 @@ export default async function TeamsPage() {
               Teams
             </h1>
           </div>
-          <GenericButton cta="+ New Team">
+          <GenericButton cta="+ New Team" classNames="">
             <CreateTeamModal account={account} />
           </GenericButton>
         </div>
