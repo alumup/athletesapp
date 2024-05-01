@@ -97,7 +97,7 @@ const PublicAccountEventsDetail = ({
                 <div>
                   {schedule.map((scheduleItem: any) => (
                     <div key={scheduleItem.id + Math.random()} className="flex">
-                      <div className="flex w-1/6 items-center rounded-l-lg border border-black bg-green-200 px-3 py-2 text-center font-medium">
+                      <div className="flex w-full items-center rounded-l-lg border border-black bg-green-200 px-3 py-2 text-center font-medium">
                         {new Date(scheduleItem.date)
                           .toLocaleDateString("en-US", {
                             day: "numeric",
