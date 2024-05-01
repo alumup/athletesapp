@@ -1,15 +1,12 @@
 "use client";
-import Image from "next/image";
+
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { ArrowRight, ChevronLeft } from "lucide-react";
+import { Calendar, ChevronLeft, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import TeamEvents from "@/components/events/team-events";
-import GenericButton from "@/components/modal-buttons/generic-button";
-import CreatePaymentModal from "@/components/modal/create-payment-modal";
-import { CheckCircleIcon, PlusCircle } from "lucide-react";
-import AccountEvents from "@/components/events/account-events";
+import Teams from "../components/teams"
 import AccountPublicEvents from "@/components/events/public-events";
 
 interface Params {
@@ -24,6 +21,7 @@ const PersonPage = ({ params }: { params: Params }) => {
   const [independents, setIndependents] = useState<any>(null);
   const [toRelationships, setToRelationships] = useState<any>(null);
   const [rosters, setRosters] = useState<any>(null);
+  const [filteredRosters, setFilteredRosters] = useState([]);
 
   const [person, setPerson] = useState<any>(null);
   useEffect(() => {
@@ -80,7 +78,16 @@ const PersonPage = ({ params }: { params: Params }) => {
     };
 
     fetchRosters();
-  }, []);
+  }, [params.id]);
+
+
+  useEffect(() => {
+    // Assuming person and profile are defined and used for filtering
+    const filtered = rosters?.filter(
+      (roster: any) => roster.person_id === (person?.id || profile?.people?.id)
+    );
+    setFilteredRosters(filtered);
+  }, [rosters, person, profile]);
 
   useEffect(() => {
     const getIndependents = async () => {
@@ -129,110 +136,72 @@ const PersonPage = ({ params }: { params: Params }) => {
     if (independents && independents.length > 0) fetchToRelationships();
   }, [independents]);
 
-  function hasPaidFee(relation: any, roster: any) {
-    // Immediately return true if the fee is 0
-    if (roster.fees.amount === 0) {
-      return true;
-    }
 
-    // Check if there is a payment for the fee by the person
-    const paymentsForPerson = roster.fees.payments.filter(
-      (payment: { person_id: any }) =>
-        payment.person_id === (person?.id || profile?.people.id),
-    );
-
-    // Sort the payments by date, most recent first
-    paymentsForPerson.sort(
-      (a: { date: string }, b: { date: string }) =>
-        new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
-
-    // Check if any of the payments status are 'succeeded'
-    const succeededPayment = paymentsForPerson.find(
-      (payment: { status: string }) => payment.status === "succeeded",
-    );
-
-    // If there is a 'succeeded' payment, return true
-    if (succeededPayment) {
-      return true;
-    }
-
-    // If there is no 'succeeded' payment, return false
-    return false;
-  }
 
   return (
-    <div className="p-5">
-      <Link href="/portal">
-        <span className="flex items-center">
-          <ChevronLeft className="h-4 w-4" /> Back
-        </span>
-      </Link>
-      <div className="mt-5">
-        <h1 className="text-3xl font-bold">{person?.first_name}</h1>
+    <div>
+      <div className="p-5 bg-gray-100">
+        <Link href="/portal">
+          <span className="flex items-center">
+            <ChevronLeft className="h-4 w-4" /> Back
+          </span>
+        </Link>
+
+        <div className="mt-5">
+          <div className="flex items-end justify-between">
+            {/* <Avatar className="mr-2">
+              <AvatarFallback className="text-black">
+                {getInitials(
+                  person?.first_name,
+                  person?.last_name,
+                )}
+              </AvatarFallback>
+            </Avatar> */}
+            <div>
+              <h1 className="text-3xl font-light">{person?.first_name}</h1>
+              <h1 className="text-4xl font-bold">{person?.last_name}</h1>
+            </div>
+            <div>
+              <Link href="/">Edit</Link>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Events */}
-      {rosters?.filter(
-        (roster: any) =>
-          roster.person_id === (person?.id || profile?.people?.id),
-      ).length > 0 && (
-        <div className="mt-5">
-          <h2 className="text-md font-bold"></h2>Teams
-        </div>
-      )}
-      <div className="my-2">
-        {rosters
-          ?.filter(
-            (roster: any) =>
-              roster.person_id === (person?.id || profile?.people?.id),
-          )
-          .map((roster: any, i: any) => (
-            <div key={i} className="">
-              <div className="flex w-full justify-between">
-                <div>
-                  <span className="text-sm">{roster.teams?.name}</span>
-                </div>
-                <div className="flex items-center justify-end">
-                  {hasPaidFee(person || profile, roster) ? (
-                    <CheckCircleIcon className="h-5 w-5 text-lime-500" />
-                  ) : (
-                    <GenericButton
-                      size="sm"
-                      variant="default"
-                      cta={`Pay $${roster.fees?.amount}`}
-                    >
-                      <CreatePaymentModal
-                        account={account}
-                        profile={profile}
-                        roster={roster}
-                        fee={roster.fees}
-                        person={person || profile?.people}
-                      />
-                    </GenericButton>
-                  )}
-                </div>
-              </div>
-              <div>
-                {(person || profile?.people) && (
-                  <TeamEvents
-                    dependent={person || profile?.people}
-                    team={roster.teams?.id}
-                    profile={profile}
-                  />
-                )}
-              </div>
-              <div className="-mx-1 my-1 mb-5 h-px bg-zinc-100 dark:bg-zinc-800"></div>
+      <div className="p-5">
+        <div className="my-2">
+          <div className="mt-5 flex items-center">
+            <Calendar className="w-4 h-4 mr-1" />
+            <h2 className="text-md font-bold">Team Events</h2>
+          </div>
+          {filteredRosters ? (
+            <TeamEvents
+              dependent={person || profile?.people}
+              rosters={filteredRosters}
+              profile={profile}
+            />
+          ) : (
+            <div className="w-full h-72 flex justify-center items-center">
+              <div>Loading...</div>
             </div>
-          ))}
+          )}
+          <div className="mt-5 flex items-center">
+            <Trophy className="w-4 h-4 mr-1" />
+            <h2 className="text-md font-bold">Teams</h2>
+          </div>
+
+          <Teams person={person} rosters={filteredRosters} profile={profile} />
+
+        </div>
       </div>
-      <div>
+
+      <div className="mt-5 px-5 py-5 pb-10 bg-gray-100">
         {/* This will need to be refactored to handled multiple accounts per person */}
         {person?.accounts && (
           <>
-            <h1 className="my-2 text-sm font-semibold">
+            <h2 className="my-2 text-sm font-bold">
               Upcoming Events for {person?.accounts.name}
-            </h1>
+            </h2>
             <AccountPublicEvents
               account={person?.accounts}
               profile={profile}

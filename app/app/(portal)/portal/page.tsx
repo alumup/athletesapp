@@ -18,6 +18,10 @@ import AccountPublicEvents from "@/components/events/public-events";
 import SelectPerson from "./components/select-person";
 import { Separator } from "@/components/ui/separator";
 
+
+
+
+
 const PortalPage = () => {
   const supabase = createClientComponentClient();
 
@@ -35,7 +39,6 @@ const PortalPage = () => {
 
   const from_events = searchParams.get("from_events");
 
-  // const modal = useModal()
 
   useEffect(() => {
     const getAccount = async () => {
@@ -163,16 +166,16 @@ const PortalPage = () => {
     <div className="mt-10 p-5">
       {!profile?.people?.dependent && (
         <>
-          <div className="flex w-full justify-start rounded-md border bg-lime-50 px-2 py-1 hover:cursor-pointer hover:bg-gray-100">
+          <div className="flex w-full justify-start rounded-md border bg-lime-50 px-2 py-3 hover:cursor-pointer hover:bg-gray-100">
             <div className="flex items-center">
               <BellIcon className="h-7 w-7" color="green" />
             </div>
             <div className="ml-2">
-              <span className="text-sm font-semibold">
-                REGISTERING FOR YOUR CHILD OR DEPENDENT?
+              <span className="text-lg font-semibold uppercase">
+                Managing Your Athlete?
               </span>
-              <p className="break-words text-sm">
-                ADD THEM TO YOUR ACCOUNT OR SELECT FROM THE LIST BELOW
+              <p className="break-words text-sm font-light">
+                ADD THEM TO YOUR ACCOUNT OR SELECT THEM FROM THE LIST BELOW.
               </p>
             </div>
           </div>

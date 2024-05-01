@@ -156,99 +156,65 @@ export function getInitials(firstName: string, lastName: string) {
   return firstInitial + lastInitial;
 }
 
-export function formatDate(date: string) {
-  const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+export const formatDate = (date: string) => {
+  // Parse the date as UTC to avoid timezone shifts
+  const dateObj = new Date(date + 'T00:00:00Z');
 
-  const monthsOfYear = [
-    "JAN",
-    "FEB",
-    "MAR",
-    "APR",
-    "MAY",
-    "JUN",
-    "JUL",
-    "AUG",
-    "SEP",
-    "OCT",
-    "NOV",
-    "DEC",
-  ];
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: 'UTC', // Ensure formatting in UTC
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(dateObj);
+};
 
-  const currentDate = new Date(date);
+export const formatDay = (date: string) => {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: 'UTC',
+    day: 'numeric',
+  }).format(new Date(date));
+};
 
-  const dayOfWeek = daysOfWeek[currentDate.getDay()] || "";
-  const dateOfMonth = currentDate.getDate() || "";
-  const monthOfYear = monthsOfYear[currentDate.getMonth()] || "";
+export const formatMonth = (date: string) => {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: 'UTC',
+    month: 'short',
+  }).format(new Date(date));
+};
 
-  const formattedDate = `${dateOfMonth}\n ${monthOfYear}`;
-  return formattedDate;
-}
+export const formatTimeRange = (startTime: string, endTime: string): string => {
+  const options = {
+    timeZone: 'UTC',
+    hour: 'numeric' as 'numeric',
+    minute: '2-digit' as '2-digit',
+    hour12: true
+  };
 
-export function formatDay(date: string) {
-  const currentDate = new Date(date);
-  const dateOfMonth = currentDate.getDate() || "";
+  const start = new Date(startTime);
+  const end = new Date(endTime);
 
-  const formattedDate = `${dateOfMonth}`;
-  return formattedDate;
-}
+  const formattedStartTime = new Intl.DateTimeFormat('en-US', options).format(start);
+  const formattedEndTime = new Intl.DateTimeFormat('en-US', options).format(end);
 
-export function formatMonth(date: string) {
-  const monthsOfYear = [
-    "JAN",
-    "FEB",
-    "MAR",
-    "APR",
-    "MAY",
-    "JUN",
-    "JUL",
-    "AUG",
-    "SEP",
-    "OCT",
-    "NOV",
-    "DEC",
-  ];
-
-  const currentDate = new Date(date);
-
-  const monthOfYear = monthsOfYear[currentDate.getMonth()] || "";
-
-  const formattedDate = `${monthOfYear}`;
-  return formattedDate;
-}
-
-export function formatTimeRange(startTime: string, endTime: string): string {
-  // Parse start time
-  const startHour = parseInt(startTime?.slice(0, 2), 10);
-  const startMinute = parseInt(startTime?.slice(3, 5), 10);
-  const formattedStartHour = startHour % 12 === 0 ? 12 : startHour % 12;
-  const startSuffix = startHour >= 12 ? "PM" : "AM";
-  const formattedStartTime = `${formattedStartHour}:${startMinute
-    .toString()
-    .padStart(2, "0")} ${startSuffix}`;
-
-  // Parse end time
-  const endHour = parseInt(endTime.slice(0, 2), 10);
-  const endMinute = parseInt(endTime.slice(3, 5), 10);
-  const formattedEndHour = endHour % 12 === 0 ? 12 : endHour % 12;
-  const endSuffix = endHour >= 12 ? "PM" : "AM";
-  const formattedEndTime = `${formattedEndHour}:${endMinute
-    .toString()
-    .padStart(2, "0")} ${endSuffix}`;
-
-  // Concatenate and return the time range
   return `${formattedStartTime} - ${formattedEndTime}`;
-}
+};
 
-export function formatStartTime(startTime: string): string {
-  // Parse start time
-  const startHour = parseInt(startTime?.slice(0, 2), 10);
-  const startMinute = parseInt(startTime?.slice(3, 5), 10);
-  const formattedStartHour = startHour % 12 === 0 ? 12 : startHour % 12;
-  const startSuffix = startHour >= 12 ? "PM" : "AM";
-  const formattedStartTime = `${formattedStartHour}:${startMinute
-    .toString()
-    .padStart(2, "0")} ${startSuffix}`;
+export const formatStartTime = (startTime: string): string => {
+  // Assuming a default date if only time is provided
+  const fullDateTime = startTime.includes('T') ? startTime : `1970-01-01T${startTime}`;
 
-  // Concatenate and return the time range
-  return `${formattedStartTime}`;
-}
+  const options = {
+    timeZone: 'America/Denver',
+    hour: 'numeric' as 'numeric',
+    minute: '2-digit' as '2-digit',
+    hour12: true
+  };
+
+  const start = new Date(fullDateTime);
+  if (isNaN(start.getTime())) {
+    console.error("Invalid date provided:", startTime);
+    return "Invalid Date";  // Handle the error as needed
+  }
+
+  return new Intl.DateTimeFormat('en-US', options).format(start);
+};

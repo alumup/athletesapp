@@ -2,52 +2,43 @@
 
 import { formatStartTime, formatDay, formatMonth } from "@/lib/utils";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { AlarmClock, CheckCircle, MapPin, Group } from "lucide-react";
+import { AlarmClock, CheckCircle, MapPin, Group, Calendar, Clock } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export default function TeamEvents({ dependent, team, profile }: any) {
+export default function TeamEvents({ dependent, rosters, profile }: any) {
   const supabase = createClientComponentClient();
   const [events, setEvents] = useState<any>([]);
-  const [isGoing, setIsGoing] = useState<boolean>(false);
 
   const personId = dependent?.to?.id || dependent?.id;
 
   useEffect(() => {
+    const fetchEventsForTeams = async (teams: any) => {
+      const promises = teams.map((team: any) =>
+        supabase
+          .from("events")
+          .select("*,accounts(*), fees(*), rsvp(*), parent_id(*, rsvp(*))")
+          .gte("date", new Date().toISOString())
+          .eq("team_id", team.id)
+          .order("date", { ascending: true })
+      );
+
+      const results = await Promise.all(promises);
+      return results.reduce((acc, current) => acc.concat(current.data), []);
+    };
+
     const getEvents = async () => {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*,accounts(*), fees(*), rsvp(*), parent_id(*, rsvp(*))")
-        .gte("date", new Date().toISOString())
-        .eq("team_id", team)
-        .order("date", { ascending: true });
-
-      if (error) console.log("ERROR getting events: ", error);
-      else {
-        const filteredData: any = [];
-        data.forEach((event: any) => {
-          if (event.parent_id === null) filteredData.push(event);
-          else {
-            const isParentPaid = event?.parent_id?.rsvp?.find((rs: any) => {
-              if (
-                rs.person_id === personId &&
-                rs.profile_id === profile?.id &&
-                rs.status === "paid"
-              ) {
-                return event;
-              }
-            });
-
-            if (isParentPaid) filteredData.push(event);
-          }
-        });
-        setEvents(data);
-        console.log(data, "--- events data --- events.tsx");
+      if (rosters && rosters.length > 0) {
+        const teams = rosters.map((roster: { teams: any; }) => roster.teams);
+        const allEvents = await fetchEventsForTeams(teams.flat());
+        setEvents(allEvents);
       }
     };
 
-    if (dependent) getEvents();
-  }, [dependent]);
+    if (dependent) {
+      getEvents();
+    }
+  }, [dependent, rosters]);
 
   return (
     <div>
@@ -85,25 +76,69 @@ export default function TeamEvents({ dependent, team, profile }: any) {
               </div>
               <h2 className="text-md mb-2 pt-2 font-bold">{event.name}</h2>
 
-              <div className="mb-4 flex items-center space-x-2">
+              <div className="mb-2 flex items-center space-x-2">
                 <MapPin className="h-4 w-4" />
-                <span className="text-xs">
+                <span className="text-sm">
                   {event?.location?.name || event?.location}
                 </span>
               </div>
 
-              {event?.schedule && (
+              <div className="mb-2 flex items-center space-x-2">
+                <Calendar className="h-4 w-4" />
+                <span className="text-xs">
+                  <div className="flex items-center">
+                    <div>
+                      <span className="text-xs mr-1">
+                        {formatMonth(event?.schedule?.start_date)}
+                      </span>
+                      <span
+                        className="text-xs">
+                        {formatDay(event?.schedule?.start_date)}
+                      </span>
+                    </div>
+                    {event?.schedule?.end_date && (
+                      <div>
+                        -
+                        <span className="text-xs mr-1">
+                          {formatMonth(event?.schedule?.end_date)}
+                        </span>
+                        <span
+                          className="text-xs">
+                          {formatDay(event?.schedule?.end_date)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </span>
+              </div>
+
+              {event?.schedule?.start_time && (
+                <div className="mb-2 flex items-center space-x-2">
+                  <Clock className="h-4 w-4" />
+                  <span className="text-xs">
+                    <div className="flex items-center">
+                      <div>
+                        <span className="text-xs mr-1">
+                          {event?.schedule?.start_time}
+                        </span>
+                      </div>
+                    </div>
+                  </span>
+                </div>
+              )}
+    
+
+              {event?.schedule && event?.schedule?.start_time && (
                 <div>
                   <span className="flex items-center space-x-2 text-xs">
                     <AlarmClock className="mr-2 h-4 w-4" />
                     {event?.schedule?.start_time
                       ? formatStartTime(event.schedule.start_time)
                       : event?.schedule?.sessions?.[0]
-                      ? formatStartTime(
-                          event.schedule.sessions[0].start_time ||
-                            event.schedule.sessions[0]["start-time"],
+                        ? formatStartTime(
+                          event.schedule.sessions[0].start_time
                         )
-                      : ""}
+                        : ""}
                   </span>
                 </div>
               )}
