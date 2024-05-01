@@ -209,6 +209,7 @@ const EventDetails = ({
                       <GenericButton
                         size="sm"
                         variant="default"
+                        classNames=""
                         cta={`Pay $${events?.fees?.amount}`}
                       >
                         <CreatePaymentModal

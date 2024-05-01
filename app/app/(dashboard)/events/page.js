@@ -33,7 +33,7 @@ export default async function EventsPage() {
               Events
             </h1>
           </div>
-          <GenericButton cta="+ New Event">
+          <GenericButton cta="+ New Event" classNames="">
             <CreateEventModal account={account} />
           </GenericButton>
         </div>

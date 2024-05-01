@@ -6,29 +6,29 @@ import { AlarmClock, CheckCircle, MapPin } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export default function AccountEvents({ dependent, profile }: any) {
+export default function AccountEvents({ dependent, events }: any) {
   const supabase = createClientComponentClient();
-  const [events, setEvents] = useState<any>([]);
+  // const [events, setEvents] = useState<any>([]);
   const [isGoing, setIsGoing] = useState<boolean>(false);
 
-  useEffect(() => {
-    const getEvents = async () => {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*,accounts(*), fees(*), rsvp(*), parent_id(*)")
-        .gte("date", new Date().toISOString())
-        .eq("account_id", dependent?.to?.accounts?.id)
-        .order("date", { ascending: true });
+  // useEffect(() => {
+  //   const getEvents = async () => {
+  //     const { data, error } = await supabase
+  //       .from("events")
+  //       .select("*,accounts(*), fees(*), rsvp(*), parent_id(*)")
+  //       .gte("date", new Date().toISOString())
+  //       .eq("account_id", dependent?.to?.accounts?.id)
+  //       .order("date", { ascending: true });
 
-      if (error) console.log("ERROR getting events: ", error);
-      else {
-        setEvents(data);
-        console.log(data, "--- events data --- events.tsx");
-      }
-    };
+  //     if (error) console.log("ERROR getting events: ", error);
+  //     else {
+  //       setEvents(data);
+  //       console.log(data, "--- events data --- events.tsx");
+  //     }
+  //   };
 
-    if (dependent) getEvents();
-  }, [dependent]);
+  //   if (dependent) getEvents();
+  // }, [dependent]);
 
   return (
     <div>
