@@ -16,9 +16,6 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
       </div>
 
       <div className="mx-auto w-full max-w-2xl">{children}</div>
-      <div className="bg-black w-full h-32 flex items-center justify-center p-5">
-        <span className="uppercase text-xs font-bold text-gray-300">Powered by Athletes App®</span>
-      </div>
     </>
   );
 }

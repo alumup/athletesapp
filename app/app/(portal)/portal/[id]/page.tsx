@@ -174,17 +174,19 @@ const PersonPage = ({ params }: { params: Params }) => {
             <Calendar className="w-4 h-4 mr-1" />
             <h2 className="text-md font-bold">Team Events</h2>
           </div>
-          {filteredRosters ? (
-            <TeamEvents
-              dependent={person || profile?.people}
-              rosters={filteredRosters}
-              profile={profile}
-            />
-          ) : (
-            <div className="w-full h-72 flex justify-center items-center">
-              <div>Loading...</div>
-            </div>
-          )}
+          <div className="w-full h-72">
+            {filteredRosters ? (
+              <TeamEvents
+                dependent={person || profile?.people}
+                rosters={filteredRosters}
+                profile={profile}
+              />
+            ) : (
+              <div className="h-full flex justify-center items-center">
+                <div>Loading...</div>
+              </div>
+              )}
+          </div>
           <div className="mt-5 flex items-center">
             <Trophy className="w-4 h-4 mr-1" />
             <h2 className="text-md font-bold">Teams</h2>

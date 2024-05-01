@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreatePaymentModalMultipleParticipants from "@/components/modal/create-payment-modal-multiple-participants";
 import { ArrowLeftIcon, ArrowRightIcon, PlusIcon } from "@radix-ui/react-icons";
@@ -181,7 +182,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
   return (
     <div className="px-5">
       {event ? (
-        <div className="relative mx-auto mt-10 max-w-4xl rounded-xl border border-gray-300 bg-white px-5 pb-5 pt-5 shadow">
+        <div className="relative mx-auto mt-10">
           <div className="mb-2 flex items-center justify-between">
             <Link href="/portal">
               <span className="flex items-center">
@@ -189,20 +190,23 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
               </span>
             </Link>
           </div>
-          <img
-            className="w-full rounded-lg object-cover"
+          <div className="relative w-full h-56">
+          <Image
+            className="rounded object-cover"
             src={
               event?.cover_image ||
               "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"
             }
+            fill
             alt=""
-          />
+            />
+          </div>
           <div
             style={{ height: "10%" }}
-            className="bottom-0 left-0 right-0 rounded-t-lg bg-white px-5 md:mx-auto"
+            className="bottom-0 left-0 right-0 rounded-t-lg bg-white md:mx-auto"
           >
             <div>
-              <div className="mt-5 flex flex-col items-center justify-between md:flex-row">
+              <div className="mt-5">
                 <div>
                   <h2>
                     {event?.parent_id && (
@@ -214,14 +218,15 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
 
                 {!isSession ? (
                   !isGoing ? (
-                    <div className="flex items-center justify-end">
+                    <div className="fixed bottom-0 inset-x-0 w-full">
                       {event?.fees?.type !== "free" ? (
                         <GenericButton
-                          size="sm"
+                          size="lg"
                           variant="default"
+                          classNames={'w-full'}
                           cta={`${dependant
-                              ? `Pay for ${dependant?.first_name}`
-                              : "Pay"
+                            ? `Pay for ${dependant?.first_name}`
+                            : "Pay"
                             } $${(event?.fees?.amount).toFixed(2)}`}
                         >
                           <CreatePaymentModalMultipleParticipants
@@ -239,8 +244,8 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                         >
                           {/* <CheckCircle className='h-5 w-5 mr-3' /> */}
                           <span>{`${dependant
-                              ? `Register for ${dependant?.first_name}`
-                              : "Register"
+                            ? `Register for ${dependant?.first_name}`
+                            : "Register"
                             }`}</span>
                         </button>
                       )}
@@ -264,14 +269,14 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                       </div>
                     </>
                   ) : (
-                    <div className="flex justify-end">
+                    <div className="fixed bottom-0 inset-x-0 flex justify-end">
                       <button
                         onClick={updateRSVP}
                         className="flex rounded-full border-2 border-black bg-black p-2 px-4 text-white hover:bg-black hover:text-white "
                       >
                         <span>{`${dependant
-                            ? `Register for ${dependant?.first_name}`
-                            : "Register"
+                          ? `Register for ${dependant?.first_name}`
+                          : "Register"
                           }`}</span>
                       </button>
                     </div>
@@ -325,7 +330,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
         </div>
       ) : (
         <div className="fixed left-0 top-0 flex h-full w-full items-center justify-center">
-          <Loader className="h-10 w-10" />
+          <Loader className="h-5 w-5" />
         </div>
       )}
     </div>
