@@ -1,7 +1,7 @@
 "use client";
 
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Calendar, ChevronLeft, Loader, Trophy } from "lucide-react";
+import { Calendar, ChevronLeft, Component, Loader, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -168,13 +168,15 @@ const PersonPage = ({ params }: { params: Params }) => {
         </div>
       </div>
 
+
+
       <div className="p-5">
-        <div className="my-2">
-          <div className="mt-5 flex items-center">
+        <div className="mt-5 mb-6">
+          <div className="flex items-center">
             <Calendar className="w-4 h-4 mr-1" />
             <h2 className="text-md font-bold">Team Events</h2>
           </div>
-          <div className="w-full h-72">
+          <div className="w-full min-h-52">
             {filteredRosters ? (
               <TeamEvents
                 dependent={person || profile?.people}
@@ -185,34 +187,37 @@ const PersonPage = ({ params }: { params: Params }) => {
               <div className="h-full flex justify-center items-center">
                 <Loader className="h-5 w-5 animate-spin" />
               </div>
-              )}
+            )}
           </div>
+        </div>
+
+        <div className="my-5 py-5 border-y border-gray-300 bg-gray-50">
+          {/* This will need to be refactored to handled multiple accounts per person */}
+          {person?.accounts && (
+            <>
+              <div className="flex items-center">
+                <Component className="w-4 h-4 mr-1" />
+                <h2 className="text-md font-bold">Program Events</h2>
+              </div>
+              <AccountPublicEvents
+                account={person?.accounts}
+                profile={profile}
+                selectedDependent={person}
+              />
+            </>
+          )}
+        </div>
+        <div>
           <div className="mt-5 flex items-center">
             <Trophy className="w-4 h-4 mr-1" />
             <h2 className="text-md font-bold">Teams</h2>
           </div>
 
           <Teams person={person} rosters={filteredRosters} profile={profile} />
-
         </div>
       </div>
-
-      <div className="mt-5 px-5 py-5 pb-10 bg-gray-100">
-        {/* This will need to be refactored to handled multiple accounts per person */}
-        {person?.accounts && (
-          <>
-            <h2 className="my-2 text-sm font-bold">
-              Upcoming Events for {person?.accounts.name}
-            </h2>
-            <AccountPublicEvents
-              account={person?.accounts}
-              profile={profile}
-              selectedDependent={person}
-            />
-          </>
-        )}
-      </div>
     </div>
+
   );
 };
 
