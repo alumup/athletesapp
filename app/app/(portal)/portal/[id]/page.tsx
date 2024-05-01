@@ -1,7 +1,7 @@
 "use client";
 
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Calendar, ChevronLeft, Trophy } from "lucide-react";
+import { Calendar, ChevronLeft, Loader, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -162,7 +162,7 @@ const PersonPage = ({ params }: { params: Params }) => {
               <h1 className="text-4xl font-bold">{person?.last_name}</h1>
             </div>
             <div>
-              <Link href="/">Edit</Link>
+              <Link href="/portal">Edit</Link>
             </div>
           </div>
         </div>
@@ -183,7 +183,7 @@ const PersonPage = ({ params }: { params: Params }) => {
               />
             ) : (
               <div className="h-full flex justify-center items-center">
-                <div>Loading...</div>
+                <Loader className="h-5 w-5 animate-spin" />
               </div>
               )}
           </div>
