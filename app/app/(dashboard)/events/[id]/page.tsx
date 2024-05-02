@@ -83,7 +83,7 @@ export default async function EventPage({
               <h1 className="font-cal truncate text-base font-bold dark:text-white sm:w-auto sm:text-3xl md:text-xl">
                 {event.name}
               </h1>
-              <p className="text-stone-800 dark:text-stone-400">
+              <p className="text-gray-700 font-light max-w-[700px] w-full">
                 {event.description}
               </p>
               <div className="flex items-center space-x-2">
@@ -96,11 +96,11 @@ export default async function EventPage({
               </div>
             </div>
           </div>
-          <div className="mt-5 flex">
+          <div className="mt-5">
             {event.visibility === "public" && (
               <IconButton
                 cta=""
-                icon={<Share className="h-5 w-5" />}
+                icon={<Share className="h-4 w-4" />}
                 className="mx-2"
               >
                 <ShareModal
