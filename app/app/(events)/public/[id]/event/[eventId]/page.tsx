@@ -21,6 +21,7 @@ import {
   MapPin,
   Users,
   XCircle,
+  ExternalLink,
 } from "lucide-react";
 
 import { useSearchParams } from "next/navigation";
@@ -98,7 +99,7 @@ const PublicAccountEventsDetail = ({
                         <span className="text-xl font-medium text-gray-600">{` (${event?.parent_id?.name})`}</span>
                       )}
                     </h2>
-                    <h1 className="text-3xl md:text-4xl font-bold">{`${event?.name}`}</h1>
+                    <h1 className="mt-2 text-3xl md:text-4xl font-bold">{`${event?.name}`}</h1>
                     <div className="mt-5 grid grid-cols-2 divide-x divide-gray-300 border border-gray-300 rounded p-3">
                       <div className="col-span-1 flex items-center justify-center">
                         <MapPin className="mr-2 h-4 w-4" />
@@ -141,10 +142,14 @@ const PublicAccountEventsDetail = ({
                   <div className="fixed md:relative bottom-0 inset-x-0 w-full px-3 md:px-0 py-5 border-t md:border-0 border-gray-300 bg-white">
                     <Link
                       href={`/login?account_id=${params.id}&sign_up=true&from_events=true`}
-                      className="flex justify-center w-full rounded border-2 border-black bg-black py-3 px-2 text-white hover:bg-black hover:text-white"
+                      className="flex items-center justify-center w-full rounded border-2 border-black bg-black py-3 px-2 text-white hover:bg-black hover:text-white"
                     >
-                      <span className="uppercase font-bold">Register - ${event.fees?.amount}</span>
+                      <span className="uppercase font-bold mr-2">Register - ${event.fees?.amount}</span>
+                      <ExternalLink className="w-5 h-5" />
                     </Link>
+                    <div className="flex justify-center mt-2">
+                      <span className="text-[10px]">You will be asked to sign in to or create an Athletes App® account.</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -152,7 +157,7 @@ const PublicAccountEventsDetail = ({
               <p className="my-5 text-lg font-light text-gray-700">{event?.description}</p>
 
               <div className="border border-gray-700 divide-gray-700 divide-y rounded overflow-hidden">
-                {/* Existing content */}
+                <h3 className="font-bold text-x p-3">Schedule</h3>
                 {event.events
                   .sort((a: any, b: any) => {
                     const aDateTime = new Date(formatDate(a.schedule.start_date, a.schedule.start_time));
