@@ -53,7 +53,11 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
         .eq("id", params.id)
         .single();
       console.log(data);
-      if (!error && data) setEvents(data);
+      if (!error && data) {
+        setEvents(data);
+        // setParentEvent(data.parent_id?.id)
+        setIsSession(data.events);
+      }
       if (currentDependent) {
         const going = data?.rsvp?.find(
           (rs: any) => rs.person_id === currentDependent,
