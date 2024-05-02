@@ -70,7 +70,7 @@ export default function CreateRegistrantModal({
               htmlFor="first_name"
               className="text-sm font-medium text-gray-700 dark:text-stone-300"
             >
-              First Name*
+              First Name
             </label>
             <input
               type="text"
@@ -90,7 +90,7 @@ export default function CreateRegistrantModal({
               htmlFor="last_name"
               className="text-sm font-medium text-gray-700 dark:text-stone-300"
             >
-              Last Name*
+              Last Name
             </label>
             <input
               type="text"

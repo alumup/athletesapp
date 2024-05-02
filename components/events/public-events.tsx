@@ -59,7 +59,7 @@ export default function AccountPublicEvents({
           return (
             <div
               key={event.id}
-              className="flex rounded-lg border border-gray-200"
+              className="my-3 flex rounded-lg border border-gray-200"
             >
               <div className="flex w-64 flex-col justify-between rounded-r-lg bg-gray-50 p-2">
                 <div className="relative">

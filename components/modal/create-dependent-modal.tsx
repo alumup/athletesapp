@@ -35,7 +35,7 @@ export default function CreateDependentModal({
       .insert([
         {
           account_id: person?.accounts?.id || person?.account_id,
-          name: data.name,
+          name: `${data.first_name} ${data.last_name}`,
           first_name: data.first_name,
           last_name: data.last_name,
           email: data.email,
@@ -82,24 +82,6 @@ export default function CreateDependentModal({
     >
       <div className="relative flex flex-col space-y-4 p-5 md:p-10">
         <h2 className="font-cal text-2xl dark:text-white">New Dependant</h2>
-
-        <div className="flex flex-col space-y-2">
-          <label
-            htmlFor="name"
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
-          >
-            Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            {...register("name", { required: true })}
-          />
-          {errors.phone && (
-            <span className="text-sm text-red-500">This field is required</span>
-          )}
-        </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-1 flex flex-col space-y-2">

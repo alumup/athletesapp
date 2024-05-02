@@ -1,20 +1,17 @@
 "use client";
 import Image from "next/image";
+import { formatStartTime, formatDate, formatTimeRange, formatDay, formatMonth } from "@/lib/utils";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreatePaymentModalMultipleParticipants from "@/components/modal/create-payment-modal-multiple-participants";
-import { ArrowLeftIcon, ArrowRightIcon, PlusIcon } from "@radix-ui/react-icons";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import {
-  ArrowLeftCircleIcon,
   Calendar,
-  CalendarIcon,
   CheckCircle,
   ChevronLeft,
-  HelpCircle,
+  Clock,
   Loader,
   MapPin,
   Users,
-  XCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -52,11 +49,15 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
     const getEvents = async () => {
       const { data, error } = await supabase
         .from("events")
-        .select("*,accounts(*), fees(*), rsvp(*, people(*)), parent_id(*)")
+        .select("*,accounts(*), fees(*), rsvp(*, people(*)), parent_id(*), events(*)")
         .eq("id", params.id)
         .single();
       console.log(data);
-      if (!error && data) setEvents(data);
+      if (!error && data) {
+        setEvents(data);
+        // setParentEvent(data.parent_id?.id)
+        setIsSession(data.events);
+      }
       if (currentDependent) {
         const going = data?.rsvp?.find(
           (rs: any) => rs.person_id === currentDependent,
@@ -66,6 +67,8 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
           setIsGoing(true);
         }
       }
+
+      console.log("EVENT", data)
 
       if (data.parent_id) {
         setIsSession(true);
@@ -180,7 +183,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
   };
 
   return (
-    <div className="px-5">
+    <div className="px-5 mb-20">
       {event ? (
         <div className="relative mx-auto mt-10">
           <div className="mb-2 flex items-center justify-between">
@@ -191,14 +194,14 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
             </Link>
           </div>
           <div className="relative w-full h-56">
-          <Image
-            className="rounded object-cover"
-            src={
-              event?.cover_image ||
-              "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"
-            }
-            fill
-            alt=""
+            <Image
+              className="rounded object-cover"
+              src={
+                event?.cover_image ||
+                "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"
+              }
+              fill
+              alt=""
             />
           </div>
           <div
@@ -208,6 +211,15 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
             <div>
               <div className="mt-5">
                 <div>
+                  <div className="flex inline-flex px-2 items-center rounded-full bg-gray-50 border border-gray-300">
+                    <Users className="mr-2 h-3 w-3" />
+                    <p>
+                      <span className="text-gray-700 text-sm">
+                        {" "}
+                        {event?.accounts?.name}
+                      </span>
+                    </p>
+                  </div>
                   <h2>
                     {event?.parent_id && (
                       <span className="text-xl font-medium text-gray-600">{` (${event?.parent_id?.name})`}</span>
@@ -292,45 +304,88 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                   </div>
                 )}
               </div>
-              <p className="mb-5 text-lg text-gray-800">{event?.description}</p>
-              <div className="flex justify-between">
-                <div>
-                  <div className="flex">
-                    <MapPin className="mr-3 h-5 w-5" />
-                    <p className="mb-2">
-                      <span className="text-black-700 text-lg">
-                        {event?.location?.name || event?.location}
-                      </span>
-                    </p>
-                  </div>
-                  <div className="flex">
-                    <Calendar className="mr-3 h-5 w-5" />
-                    <p className="mb-2">
-                      <span className="text-black-700 text-lg">
-                        {" "}
-                        {new Date(event?.schedule?.start_date).toDateString()}
-                      </span>
-                    </p>
-                  </div>
-                  <div className="flex">
-                    <Users className="mr-3 h-5 w-5" />
-                    <p className="mb-2">
-                      <span className="text-black-700 text-lg">
-                        {" "}
-                        {event?.accounts?.name}
-                      </span>
-                    </p>
-                  </div>
+              <div className="flex items-center space-x-2 divide divide-x-2 divide-gray-700">
+                <div className="flex items-center">
+                  <MapPin className="mr-2 h-4 w-4" />
+                  <span className="text-black-700 text-lg">
+                    {event?.location?.name || event?.location}
+                  </span>
+                </div>
+                <div className="pl-2 flex items-center space-x-2">
+                  <Calendar className="h-4 w-4" />
+                  <span className="text-lg">
+                    <div className="flex items-center">
+                      <div>
+                        <span className="text-lg mr-1">
+                          {formatMonth(event?.schedule?.start_date)}
+                        </span>
+                        <span
+                          className="text-lg">
+                          {formatDay(event?.schedule?.start_date)}
+                        </span>
+                      </div>
+                      {event?.schedule?.end_date && (
+                        <div>
+                          -
+                          <span className="text-lg mr-1">
+                            {formatMonth(event?.schedule?.end_date)}
+                          </span>
+                          <span
+                            className="text-lg">
+                            {formatDay(event?.schedule?.end_date)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </span>
                 </div>
               </div>
+              <p className="my-5 text-lg font-light text-gray-700">{event?.description}</p>
 
+              <div className="border border-gray-700 divide-gray-700 divide-y rounded overflow-hidden">
+                {/* Existing content */}
+                {event.events
+                  .sort((a: any, b: any) => {
+                    const aDateTime = new Date(formatDate(a.schedule.start_date, a.schedule.start_time));
+                    const bDateTime = new Date(formatDate(b.schedule.start_date, b.schedule.start_time));
+                    return aDateTime.getTime() - bDateTime.getTime();
+                  })
+                  .map((subEvent: any) => (
+                    <div key={subEvent.id} className="flex items-center">
+                      <div className="p-5 bg-lime-300 border-r border-gray-700 flex flex-col justify-center items-center">
+                        <span className="text-lg font-bold">
+                          {formatDay(event?.schedule?.start_date)}
+                        </span>
+                        <span className="text-sm">
+                          {formatMonth(event?.schedule?.start_date)}
+                        </span>
+                      </div>
+                      <div className="p-3">
+                        <h4 className="font-semibold">{subEvent.name}</h4>
+
+                        {event?.schedule?.start_time && (
+                          <div className="mb-2 flex items-center space-x-2">
+                            <Clock className="h-4 w-4" />
+                            <span className="text-sm">
+
+                              {formatTimeRange(subEvent.schedule.start_date, subEvent.schedule.start_time, subEvent.schedule.end_date, subEvent.schedule?.end_time)}
+
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                }
+                {/* More content */}
+              </div>
               {/* This section needs refactoring */}
             </div>
           </div>
         </div>
       ) : (
         <div className="fixed left-0 top-0 flex h-full w-full items-center justify-center">
-          <Loader className="h-5 w-5" />
+          <Loader className="h-5 w-5 animate-spin" />
         </div>
       )}
     </div>
