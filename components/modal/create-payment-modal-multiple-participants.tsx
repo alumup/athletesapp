@@ -7,6 +7,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { StripeElements } from "@/components/stripe-elements";
 import { Elements } from "@stripe/react-stripe-js";
 import LoadingSpinner from "../form/loading-spinner";
+import { Loader } from "lucide-react";
 
 // Make sure to call loadStripe outside of a component’s render to avoid
 // recreating the Stripe object on every render.
@@ -141,7 +142,7 @@ export default function CreatePaymentModalMultipleParticipants({
         <div>
           {!clientSecret && (
             <div className="flex h-full w-full items-center justify-center text-center">
-              <LoadingSpinner />
+             <Loader className="w-5 h-5 animate-spin" />
             </div>
           )}
 
