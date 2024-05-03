@@ -2,7 +2,13 @@
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatStartTime, formatDate, formatTimeRange, formatDay, formatMonth } from "@/lib/utils";
+import {
+  formatStartTime,
+  formatDate,
+  formatTimeRange,
+  formatDay,
+  formatMonth,
+} from "@/lib/utils";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 import Link from "next/link";
@@ -51,12 +57,8 @@ const PublicAccountEventsDetail = ({
     getAccountEvents();
   }, []);
 
-
-
-
-
   return (
-    <div className="max-w-4xl mx-auto px-5 pb-[100px]">
+    <div className="mx-auto max-w-4xl px-5 pb-[100px]">
       {event ? (
         <div className="relative mx-auto mt-10">
           <div className="mb-2 flex items-center justify-between">
@@ -66,7 +68,7 @@ const PublicAccountEventsDetail = ({
               </span>
             </Link>
           </div>
-          <div className="relative w-full h-56 md:h-[500px]">
+          <div className="relative h-56 w-full md:h-[500px]">
             <Image
               className="rounded object-cover"
               src={
@@ -85,10 +87,10 @@ const PublicAccountEventsDetail = ({
               <div className="mt-5">
                 <div className="grid grid-cols-2 gap-10">
                   <div className="col-span-2 md:col-span-1">
-                    <div className="flex inline-flex px-2 items-center rounded-full bg-gray-50 border border-gray-300">
+                    <div className="flex inline-flex items-center rounded-full border border-gray-300 bg-gray-50 px-2">
                       <Users className="mr-2 h-3 w-3" />
                       <p>
-                        <span className="text-gray-700 text-sm">
+                        <span className="text-sm text-gray-700">
                           {" "}
                           {event?.accounts?.name}
                         </span>
@@ -99,8 +101,8 @@ const PublicAccountEventsDetail = ({
                         <span className="text-xl font-medium text-gray-600">{` (${event?.parent_id?.name})`}</span>
                       )}
                     </h2>
-                    <h1 className="mt-2 text-3xl md:text-4xl font-bold">{`${event?.name}`}</h1>
-                    <div className="mt-5 grid grid-cols-2 divide-x divide-gray-300 border border-gray-300 rounded p-3">
+                    <h1 className="mt-2 text-3xl font-bold md:text-4xl">{`${event?.name}`}</h1>
+                    <div className="mt-5 grid grid-cols-2 divide-x divide-gray-300 rounded border border-gray-300 p-3">
                       <div className="col-span-1 flex items-center justify-center">
                         <MapPin className="mr-2 h-4 w-4" />
                         <span className="text-black-700 text-lg">
@@ -109,26 +111,24 @@ const PublicAccountEventsDetail = ({
                       </div>
                       <div className="col-span-1 flex items-center justify-center">
                         <div className="flex items-center justify-center ">
-                          <Calendar className="h-4 w-4 mr-2" />
+                          <Calendar className="mr-2 h-4 w-4" />
                           <span className="text-lg">
                             <div className="flex items-center">
                               <div>
-                                <span className="text-lg mr-1">
+                                <span className="mr-1 text-lg">
                                   {formatMonth(event?.schedule?.start_date)}
                                 </span>
-                                <span
-                                  className="text-lg">
+                                <span className="text-lg">
                                   {formatDay(event?.schedule?.start_date)}
                                 </span>
                               </div>
                               {event?.schedule?.end_date && (
                                 <div>
                                   -
-                                  <span className="text-lg mr-1">
+                                  <span className="mr-1 text-lg">
                                     {formatMonth(event?.schedule?.end_date)}
                                   </span>
-                                  <span
-                                    className="text-lg">
+                                  <span className="text-lg">
                                     {formatDay(event?.schedule?.end_date)}
                                   </span>
                                 </div>
@@ -139,34 +139,45 @@ const PublicAccountEventsDetail = ({
                       </div>
                     </div>
                   </div>
-                  <div className="fixed md:relative bottom-0 inset-x-0 w-full px-3 md:px-0 py-5 border-t md:border-0 border-gray-300 bg-white">
+                  <div className="fixed inset-x-0 bottom-0 w-full border-t border-gray-300 bg-white px-3 py-5 md:relative md:border-0 md:px-0">
                     <Link
                       href={`/login?account_id=${params.id}&sign_up=true&from_events=true`}
-                      className="flex items-center justify-center w-full rounded border-2 border-black bg-black py-3 px-2 text-white hover:bg-black hover:text-white"
+                      className="flex w-full items-center justify-center rounded border-2 border-black bg-black px-2 py-3 text-white hover:bg-black hover:text-white"
                     >
-                      <span className="uppercase font-bold mr-2">Register - ${event.fees?.amount}</span>
-                      <ExternalLink className="w-5 h-5" />
+                      <span className="mr-2 font-bold uppercase">
+                        Register - ${event.fees?.amount}
+                      </span>
+                      <ExternalLink className="h-5 w-5" />
                     </Link>
-                    <div className="flex justify-center mt-2">
-                      <span className="text-[10px]">You will be asked to sign in to or create an Athletes App® account.</span>
+                    <div className="mt-2 flex justify-center">
+                      <span className="text-[10px]">
+                        You will be asked to sign in to or create an Athletes
+                        App® account.
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <p className="my-5 text-lg font-light text-gray-700">{event?.description}</p>
+              <p className="my-5 text-lg font-light text-gray-700">
+                {event?.description}
+              </p>
 
-              <div className="border border-gray-700 divide-gray-700 divide-y rounded overflow-hidden">
-                <h3 className="font-bold text-x p-3">Schedule</h3>
+              <div className="divide-y divide-gray-700 overflow-hidden rounded border border-gray-700">
+                <h3 className="text-x p-3 font-bold">Schedule</h3>
                 {event.events
                   .sort((a: any, b: any) => {
-                    const aDateTime = new Date(formatDate(a.schedule.start_date, a.schedule.start_time));
-                    const bDateTime = new Date(formatDate(b.schedule.start_date, b.schedule.start_time));
+                    const aDateTime = new Date(
+                      formatDate(a.schedule.start_date, a.schedule.start_time),
+                    );
+                    const bDateTime = new Date(
+                      formatDate(b.schedule.start_date, b.schedule.start_time),
+                    );
                     return aDateTime.getTime() - bDateTime.getTime();
                   })
                   .map((subEvent: any) => (
                     <div key={subEvent.id} className="flex items-center">
-                      <div className="p-5 bg-lime-300 border-r border-gray-700 flex flex-col justify-center items-center">
+                      <div className="flex flex-col items-center justify-center border-r border-gray-700 bg-lime-300 p-5">
                         <span className="text-lg font-bold">
                           {formatDay(subEvent?.schedule?.start_date)}
                         </span>
@@ -181,16 +192,18 @@ const PublicAccountEventsDetail = ({
                           <div className="mb-2 flex items-center space-x-2">
                             <Clock className="h-4 w-4" />
                             <span className="text-sm">
-
-                              {formatTimeRange(subEvent.schedule.start_date, subEvent.schedule.start_time, subEvent.schedule.end_date, subEvent.schedule?.end_time)}
-
+                              {formatTimeRange(
+                                subEvent.schedule.start_date,
+                                subEvent.schedule.start_time,
+                                subEvent.schedule.end_date,
+                                subEvent.schedule?.end_time,
+                              )}
                             </span>
                           </div>
                         )}
                       </div>
                     </div>
-                  ))
-                }
+                  ))}
                 {/* More content */}
               </div>
               {/* This section needs refactoring */}
@@ -207,6 +220,3 @@ const PublicAccountEventsDetail = ({
 };
 
 export default PublicAccountEventsDetail;
-
-
-

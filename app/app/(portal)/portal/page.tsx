@@ -18,10 +18,6 @@ import AccountPublicEvents from "@/components/events/public-events";
 import SelectPerson from "./components/select-person";
 import { Separator } from "@/components/ui/separator";
 
-
-
-
-
 const PortalPage = () => {
   const supabase = createClientComponentClient();
 
@@ -38,7 +34,6 @@ const PortalPage = () => {
   const [selectedDependent, setSelectedDependent] = useState<any>();
 
   const from_events = searchParams.get("from_events");
-
 
   useEffect(() => {
     const getAccount = async () => {

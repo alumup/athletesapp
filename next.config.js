@@ -18,7 +18,7 @@ module.exports = {
       "zkoxnmdrhgbjovfvparc.supabase.co",
       "cdn.shopify.com",
       "framerusercontent.com",
-      "bloximages.chicago2.vip.townnews.com"
+      "bloximages.chicago2.vip.townnews.com",
     ],
   },
   reactStrictMode: false,

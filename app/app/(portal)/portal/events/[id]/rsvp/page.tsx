@@ -1,6 +1,12 @@
 "use client";
 import Image from "next/image";
-import { formatStartTime, formatDate, formatTimeRange, formatDay, formatMonth } from "@/lib/utils";
+import {
+  formatStartTime,
+  formatDate,
+  formatTimeRange,
+  formatDay,
+  formatMonth,
+} from "@/lib/utils";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreatePaymentModalMultipleParticipants from "@/components/modal/create-payment-modal-multiple-participants";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
@@ -35,18 +41,19 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
   const [isSession, setIsSession] = useState<boolean>(false);
   const [parentEvent, setParentEvent] = useState<any>();
 
-
   function getStatus(event: any, user: any) {
-    if (!event || !user) return 'Not Available';
+    if (!event || !user) return "Not Available";
 
     // Assuming `selectedDependants` is an array of dependant IDs
-    const dependantRsvp = event.rsvp.find((rsvp: any) => rsvp.person_id === user.id);
+    const dependantRsvp = event.rsvp.find(
+      (rsvp: any) => rsvp.person_id === user.id,
+    );
 
     if (dependantRsvp) {
       return dependantRsvp.status; // 'paid', 'unpaid', 'undecided', etc.
     }
 
-    return 'Not Registered';
+    return "Not Registered";
   }
 
   useEffect(() => {
@@ -63,14 +70,16 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
     const getEvents = async () => {
       const { data, error } = await supabase
         .from("events")
-        .select("*,accounts(*), fees(*), rsvp(*, people(*)), parent_id(*), events(*)")
+        .select(
+          "*,accounts(*), fees(*), rsvp(*, people(*)), parent_id(*), events(*)",
+        )
         .eq("id", params.id)
         .single();
       console.log(data);
       if (!error && data) {
-        console.log("EVENTZZZ", data)
+        console.log("EVENTZZZ", data);
         setEvent(data);
-        setParentEvent(data.parent_id)
+        setParentEvent(data.parent_id);
         setIsSession(data.events);
       }
       if (currentDependent) {
@@ -82,7 +91,6 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
           setIsGoing(true);
         }
       }
-
 
       if (data?.parent_id) {
         setIsSession(true);
@@ -196,14 +204,13 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
     }
   };
 
-
   useEffect(() => {
     const status = getStatus(event, dependant);
     console.log("Current RSVP Status:", status);
   }, [event, dependant]);
 
   return (
-    <div className="px-5 mb-20">
+    <div className="mb-20 px-5">
       {event ? (
         <div className="relative mx-auto mt-10">
           <div className="mb-2 flex items-center justify-between">
@@ -213,7 +220,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
               </span>
             </Link>
           </div>
-          <div className="relative w-full h-56">
+          <div className="relative h-56 w-full">
             <Image
               className="rounded object-cover"
               src={
@@ -232,10 +239,10 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
               <div className="mt-5">
                 <div className="grid grid-cols-2 gap-10">
                   <div className="col-span-2 md:col-span-1">
-                    <div className="flex inline-flex px-2 items-center rounded-full bg-gray-50 border border-gray-300">
+                    <div className="flex inline-flex items-center rounded-full border border-gray-300 bg-gray-50 px-2">
                       <Users className="mr-2 h-3 w-3" />
                       <p>
-                        <span className="text-gray-700 text-sm">
+                        <span className="text-sm text-gray-700">
                           {" "}
                           {event?.accounts?.name}
                         </span>
@@ -246,8 +253,8 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                         <span className="text-xl font-medium text-gray-600">{` (${event?.parent_id?.name})`}</span>
                       )}
                     </h2>
-                    <h1 className="mt-2 text-3xl md:text-4xl font-bold">{`${event?.name}`}</h1>
-                    <div className="mt-5 grid grid-cols-2 divide-x divide-gray-300 border border-gray-300 rounded p-3">
+                    <h1 className="mt-2 text-3xl font-bold md:text-4xl">{`${event?.name}`}</h1>
+                    <div className="mt-5 grid grid-cols-2 divide-x divide-gray-300 rounded border border-gray-300 p-3">
                       <div className="col-span-1 flex items-center justify-center">
                         <MapPin className="mr-2 h-4 w-4" />
                         <span className="text-black-700 text-lg">
@@ -256,26 +263,24 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                       </div>
                       <div className="col-span-1 flex items-center justify-center">
                         <div className="flex items-center justify-center ">
-                          <Calendar className="h-4 w-4 mr-2" />
+                          <Calendar className="mr-2 h-4 w-4" />
                           <span className="text-lg">
                             <div className="flex items-center">
                               <div>
-                                <span className="text-lg mr-1">
+                                <span className="mr-1 text-lg">
                                   {formatMonth(event?.schedule?.start_date)}
                                 </span>
-                                <span
-                                  className="text-lg">
+                                <span className="text-lg">
                                   {formatDay(event?.schedule?.start_date)}
                                 </span>
                               </div>
                               {event?.schedule?.end_date && (
                                 <div>
                                   -
-                                  <span className="text-lg mr-1">
+                                  <span className="mr-1 text-lg">
                                     {formatMonth(event?.schedule?.end_date)}
                                   </span>
-                                  <span
-                                    className="text-lg">
+                                  <span className="text-lg">
                                     {formatDay(event?.schedule?.end_date)}
                                   </span>
                                 </div>
@@ -286,31 +291,32 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                       </div>
                     </div>
                   </div>
-                  <div className="fixed md:relative bottom-0 inset-x-0 w-full px-3 md:px-0 py-5 border-t md:border-0 border-gray-300 bg-white">
+                  <div className="fixed inset-x-0 bottom-0 w-full border-t border-gray-300 bg-white px-3 py-5 md:relative md:border-0 md:px-0">
                     {!event.parent_id ? (
-                      getStatus(event, dependant) !== 'paid' ? (
+                      getStatus(event, dependant) !== "paid" ? (
                         <>
                           {event?.fees?.type == "free" ? (
                             <button
                               onClick={updateRSVP}
-                              className="flex rounded w-full border-2 border-black bg-black p-2 px-4 text-white hover:bg-black hover:text-white"
+                              className="flex w-full rounded border-2 border-black bg-black p-2 px-4 text-white hover:bg-black hover:text-white"
                             >
                               {/* <CheckCircle className='h-5 w-5 mr-3' /> */}
-                              <span>{`${dependant
-                                ? `RSVP for ${dependant?.first_name}`
-                                : "RSVP"
-                                }`}</span>
+                              <span>{`${
+                                dependant
+                                  ? `RSVP for ${dependant?.first_name}`
+                                  : "RSVP"
+                              }`}</span>
                             </button>
-
                           ) : (
                             <GenericButton
                               size="lg"
                               variant="default"
-                              classNames={'w-full'}
-                              cta={`${dependant
-                                ? `Pay for ${dependant?.first_name}`
-                                : "Pay"
-                                } $${(event?.fees?.amount).toFixed(2)}`}
+                              classNames={"w-full"}
+                              cta={`${
+                                dependant
+                                  ? `Pay for ${dependant?.first_name}`
+                                  : "Pay"
+                              } $${(event?.fees?.amount).toFixed(2)}`}
                             >
                               <CreatePaymentModalMultipleParticipants
                                 account={event?.accounts}
@@ -323,58 +329,60 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                           )}
                         </>
                       ) : (
-                        <button className="flex rounded w-full justify-center items-center border p-2 px-4 bg-lime-500">
+                        <button className="flex w-full items-center justify-center rounded border bg-lime-500 p-2 px-4">
                           <CheckCircle className="mr-3 h-5 w-5" color="white" />
                           <span className="text-white">Going</span>
                         </button>
                       )
                     ) : isParentPaid ? (
                       isGoing ? (
-                          <button className="flex rounded w-full justify-center items-center border p-2 px-4 bg-lime-500">
-                            <CheckCircle className="mr-3 h-5 w-5" color="white" />
-                            <span className="text-white">Going</span>
-                          </button>
+                        <button className="flex w-full items-center justify-center rounded border bg-lime-500 p-2 px-4">
+                          <CheckCircle className="mr-3 h-5 w-5" color="white" />
+                          <span className="text-white">Going</span>
+                        </button>
                       ) : (
-
                         <button
                           onClick={updateRSVP}
                           className="flex rounded-full border-2 border-black bg-black p-2 px-4 text-white hover:bg-black hover:text-white "
                         >
-                          <span>{`${dependant
-                            ? `Register for ${dependant?.first_name}`
-                            : "Register"
-                            }`}</span>
+                          <span>{`${
+                            dependant
+                              ? `Register for ${dependant?.first_name}`
+                              : "Register"
+                          }`}</span>
                         </button>
-
                       )
                     ) : (
-
                       <Link
                         href={`/portal/events/${parentEvent?.id}/rsvp?dependent=${currentDependent}`}
                         className="rounded-full border-2 border-black p-2 px-4 text-black hover:bg-black hover:text-white"
                       >
-                        Register 
+                        Register
                       </Link>
-
-
                     )}
                   </div>
                 </div>
               </div>
 
-              <p className="my-5 text-lg font-light text-gray-700">{event?.description}</p>
+              <p className="my-5 text-lg font-light text-gray-700">
+                {event?.description}
+              </p>
 
-              <div className="border border-gray-700 divide-gray-700 divide-y rounded overflow-hidden">
+              <div className="divide-y divide-gray-700 overflow-hidden rounded border border-gray-700">
                 {/* Existing content */}
                 {event.events
                   .sort((a: any, b: any) => {
-                    const aDateTime = new Date(formatDate(a.schedule.start_date, a.schedule.start_time));
-                    const bDateTime = new Date(formatDate(b.schedule.start_date, b.schedule.start_time));
+                    const aDateTime = new Date(
+                      formatDate(a.schedule.start_date, a.schedule.start_time),
+                    );
+                    const bDateTime = new Date(
+                      formatDate(b.schedule.start_date, b.schedule.start_time),
+                    );
                     return aDateTime.getTime() - bDateTime.getTime();
                   })
                   .map((subEvent: any) => (
                     <div key={subEvent.id} className="flex items-center">
-                      <div className="p-5 bg-lime-300 border-r border-gray-700 flex flex-col justify-center items-center">
+                      <div className="flex flex-col items-center justify-center border-r border-gray-700 bg-lime-300 p-5">
                         <span className="text-lg font-bold">
                           {formatDay(event?.schedule?.start_date)}
                         </span>
@@ -389,16 +397,18 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                           <div className="mb-2 flex items-center space-x-2">
                             <Clock className="h-4 w-4" />
                             <span className="text-sm">
-
-                              {formatTimeRange(subEvent.schedule.start_date, subEvent.schedule.start_time, subEvent.schedule.end_date, subEvent.schedule?.end_time)}
-
+                              {formatTimeRange(
+                                subEvent.schedule.start_date,
+                                subEvent.schedule.start_time,
+                                subEvent.schedule.end_date,
+                                subEvent.schedule?.end_time,
+                              )}
                             </span>
                           </div>
                         )}
                       </div>
                     </div>
-                  ))
-                }
+                  ))}
                 {/* More content */}
               </div>
               {/* This section needs refactoring */}
@@ -409,9 +419,8 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
         <div className="fixed left-0 top-0 flex h-full w-full items-center justify-center">
           <Loader className="h-5 w-5 animate-spin" />
         </div>
-      )
-      }
-    </div >
+      )}
+    </div>
   );
 };
 

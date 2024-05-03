@@ -157,9 +157,8 @@ export function getInitials(firstName: string, lastName: string) {
 }
 
 export const formatDate = (date: string, time: string): string => {
-
-  console.log("DATE", date)
-  console.log("TIME", time)
+  console.log("DATE", date);
+  console.log("TIME", time);
   // Validate the input formats for date and time
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) {
     console.error("Invalid date or time format:", date, time);
@@ -174,37 +173,46 @@ export const formatDate = (date: string, time: string): string => {
   }
 
   // Return the formatted date-time string using Intl.DateTimeFormat
-  return new Intl.DateTimeFormat('en-US', {
-    timeZone: 'UTC',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
   }).format(dateTime);
 };
 
-
 export const formatDay = (date: string) => {
-  return new Intl.DateTimeFormat('en-US', {
-    timeZone: 'UTC',
-    day: 'numeric',
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
+    day: "numeric",
   }).format(new Date(date));
 };
 
 export const formatMonth = (date: string) => {
-  return new Intl.DateTimeFormat('en-US', {
-    timeZone: 'UTC',
-    month: 'short',
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
+    month: "short",
   }).format(new Date(date));
 };
 
-export const formatTimeRange = (startDate: string, startTime: string, endDate: string, endTime: string) => {
-  console.log(`Received start: ${startDate} ${startTime}, end: ${endDate} ${endTime}`); // Debug log for input verification
+export const formatTimeRange = (
+  startDate: string,
+  startTime: string,
+  endDate: string,
+  endTime: string,
+) => {
+  console.log(
+    `Received start: ${startDate} ${startTime}, end: ${endDate} ${endTime}`,
+  ); // Debug log for input verification
 
   // Validate input formats for dates and times
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(startDate) ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(endDate)
+  ) {
     console.error("Invalid date format:", startDate, endDate);
     return "Invalid Date";
   }
@@ -219,41 +227,52 @@ export const formatTimeRange = (startDate: string, startTime: string, endDate: s
 
   // Check for invalid Date objects
   if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
-    console.error("Invalid date/time provided:", startDate, startTime, endDate, endTime);
+    console.error(
+      "Invalid date/time provided:",
+      startDate,
+      startTime,
+      endDate,
+      endTime,
+    );
     return "Invalid Date/Time";
   }
 
   // Format the start and end times using Intl.DateTimeFormat
   const options = {
-    timeZone: 'UTC', // Adjust this if you know the specific timezone or use 'undefined' for local time
-    hour: 'numeric' as 'numeric',
-    minute: '2-digit' as '2-digit',
-    hour12: true
+    timeZone: "UTC", // Adjust this if you know the specific timezone or use 'undefined' for local time
+    hour: "numeric" as "numeric",
+    minute: "2-digit" as "2-digit",
+    hour12: true,
   };
 
-  const formattedStartTime = new Intl.DateTimeFormat('en-US', options).format(startDateTime);
-  const formattedEndTime = new Intl.DateTimeFormat('en-US', options).format(endDateTime);
+  const formattedStartTime = new Intl.DateTimeFormat("en-US", options).format(
+    startDateTime,
+  );
+  const formattedEndTime = new Intl.DateTimeFormat("en-US", options).format(
+    endDateTime,
+  );
 
   return `${formattedStartTime} - ${formattedEndTime}`;
-}
-
+};
 
 export const formatStartTime = (startTime: string): string => {
   // Assuming a default date if only time is provided
-  const fullDateTime = startTime?.includes('T') ? startTime : `1970-01-01T${startTime}`;
+  const fullDateTime = startTime?.includes("T")
+    ? startTime
+    : `1970-01-01T${startTime}`;
 
   const options = {
-    timeZone: 'UTC',
-    hour: 'numeric' as 'numeric',
-    minute: '2-digit' as '2-digit',
-    hour12: true
+    timeZone: "UTC",
+    hour: "numeric" as "numeric",
+    minute: "2-digit" as "2-digit",
+    hour12: true,
   };
 
   const start = new Date(fullDateTime);
   if (isNaN(start.getTime())) {
     console.error("Invalid date provided:", startTime);
-    return "Invalid Date";  // Handle the error as needed
+    return "Invalid Date"; // Handle the error as needed
   }
 
-  return new Intl.DateTimeFormat('en-US', options).format(start);
+  return new Intl.DateTimeFormat("en-US", options).format(start);
 };

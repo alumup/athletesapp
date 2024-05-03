@@ -141,7 +141,7 @@ export default function CreatePaymentModalMultipleParticipants({
         <div>
           {!clientSecret && (
             <div className="flex h-full w-full items-center justify-center text-center">
-             <Loader className="w-5 h-5 animate-spin" />
+              <Loader className="h-5 w-5 animate-spin" />
             </div>
           )}
 

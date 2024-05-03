@@ -83,7 +83,7 @@ export default async function EventPage({
               <h1 className="font-cal truncate text-base font-bold dark:text-white sm:w-auto sm:text-3xl md:text-xl">
                 {event.name}
               </h1>
-              <p className="text-gray-700 font-light max-w-[700px] w-full">
+              <p className="w-full max-w-[700px] font-light text-gray-700">
                 {event.description}
               </p>
               <div className="flex items-center space-x-2">
@@ -108,7 +108,12 @@ export default async function EventPage({
                 />
               </IconButton>
             )}
-            <GenericButton cta="+ New Session" size="default" variant="default" classNames="">
+            <GenericButton
+              cta="+ New Session"
+              size="default"
+              variant="default"
+              classNames=""
+            >
               <CreateEventModal account={account} event={event} />
             </GenericButton>
           </div>
