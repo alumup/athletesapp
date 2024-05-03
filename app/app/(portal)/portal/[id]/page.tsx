@@ -167,16 +167,31 @@ const PersonPage = ({ params }: { params: Params }) => {
           </div>
         </div>
       </div>
-
-
-
       <div className="p-5">
-        <div className="mt-5 mb-6">
+      <div className="py-5">
+        {/* This will need to be refactored to handled multiple accounts per person */}
+        {person?.accounts && (
+          <>
+            <div className="flex items-center">
+              <Component className="w-4 h-4 mr-1" />
+              <h2 className="text-md font-bold">Program Events</h2>
+            </div>
+            <AccountPublicEvents
+              account={person?.accounts}
+              profile={profile}
+              selectedDependent={person}
+            />
+          </>
+        )}
+      </div>
+
+      <div>
+        <div className="mt-5 mb-6 border-y border-gray-300 bg-gray-50">
           <div className="flex items-center">
             <Calendar className="w-4 h-4 mr-1" />
             <h2 className="text-md font-bold">Team Events</h2>
           </div>
-          <div className="w-full min-h-52">
+          <div className="w-full min-h-52 h-full">
             {filteredRosters ? (
               <TeamEvents
                 dependent={person || profile?.people}
@@ -186,26 +201,10 @@ const PersonPage = ({ params }: { params: Params }) => {
             ) : (
               <div className="h-full flex justify-center items-center">
                 <Loader className="h-5 w-5 animate-spin" />
+                <span>Looking for team events...</span>
               </div>
             )}
           </div>
-        </div>
-
-        <div className="my-5 py-5 border-y border-gray-300 bg-gray-50">
-          {/* This will need to be refactored to handled multiple accounts per person */}
-          {person?.accounts && (
-            <>
-              <div className="flex items-center">
-                <Component className="w-4 h-4 mr-1" />
-                <h2 className="text-md font-bold">Program Events</h2>
-              </div>
-              <AccountPublicEvents
-                account={person?.accounts}
-                profile={profile}
-                selectedDependent={person}
-              />
-            </>
-          )}
         </div>
         <div>
           <div className="mt-5 flex items-center">
@@ -215,6 +214,7 @@ const PersonPage = ({ params }: { params: Params }) => {
 
           <Teams person={person} rosters={filteredRosters} profile={profile} />
         </div>
+      </div>
       </div>
     </div>
 

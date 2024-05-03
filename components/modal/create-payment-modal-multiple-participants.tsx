@@ -6,7 +6,6 @@ import { useModal } from "./provider";
 import { loadStripe } from "@stripe/stripe-js";
 import { StripeElements } from "@/components/stripe-elements";
 import { Elements } from "@stripe/react-stripe-js";
-import LoadingSpinner from "../form/loading-spinner";
 import { Loader } from "lucide-react";
 
 // Make sure to call loadStripe outside of a component’s render to avoid
