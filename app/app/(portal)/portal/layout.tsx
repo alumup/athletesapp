@@ -15,7 +15,7 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
         <PortalUserNav />
       </div>
 
-      <div className="mx-auto w-full max-w-2xl mb-32">{children}</div>
+      <div className="mx-auto w-full max-w-4xl mb-32">{children}</div>
     </>
   );
 }
