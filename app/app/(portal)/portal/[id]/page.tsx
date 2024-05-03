@@ -168,8 +168,6 @@ const PersonPage = ({ params }: { params: Params }) => {
         </div>
       </div>
       <div className="p-5">
-      <div className="py-5">
-        {/* This will need to be refactored to handled multiple accounts per person */}
         {person?.accounts && (
           <>
             <div className="flex items-center">
@@ -185,37 +183,46 @@ const PersonPage = ({ params }: { params: Params }) => {
         )}
       </div>
 
-      <div>
-        <div className="mt-5 mb-6 border-y border-gray-300 bg-gray-50">
-          <div className="flex items-center">
-            <Calendar className="w-4 h-4 mr-1" />
-            <h2 className="text-md font-bold">Team Events</h2>
-          </div>
-          <div className="w-full min-h-52 h-full">
-            {filteredRosters ? (
-              <TeamEvents
-                dependent={person || profile?.people}
-                rosters={filteredRosters}
-                profile={profile}
-              />
-            ) : (
-              <div className="h-full flex justify-center items-center">
-                <Loader className="h-5 w-5 animate-spin" />
-                <span>Looking for team events...</span>
-              </div>
-            )}
-          </div>
+      <div className="mt-5 mb-5 p-5 border-y border-gray-300 bg-gray-50">
+        <div className="flex items-center">
+          <Calendar className="w-4 h-4 mr-1" />
+          <h2 className="text-md font-bold">Team Events</h2>
         </div>
-        <div>
-          <div className="mt-5 flex items-center">
-            <Trophy className="w-4 h-4 mr-1" />
-            <h2 className="text-md font-bold">Teams</h2>
-          </div>
+        <div className="w-full min-h-52 h-full">
+          {filteredRosters ? (
+            <>
+              {filteredRosters.length > 0 ? (
+                <TeamEvents
+                  dependent={person || profile?.people}
+                  rosters={filteredRosters}
+                  profile={profile}
+                />
+              ) : (
+                <div className="h-full min-h-48 w-full flex flex-col justify-center items-center">
+                    <p>{person?.first_name} doesn't have any upcoming team events.</p>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="h-full min-h-48 flex flex-col justify-center items-center">
+              <Loader className="h-5 w-5 animate-spin" />
+              <span>Looking for team events...</span>
+            </div>
+          )}
+        </div>
+      </div>
 
-          <Teams person={person} rosters={filteredRosters} profile={profile} />
+
+      <div className="px-5">
+        <div className="mt-5 flex items-center">
+          <Trophy className="w-4 h-4 mr-1" />
+          <h2 className="text-md font-bold">Teams</h2>
         </div>
+
+        <Teams person={person} rosters={filteredRosters} profile={profile} />
       </div>
-      </div>
+
+
     </div>
 
   );

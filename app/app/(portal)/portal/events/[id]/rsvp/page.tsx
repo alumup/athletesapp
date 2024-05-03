@@ -207,7 +207,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
       {event ? (
         <div className="relative mx-auto mt-10">
           <div className="mb-2 flex items-center justify-between">
-            <Link href="/portal">
+            <Link href={`/portal/${dependant?.id}`}>
               <span className="flex items-center">
                 <ChevronLeft className="h-4 w-4" /> Back
               </span>
