@@ -2,7 +2,14 @@
 import Image from "next/image";
 import { formatStartTime, formatDay, formatMonth } from "@/lib/utils";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { AlarmClock, CheckCircle, MapPin, Group, Calendar, Clock } from "lucide-react";
+import {
+  AlarmClock,
+  CheckCircle,
+  MapPin,
+  Group,
+  Calendar,
+  Clock,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -12,7 +19,6 @@ export default function TeamEvents({ dependent, rosters, profile }: any) {
   const [isDataLoaded, setDataLoaded] = useState(false);
 
   const personId = dependent?.to?.id || dependent?.id;
-
 
   const [isVisible, setIsVisible] = useState(false);
 
@@ -34,7 +40,7 @@ export default function TeamEvents({ dependent, rosters, profile }: any) {
           .select("*,accounts(*), fees(*), rsvp(*), parent_id(*, rsvp(*))")
           .gte("date", new Date().toISOString())
           .eq("team_id", team.id)
-          .order("date", { ascending: true })
+          .order("date", { ascending: true }),
       );
 
       const results = await Promise.all(promises);
@@ -43,7 +49,7 @@ export default function TeamEvents({ dependent, rosters, profile }: any) {
 
     const getEvents = async () => {
       if (rosters && rosters.length > 0) {
-        const teams = rosters.map((roster: { teams: any; }) => roster.teams);
+        const teams = rosters.map((roster: { teams: any }) => roster.teams);
         const allEvents = await fetchEventsForTeams(teams.flat());
         setEvents(allEvents);
       }
@@ -55,7 +61,7 @@ export default function TeamEvents({ dependent, rosters, profile }: any) {
   }, [dependent, rosters]);
 
   return (
-    <div className={`transition-all ${isVisible ? '' : 'blur-lg'}`}>
+    <div className={`transition-all ${isVisible ? "" : "blur-lg"}`}>
       <div className="flex space-x-2 overflow-x-auto">
         {events?.map((event: any) => (
           <div
@@ -103,22 +109,20 @@ export default function TeamEvents({ dependent, rosters, profile }: any) {
                 <span className="text-xs">
                   <div className="flex items-center">
                     <div>
-                      <span className="text-xs mr-1">
+                      <span className="mr-1 text-xs">
                         {formatMonth(event?.schedule?.start_date)}
                       </span>
-                      <span
-                        className="text-xs">
+                      <span className="text-xs">
                         {formatDay(event?.schedule?.start_date)}
                       </span>
                     </div>
                     {event?.schedule?.end_date && (
                       <div>
                         -
-                        <span className="text-xs mr-1">
+                        <span className="mr-1 text-xs">
                           {formatMonth(event?.schedule?.end_date)}
                         </span>
-                        <span
-                          className="text-xs">
+                        <span className="text-xs">
                           {formatDay(event?.schedule?.end_date)}
                         </span>
                       </div>
@@ -133,7 +137,7 @@ export default function TeamEvents({ dependent, rosters, profile }: any) {
                   <span className="text-xs">
                     <div className="flex items-center">
                       <div>
-                        <span className="text-xs mr-1">
+                        <span className="mr-1 text-xs">
                           {event?.schedule?.start_time}
                         </span>
                       </div>
@@ -142,7 +146,6 @@ export default function TeamEvents({ dependent, rosters, profile }: any) {
                 </div>
               )}
 
-
               {event?.schedule && event?.schedule?.start_time && (
                 <div>
                   <span className="flex items-center space-x-2 text-xs">
@@ -150,10 +153,8 @@ export default function TeamEvents({ dependent, rosters, profile }: any) {
                     {event?.schedule?.start_time
                       ? formatStartTime(event.schedule.start_time)
                       : event?.schedule?.sessions?.[0]
-                        ? formatStartTime(
-                          event.schedule.sessions[0].start_time
-                        )
-                        : ""}
+                      ? formatStartTime(event.schedule.sessions[0].start_time)
+                      : ""}
                   </span>
                 </div>
               )}

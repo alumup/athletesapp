@@ -79,11 +79,11 @@ export default function AccountEvents({ dependent, events }: any) {
                     {event?.schedule?.start_time
                       ? formatStartTime(event.schedule.start_time)
                       : event?.schedule?.sessions?.[0]
-                        ? formatStartTime(
+                      ? formatStartTime(
                           event.schedule.sessions[0].start_time ||
-                          event.schedule.sessions[0]["start-time"],
+                            event.schedule.sessions[0]["start-time"],
                         )
-                        : ""}
+                      : ""}
                   </span>
                 </div>
               )}

@@ -170,7 +170,12 @@ export default function TeamPage({ params }: { params: { id: string } }) {
           {/* <GenericButton cta="Edit Person">
           <EditPersonModal person={person} account={account} />
         </GenericButton> */}
-          <GenericButton cta="New Event" size={undefined} variant={undefined} classNames="">
+          <GenericButton
+            cta="New Event"
+            size={undefined}
+            variant={undefined}
+            classNames=""
+          >
             <CreateEventModal account={account} team={team} />
           </GenericButton>
         </div>
