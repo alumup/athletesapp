@@ -41,41 +41,50 @@ const Teams = ({ rosters, person, profile }) => {
 
   return (
     <div className="mt-5 space-y-4">
-      {rosters?.map((roster, i) => (
-        <div key={i} className="w-full border border-gray-300 bg-gray-50 rounded px-2 py-4">
-          <div className="w-full flex justify-between items-center">
-            <div className="flex items-center">
-              <span className="text-2xl mr-1">🏀</span>
-              <div className="flex flex-col">
-                <span className="text-md font-bold">
-                  {roster.teams?.name}
-                </span>
-                <span className="text-sm font-light">${roster.fees?.amount}</span>
+      {rosters && rosters.length > 0 ? (
+        <>
+        { rosters.map((roster, i) => (
+          <div key={i} className="w-full border border-gray-300 bg-gray-50 rounded px-2 py-4">
+            <div className="w-full flex justify-between items-center">
+              <div className="flex items-center">
+                <span className="text-2xl mr-1">🏀</span>
+                <div className="flex flex-col">
+                  <span className="text-md font-bold">
+                    {roster.teams?.name}
+                  </span>
+                  <span className="text-sm font-light">${roster.fees?.amount}</span>
+                </div>
+              </div>
+              <div>
+                {hasPaidFee(person, roster) ? (
+                  <CheckCircleIcon className="h-5 w-5 text-green-500" />
+                ) : (
+                  <GenericButton
+                    size="sm"
+                    variant="default"
+                    classNames=""
+                    cta={`Pay $${roster.fees?.amount}`}
+                  >
+                    <CreatePaymentModal
+                      account={account}
+                      profile={profile}
+                      roster={roster}
+                      fee={1200}
+                      person={person}
+                    />
+                  </GenericButton>
+                )}
               </div>
             </div>
-            <div>
-              {hasPaidFee(person, roster) ? (
-                <CheckCircleIcon className="h-5 w-5 text-green-500" />
-              ) : (
-                <GenericButton
-                  size="sm"
-                  variant="default"
-                  classNames=""
-                  cta={`Pay $${roster.fees?.amount}`}
-                >
-                  <CreatePaymentModal
-                    account={account}
-                    profile={profile}
-                    roster={roster}
-                    fee={1200}
-                    person={person}
-                  />
-                </GenericButton>
-              )}
-            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </>
+      ) : (
+          <div className="h-full min-h-24 w-full flex flex-col justify-center items-center">
+            <p>{person?.first_name} isn't on any teams.</p>
+          </div>
+      )}
+     
     </div>
   );
 };
