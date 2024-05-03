@@ -35,6 +35,20 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
   const [isSession, setIsSession] = useState<boolean>(false);
   const [parentEvent, setParentEvent] = useState<any>();
 
+
+  function getStatus(event: any, user: any) {
+    if (!event || !user) return 'Not Available';
+
+    // Assuming `selectedDependants` is an array of dependant IDs
+    const dependantRsvp = event.rsvp.find((rsvp: any) => rsvp.person_id === user.id);
+
+    if (dependantRsvp) {
+      return dependantRsvp.status; // 'paid', 'unpaid', 'undecided', etc.
+    }
+
+    return 'Not Registered';
+  }
+
   useEffect(() => {
     const getUser = async () => {
       const {
@@ -182,6 +196,12 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
     }
   };
 
+
+  useEffect(() => {
+    const status = getStatus(event, dependant);
+    console.log("Current RSVP Status:", status);
+  }, [event, dependant]);
+
   return (
     <div className="px-5 mb-20">
       {event ? (
@@ -268,9 +288,21 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                   </div>
                   <div className="fixed md:relative bottom-0 inset-x-0 w-full px-3 md:px-0 py-5 border-t md:border-0 border-gray-300 bg-white">
                     {!event.parent_id ? (
-                      !isGoing ? (
+                      getStatus(event, dependant) !== 'paid' ? (
                         <>
-                          {event?.fees?.type !== "free" ? (
+                          {event?.fees?.type == "free" ? (
+                            <button
+                              onClick={updateRSVP}
+                              className="flex rounded w-full border-2 border-black bg-black p-2 px-4 text-white hover:bg-black hover:text-white"
+                            >
+                              {/* <CheckCircle className='h-5 w-5 mr-3' /> */}
+                              <span>{`${dependant
+                                ? `RSVP for ${dependant?.first_name}`
+                                : "RSVP"
+                                }`}</span>
+                            </button>
+
+                          ) : (
                             <GenericButton
                               size="lg"
                               variant="default"
@@ -288,111 +320,97 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                                 event={event}
                               />
                             </GenericButton>
-                          ) : (
-                              <button
-                                onClick={updateRSVP}
-                                className="flex rounded w-full border-2 border-black bg-black p-2 px-4 text-white hover:bg-black hover:text-white"
-                              >
-                                {/* <CheckCircle className='h-5 w-5 mr-3' /> */}
-                                <span>{`${dependant
-                                  ? `Register for ${dependant?.first_name}`
-                                  : "Register"
-                                  }`}</span>
-                              </button>
-                           
                           )}
-                       </>
+                        </>
                       ) : (
-                          <button className="flex rounded w-full border p-2 px-4">
-                            <CheckCircle className="mr-3 h-5 w-5" color="green" />
-                            <span className="">Going</span>
-                          </button>
+                        <button className="flex rounded w-full justify-center items-center border p-2 px-4 bg-lime-500">
+                          <CheckCircle className="mr-3 h-5 w-5" color="white" />
+                          <span className="text-white">Going</span>
+                        </button>
                       )
                     ) : isParentPaid ? (
                       isGoing ? (
-                        <div className="fixed md:relative bottom-0 inset-x-0 w-full px-3 md:px-0 py-5 border-t md:border-0 border-gray-300 bg-white">
-                          <button className="flex rounded border p-2 px-4">
-                            <CheckCircle className="mr-3 h-5 w-5" color="green" />
-                            <span className="">Going</span>
+                          <button className="flex rounded w-full justify-center items-center border p-2 px-4 bg-lime-500">
+                            <CheckCircle className="mr-3 h-5 w-5" color="white" />
+                            <span className="text-white">Going</span>
                           </button>
-                        </div>
                       ) : (
-                       
-                          <button
-                            onClick={updateRSVP}
-                            className="flex rounded-full border-2 border-black bg-black p-2 px-4 text-white hover:bg-black hover:text-white "
-                          >
-                            <span>{`${dependant
-                              ? `Register for ${dependant?.first_name}`
-                              : "Register"
-                              }`}</span>
-                          </button>
-                        
+
+                        <button
+                          onClick={updateRSVP}
+                          className="flex rounded-full border-2 border-black bg-black p-2 px-4 text-white hover:bg-black hover:text-white "
+                        >
+                          <span>{`${dependant
+                            ? `Register for ${dependant?.first_name}`
+                            : "Register"
+                            }`}</span>
+                        </button>
+
                       )
                     ) : (
-                     
-                        <Link
-                          href={`/portal/events/${parentEvent?.id}/rsvp?dependent=${currentDependent}`}
-                          className="rounded-full border-2 border-black p-2 px-4 text-black hover:bg-black hover:text-white"
-                        >
-                          Pay to Enroll
-                        </Link>
-                     
+
+                      <Link
+                        href={`/portal/events/${parentEvent?.id}/rsvp?dependent=${currentDependent}`}
+                        className="rounded-full border-2 border-black p-2 px-4 text-black hover:bg-black hover:text-white"
+                      >
+                        Register 
+                      </Link>
+
 
                     )}
                   </div>
                 </div>
-            </div>
+              </div>
 
-            <p className="my-5 text-lg font-light text-gray-700">{event?.description}</p>
+              <p className="my-5 text-lg font-light text-gray-700">{event?.description}</p>
 
-            <div className="border border-gray-700 divide-gray-700 divide-y rounded overflow-hidden">
-              {/* Existing content */}
-              {event.events
-                .sort((a: any, b: any) => {
-                  const aDateTime = new Date(formatDate(a.schedule.start_date, a.schedule.start_time));
-                  const bDateTime = new Date(formatDate(b.schedule.start_date, b.schedule.start_time));
-                  return aDateTime.getTime() - bDateTime.getTime();
-                })
-                .map((subEvent: any) => (
-                  <div key={subEvent.id} className="flex items-center">
-                    <div className="p-5 bg-lime-300 border-r border-gray-700 flex flex-col justify-center items-center">
-                      <span className="text-lg font-bold">
-                        {formatDay(event?.schedule?.start_date)}
-                      </span>
-                      <span className="text-sm">
-                        {formatMonth(event?.schedule?.start_date)}
-                      </span>
+              <div className="border border-gray-700 divide-gray-700 divide-y rounded overflow-hidden">
+                {/* Existing content */}
+                {event.events
+                  .sort((a: any, b: any) => {
+                    const aDateTime = new Date(formatDate(a.schedule.start_date, a.schedule.start_time));
+                    const bDateTime = new Date(formatDate(b.schedule.start_date, b.schedule.start_time));
+                    return aDateTime.getTime() - bDateTime.getTime();
+                  })
+                  .map((subEvent: any) => (
+                    <div key={subEvent.id} className="flex items-center">
+                      <div className="p-5 bg-lime-300 border-r border-gray-700 flex flex-col justify-center items-center">
+                        <span className="text-lg font-bold">
+                          {formatDay(event?.schedule?.start_date)}
+                        </span>
+                        <span className="text-sm">
+                          {formatMonth(event?.schedule?.start_date)}
+                        </span>
+                      </div>
+                      <div className="p-3">
+                        <h4 className="font-semibold">{subEvent.name}</h4>
+
+                        {event?.schedule?.start_time && (
+                          <div className="mb-2 flex items-center space-x-2">
+                            <Clock className="h-4 w-4" />
+                            <span className="text-sm">
+
+                              {formatTimeRange(subEvent.schedule.start_date, subEvent.schedule.start_time, subEvent.schedule.end_date, subEvent.schedule?.end_time)}
+
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="p-3">
-                      <h4 className="font-semibold">{subEvent.name}</h4>
-
-                      {event?.schedule?.start_time && (
-                        <div className="mb-2 flex items-center space-x-2">
-                          <Clock className="h-4 w-4" />
-                          <span className="text-sm">
-
-                            {formatTimeRange(subEvent.schedule.start_date, subEvent.schedule.start_time, subEvent.schedule.end_date, subEvent.schedule?.end_time)}
-
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))
-              }
-              {/* More content */}
+                  ))
+                }
+                {/* More content */}
+              </div>
+              {/* This section needs refactoring */}
             </div>
-            {/* This section needs refactoring */}
           </div>
         </div>
+      ) : (
+        <div className="fixed left-0 top-0 flex h-full w-full items-center justify-center">
+          <Loader className="h-5 w-5 animate-spin" />
         </div>
-  ) : (
-    <div className="fixed left-0 top-0 flex h-full w-full items-center justify-center">
-      <Loader className="h-5 w-5 animate-spin" />
-    </div>
-  )
-}
+      )
+      }
     </div >
   );
 };
