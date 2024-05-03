@@ -26,7 +26,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
   const [user, setUser] = useState<any>();
   const [profile, setProfile] = useState<any>();
   const [dependant, setDependant] = useState<any>();
-  const [event, setEvents] = useState<any>();
+  const [event, setEvent] = useState<any>();
   const [selectedDependants, setSelectedDependants] = useState<any>([]);
   const [isGoing, setIsGoing] = useState<any>(false);
   const [isParentPaid, setIsParentPaid] = useState<any>(false);
@@ -54,8 +54,9 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
         .single();
       console.log(data);
       if (!error && data) {
-        setEvents(data);
-        // setParentEvent(data.parent_id?.id)
+        console.log("EVENTZZZ", data)
+        setEvent(data);
+        setParentEvent(data.parent_id)
         setIsSession(data.events);
       }
       if (currentDependent) {
@@ -68,9 +69,8 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
         }
       }
 
-      console.log("EVENT", data)
 
-      if (data.parent_id) {
+      if (data?.parent_id) {
         setIsSession(true);
         const { data: parentData, error } = await supabase
           .from("events")
@@ -228,7 +228,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                   <h1 className="text-2xl font-bold">{`${event?.name}`}</h1>
                 </div>
 
-                {!isSession ? (
+                {!event.parent_id ? (
                   !isGoing ? (
                     <div className="fixed bottom-0 inset-x-0 w-full">
                       {event?.fees?.type !== "free" ? (
