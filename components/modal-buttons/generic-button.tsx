@@ -9,7 +9,7 @@ export default function GenericButton({
   size,
   variant,
   cta,
-  classNames
+  classNames,
 }: {
   children: ReactNode;
   size: any;
@@ -19,7 +19,12 @@ export default function GenericButton({
 }) {
   const modal = useModal();
   return (
-    <Button onClick={() => modal?.show(children)} size={size} variant={variant} className={classNames}>
+    <Button
+      onClick={() => modal?.show(children)}
+      size={size}
+      variant={variant}
+      className={classNames}
+    >
       {cta}
     </Button>
   );

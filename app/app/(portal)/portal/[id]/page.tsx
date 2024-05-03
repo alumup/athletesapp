@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import TeamEvents from "@/components/events/team-events";
-import Teams from "../components/teams"
+import Teams from "../components/teams";
 import AccountPublicEvents from "@/components/events/public-events";
 
 interface Params {
@@ -80,11 +80,10 @@ const PersonPage = ({ params }: { params: Params }) => {
     fetchRosters();
   }, [params.id]);
 
-
   useEffect(() => {
     // Assuming person and profile are defined and used for filtering
     const filtered = rosters?.filter(
-      (roster: any) => roster.person_id === (person?.id || profile?.people?.id)
+      (roster: any) => roster.person_id === (person?.id || profile?.people?.id),
     );
     setFilteredRosters(filtered);
   }, [rosters, person, profile]);
@@ -136,11 +135,9 @@ const PersonPage = ({ params }: { params: Params }) => {
     if (independents && independents.length > 0) fetchToRelationships();
   }, [independents]);
 
-
-
   return (
     <div>
-      <div className="p-5 bg-gray-100">
+      <div className="bg-gray-100 p-5">
         <Link href="/portal">
           <span className="flex items-center">
             <ChevronLeft className="h-4 w-4" /> Back
@@ -171,7 +168,7 @@ const PersonPage = ({ params }: { params: Params }) => {
         {person?.accounts && (
           <>
             <div className="flex items-center">
-              <Component className="w-4 h-4 mr-1" />
+              <Component className="mr-1 h-4 w-4" />
               <h2 className="text-md font-bold">Program Events</h2>
             </div>
             <AccountPublicEvents
@@ -183,12 +180,12 @@ const PersonPage = ({ params }: { params: Params }) => {
         )}
       </div>
 
-      <div className="mt-5 mb-5 p-5 border-y border-gray-300 bg-gray-50">
+      <div className="mb-5 mt-5 border-y border-gray-300 bg-gray-50 p-5">
         <div className="flex items-center">
-          <Calendar className="w-4 h-4 mr-1" />
+          <Calendar className="mr-1 h-4 w-4" />
           <h2 className="text-md font-bold">Team Events</h2>
         </div>
-        <div className="w-full min-h-52 h-full">
+        <div className="h-full min-h-52 w-full">
           {filteredRosters ? (
             <>
               {filteredRosters.length > 0 ? (
@@ -198,13 +195,15 @@ const PersonPage = ({ params }: { params: Params }) => {
                   profile={profile}
                 />
               ) : (
-                <div className="h-full min-h-48 w-full flex flex-col justify-center items-center">
-                    <p>{person?.first_name} doesn't have any upcoming team events.</p>
+                <div className="flex h-full min-h-48 w-full flex-col items-center justify-center">
+                  <p>
+                    {person?.first_name} doesn't have any upcoming team events.
+                  </p>
                 </div>
               )}
             </>
           ) : (
-            <div className="h-full min-h-48 flex flex-col justify-center items-center">
+            <div className="flex h-full min-h-48 flex-col items-center justify-center">
               <Loader className="h-5 w-5 animate-spin" />
               <span>Looking for team events...</span>
             </div>
@@ -212,19 +211,15 @@ const PersonPage = ({ params }: { params: Params }) => {
         </div>
       </div>
 
-
       <div className="px-5">
         <div className="mt-5 flex items-center">
-          <Trophy className="w-4 h-4 mr-1" />
+          <Trophy className="mr-1 h-4 w-4" />
           <h2 className="text-md font-bold">Teams</h2>
         </div>
 
         <Teams person={person} rosters={filteredRosters} profile={profile} />
       </div>
-
-
     </div>
-
   );
 };
 
