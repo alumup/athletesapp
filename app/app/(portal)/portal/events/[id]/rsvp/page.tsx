@@ -257,30 +257,32 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                     <div className="mt-5 grid grid-cols-2 divide-x divide-gray-300 rounded border border-gray-300 p-3">
                       <div className="col-span-1 flex items-center justify-center">
                         <MapPin className="mr-2 h-4 w-4" />
-                        <span className="text-black-700 text-lg">
+                        <span className="text-black-700 text-sm md:text-lg">
                           {event?.location?.name || event?.location}
                         </span>
                       </div>
                       <div className="col-span-1 flex items-center justify-center">
                         <div className="flex items-center justify-center ">
-                          <Calendar className="mr-2 h-4 w-4" />
-                          <span className="text-lg">
+                          <Calendar className="h-4 w-4 mr-2" />
+                          <span className="text-sm md:text-lg">
                             <div className="flex items-center">
                               <div>
-                                <span className="mr-1 text-lg">
+                                <span className="text-sm md:text-lg mr-1">
                                   {formatMonth(event?.schedule?.start_date)}
                                 </span>
-                                <span className="text-lg">
+                                <span
+                                  className="text-sm md:text-lg">
                                   {formatDay(event?.schedule?.start_date)}
                                 </span>
                               </div>
                               {event?.schedule?.end_date && (
                                 <div>
                                   -
-                                  <span className="mr-1 text-lg">
+                                  <span className="text-sm md:text-lg mr-1">
                                     {formatMonth(event?.schedule?.end_date)}
                                   </span>
-                                  <span className="text-lg">
+                                  <span
+                                    className="text-sm md:text-lg">
                                     {formatDay(event?.schedule?.end_date)}
                                   </span>
                                 </div>
