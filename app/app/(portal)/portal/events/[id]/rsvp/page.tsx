@@ -371,7 +371,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
               </p>
 
               <div className="divide-y divide-gray-700 overflow-hidden rounded border border-gray-700">
-                {/* Existing content */}
+                <h3 className="text-x p-3 font-bold">Schedule</h3>
                 {event.events
                   .sort((a: any, b: any) => {
                     const aDateTime = new Date(
@@ -395,7 +395,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                       <div className="p-3">
                         <h4 className="font-semibold">{subEvent.name}</h4>
 
-                        {event?.schedule?.start_time && (
+                        {subEvent?.schedule?.start_time && (
                           <div className="mb-2 flex items-center space-x-2">
                             <Clock className="h-4 w-4" />
                             <span className="text-sm">
