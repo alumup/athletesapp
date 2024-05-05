@@ -17,7 +17,7 @@ import Link from "next/link";
 export default function Event({ event, person }: { event: any; person: any }) {
   return (
 
-    <div className="flex w-64 flex-col justify-between rounded-r-lg bg-gray-50 p-2">
+    <div className="flex w-64 flex-col justify-between rounded-r-lg bg-white p-2">
       <div className="relative h-32 w-full rounded-lg">
         <Image
           className=" object-cover"
