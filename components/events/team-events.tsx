@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { formatStartTime, formatDay, formatMonth } from "@/lib/utils";
+import { formatStartTime, formatDay, formatMonth, formatDate } from "@/lib/utils";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import {
   AlarmClock,
@@ -66,7 +66,14 @@ export default function TeamEvents({ dependent, rosters }: any) {
   return (
     <div className={`h-full transition-all ${isVisible ? "" : "blur-lg"}`}>
       <div className="flex space-x-2 overflow-x-auto">
-        {events?.filter((event: any) => !event.parent_id).map((event: any) => (
+        {events
+          ?.filter((event: any) => !event.parent_id)
+          .sort((a: any, b: any) => {
+            const aDateTime = new Date(formatDate(a.schedule.start_date, a.schedule.start_time));
+            const bDateTime = new Date(formatDate(b.schedule.start_date, b.schedule.start_time));
+            return aDateTime.getTime() - bDateTime.getTime();
+          })
+          .map((event: any) => (
           <>
             <div
               key={event?.id}
@@ -188,9 +195,14 @@ export default function TeamEvents({ dependent, rosters }: any) {
                 )}
               </div>
             </div>
-            {
-              event?.events && event.rsvp.find((rs: any) => rs.status === "paid") && (
-                event.events.map((se: any, index: any) => (
+              {event?.events && event.rsvp.some((rs: any) => rs.person_id === personId && rs.status === "paid") && (
+                event.events
+                  .sort((a: any, b: any) => {
+                    const aDateTime = new Date(formatDate(a.schedule.start_date, a.schedule.start_time));
+                    const bDateTime = new Date(formatDate(b.schedule.start_date, b.schedule.start_time));
+                    return aDateTime.getTime() - bDateTime.getTime();
+                  })
+                  .map((se: any, index: any) => (
                   <div key={index} className="my-3 flex rounded-lg border border-gray-200">
                     <Event event={se} person={person} />
                   </div>
