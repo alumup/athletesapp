@@ -1,50 +1,27 @@
 "use client";
 
 import React, { useState } from "react";
-import { CheckCircleIcon } from "lucide-react";
+import { CheckCircleIcon, ChevronRight } from "lucide-react";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreatePaymentModal from "@/components/modal/create-payment-modal";
 import useAccount from "@/hooks/useAccount";
+import Link from "next/link";
+
 
 const Teams = ({ rosters, person, profile }) => {
   const { account } = useAccount();
 
-  function hasPaidFee(person, roster) {
-    if (roster.fees.amount === 0) {
-      return true;
-    }
-    // Check if there is a payment for the fee by the person
-    const paymentsForPerson = roster.fees.payments.filter(
-      (payment) => payment.person_id === person.id,
-    );
 
-    // Sort the payments by date, most recent first
-    paymentsForPerson.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
-
-    // Check if any of the payments status are 'succeeded'
-    const succeededPayment = paymentsForPerson.find(
-      (payment) => payment.status === "succeeded",
-    );
-
-    // If there is a 'succeeded' payment, return true
-    if (succeededPayment) {
-      return true;
-    }
-
-    // If there is no 'succeeded' payment, return false
-    return false;
-  }
 
   return (
     <div className="mt-5 space-y-4">
       {rosters && rosters.length > 0 ? (
         <>
           {rosters.map((roster, i) => (
-            <div
+            <Link
               key={i}
-              className="w-full rounded border border-gray-300 bg-gray-50 px-2 py-4"
+              href={`/portal/teams/${roster.teams.id}`}
+              className="flex w-full rounded border border-gray-300 bg-gray-50 px-2 py-4"
             >
               <div className="flex w-full items-center justify-between">
                 <div className="flex items-center">
@@ -56,7 +33,7 @@ const Teams = ({ rosters, person, profile }) => {
                   </div>
                 </div>
                 <div>
-                  {hasPaidFee(person, roster) ? (
+                  {/* {hasPaidFee(person, roster) ? (
                     <CheckCircleIcon className="h-5 w-5 text-green-500" />
                   ) : (
                     <GenericButton
@@ -73,10 +50,11 @@ const Teams = ({ rosters, person, profile }) => {
                         person={person}
                       />
                     </GenericButton>
-                  )}
+                  )} */}
+                  <ChevronRight className="h-5 w-5 text-black" />
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </>
       ) : (

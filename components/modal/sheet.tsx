@@ -20,7 +20,7 @@ export default function SheetModal({
 }) {
   return (
     <Sheet>
-      <SheetTrigger className="rounded border border-zinc-900 px-3 py-2 text-sm text-zinc-900">
+      <SheetTrigger className="rounded border border-black px-3 py-2 text-sm text-black">
         {cta}
       </SheetTrigger>
       <SheetContent>

@@ -19,7 +19,6 @@ export default function CreateEventModal({
   event?: any;
 }) {
   const { refresh } = useRouter();
-  const params = useParams();
   const modal = useModal();
 
   const supabase = createClientComponentClient();
@@ -43,10 +42,7 @@ export default function CreateEventModal({
     formState: { errors },
     control,
   } = useForm();
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "session",
-  });
+
 
   const onSubmit = async (data: any) => {
     const { error } = await supabase.from("events").insert([
@@ -54,7 +50,7 @@ export default function CreateEventModal({
         account_id: account?.id,
         name: data.name,
         description: data.description,
-        team_id: team?.id || null,
+        team_id: team?.id || event?.teams.id,
         location: {
           name: data.location,
         },
@@ -83,200 +79,204 @@ export default function CreateEventModal({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="scrollable w-full rounded-md bg-white dark:bg-black md:max-w-md md:border md:border-stone-200 md:shadow dark:md:border-stone-700"
+      className="scrollable w-full rounded-md bg-white md:max-w-5xl md:border md:border-gray-300 md:shadow"
     >
       <div className="relative flex flex-col space-y-4 p-5 md:p-10">
         <h2 className="font-cal text-2xl dark:text-white">New event</h2>
-        {event && (
-          <div className="flex flex-col space-y-2">
+        <div className="grid grid-cols-2 gap-5">
+          {event && (
+            <div className="col-span-2 flex flex-col space-y-2">
+              <label
+                htmlFor="team"
+                className="text-sm font-medium text-gray-700 dark:text-stone-300"
+              >
+                Parent Event
+              </label>
+              <input
+                type="text"
+                id="team"
+                disabled
+                value={event?.name}
+                className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
+                {...register("team", { required: false, value: event?.id })}
+              />
+            </div>
+          )}
+
+          {team || event && (
+            <div className="col-span-2 flex flex-col space-y-2">
+              <label
+                htmlFor="team"
+                className="text-sm font-medium text-gray-700 dark:text-stone-300"
+              >
+                Team
+              </label>
+              <input
+                type="text"
+                id="team"
+                disabled
+                value={team?.name || event?.teams?.name}
+                className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
+                {...register("team", { required: false, value: team?.id || event?.teams.id })}
+              />
+            </div>
+          )}
+
+          <div className="col-span-2 flex flex-col space-y-2">
             <label
-              htmlFor="team"
+              htmlFor="name"
               className="text-sm font-medium text-gray-700 dark:text-stone-300"
             >
-              Parent Event
+              Name
             </label>
             <input
               type="text"
-              id="team"
-              disabled
-              value={event?.name}
+              id="name"
               className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-              {...register("team", { required: false, value: event?.id })}
+              {...register("name", { required: true })}
             />
           </div>
-        )}
-        <div className="flex flex-col space-y-2">
-          <label
-            htmlFor="name"
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
-          >
-            Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            {...register("name", { required: true })}
-          />
-        </div>
 
-        <div className="flex flex-col space-y-2">
-          <label
-            htmlFor="description"
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
-          >
-            Description
-          </label>
-          <input
-            type="text"
-            id="description"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            {...register("description", { required: true })}
-          />
-        </div>
-
-        {team && (
-          <div className="flex flex-col space-y-2">
+          <div className="col-span-2 flex flex-col space-y-2">
             <label
-              htmlFor="team"
+              htmlFor="description"
               className="text-sm font-medium text-gray-700 dark:text-stone-300"
             >
-              Team
+              Description
             </label>
             <input
               type="text"
-              id="team"
-              disabled
-              value={team?.name}
+              id="description"
               className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-              {...register("team", { required: false, value: team?.id })}
+              {...register("description", { required: true })}
             />
           </div>
-        )}
 
-        <div className="flex flex-col space-y-2">
-          <label
-            htmlFor="location"
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
-          >
-            Location
-          </label>
-          <input
-            type="text"
-            id="location"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            {...register("location", { required: true })}
-          />
-        </div>
-        <div className="flex flex-col space-y-2">
-          <label
-            htmlFor="cover_image"
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
-          >
-            Cover Image
-          </label>
-          <input
-            type="text"
-            id="cover_image"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            {...register("cover_image", { required: false })}
-          />
-        </div>
-        <div className="flex justify-between justify-stretch">
+
           <div className="flex flex-col space-y-2">
             <label
-              htmlFor="start_date"
+              htmlFor="location"
               className="text-sm font-medium text-gray-700 dark:text-stone-300"
             >
-              Start Date
+              Location
             </label>
             <input
-              type="date"
-              id="start_date"
+              type="text"
+              id="location"
               className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-              {...register("start_date", { required: true })}
+              {...register("location", { required: true })}
+            />
+          </div>
+          {/* <div className="flex flex-col space-y-2">
+            <label
+              htmlFor="cover_image"
+              className="text-sm font-medium text-gray-700 dark:text-stone-300"
+            >
+              Cover Image
+            </label>
+            <input
+              type="text"
+              id="cover_image"
+              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
+              {...register("cover_image", { required: false })}
+            />
+          </div> */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="flex flex-col space-y-2">
+              <label
+                htmlFor="start_date"
+                className="text-sm font-medium text-gray-700 dark:text-stone-300"
+              >
+                Start Date
+              </label>
+              <input
+                type="date"
+                id="start_date"
+                className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
+                {...register("start_date", { required: true })}
+              />
+            </div>
+            <div className="flex flex-col space-y-2">
+              <label
+                htmlFor="end_date"
+                className="text-sm font-medium text-gray-700 dark:text-stone-300"
+              >
+                End Date
+              </label>
+              <input
+                type="date"
+                id="end_date"
+                className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
+                {...register("end_date", { required: true })}
+              />
+            </div>
+          </div>
+          <div className="flex flex-col space-y-2">
+            <label
+              htmlFor="fees"
+              className="text-sm font-medium text-gray-700 dark:text-stone-300"
+            >
+              Fees
+            </label>
+            <select
+              id="fees"
+              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
+              {...register("fees", { required: true })}
+            >
+              {fees.map((fee: any) => {
+                return (
+                  <option
+                    key={fee.id + Math.random()}
+                    value={fee.id}
+                  >{`${fee.name} - $${fee.amount}`}</option>
+                );
+              })}
+            </select>
+          </div>
+          <div className="flex flex-col space-y-2">
+            <label
+              htmlFor="visibility"
+              className="text-sm font-medium text-gray-700 dark:text-stone-300"
+            >
+              Visibility
+            </label>
+            <select
+              id="visibility"
+              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
+              {...register("visibility", { required: true })}
+            >
+              <option value="public">Public</option>
+              <option value="private">Private</option>
+            </select>
+          </div>
+          <div className="flex flex-col space-y-2">
+            <label
+              htmlFor={`start_time`}
+              className="text-sm font-medium text-gray-700 dark:text-stone-300"
+            >
+              Start Time:
+            </label>
+            <input
+              className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
+              type="time"
+              id={`start_time`}
+              {...register(`start_time`)}
             />
           </div>
           <div className="flex flex-col space-y-2">
             <label
-              htmlFor="end_date"
+              htmlFor={`end_time`}
               className="text-sm font-medium text-gray-700 dark:text-stone-300"
             >
-              End Date
+              End Time:
             </label>
             <input
-              type="date"
-              id="end_date"
               className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-              {...register("end_date", { required: true })}
+              type="time"
+              id={`end_time`}
+              {...register(`end_time`)}
             />
           </div>
-        </div>
-        <div className="flex flex-col space-y-2">
-          <label
-            htmlFor="fees"
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
-          >
-            Fees
-          </label>
-          <select
-            id="fees"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            {...register("fees", { required: true })}
-          >
-            {fees.map((fee: any) => {
-              return (
-                <option
-                  key={fee.id + Math.random()}
-                  value={fee.id}
-                >{`${fee.name} - $${fee.amount}`}</option>
-              );
-            })}
-          </select>
-        </div>
-        <div className="flex flex-col space-y-2">
-          <label
-            htmlFor="visibility"
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
-          >
-            Visibility
-          </label>
-          <select
-            id="visibility"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            {...register("visibility", { required: true })}
-          >
-            <option value="public">Public</option>
-            <option value="private">Private</option>
-          </select>
-        </div>
-        <div className="flex flex-col space-y-2">
-          <label
-            htmlFor={`start_time`}
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
-          >
-            Start Time:
-          </label>
-          <input
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            type="time"
-            id={`start_time`}
-            {...register(`start_time`)}
-          />
-        </div>
-        <div className="flex flex-col space-y-2">
-          <label
-            htmlFor={`end_time`}
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
-          >
-            End Time:
-          </label>
-          <input
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            type="time"
-            id={`end_time`}
-            {...register(`end_time`)}
-          />
         </div>
       </div>
 

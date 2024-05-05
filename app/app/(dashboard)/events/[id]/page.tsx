@@ -19,7 +19,7 @@ export default async function EventPage({
   async function fetchEvent() {
     const { data: events, error } = await supabase
       .from("events")
-      .select("*")
+      .select("*, teams(*)")
       .eq("id", params.id)
       .single();
 
@@ -27,7 +27,7 @@ export default async function EventPage({
       console.error(error);
       return;
     }
-
+   
     return events;
   }
 
@@ -77,10 +77,10 @@ export default async function EventPage({
   return (
     <div className="flex flex-col space-y-12">
       <div className="flex flex-col space-y-6">
-        <div className="flex justify-between">
+        <div className="flex flex-col md:flex-row justify-between">
           <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
             <div className="flex flex-col space-y-0.5">
-              <h1 className="font-cal truncate text-base font-bold dark:text-white sm:w-auto sm:text-3xl md:text-xl">
+              <h1 className="text-2xl font-bold dark:text-white sm:w-auto sm:text-3xl md:text-xl">
                 {event.name}
               </h1>
               <p className="w-full max-w-[700px] font-light text-gray-700">

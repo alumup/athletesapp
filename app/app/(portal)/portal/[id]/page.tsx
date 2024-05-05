@@ -9,6 +9,9 @@ import TeamEvents from "@/components/events/team-events";
 import Teams from "../components/teams";
 import AccountPublicEvents from "@/components/events/public-events";
 
+import SheetModal from "@/components/modal/sheet";
+import EditPerson from "./edit";
+
 interface Params {
   id: string;
 }
@@ -159,7 +162,13 @@ const PersonPage = ({ params }: { params: Params }) => {
               <h1 className="text-4xl font-bold">{person?.last_name}</h1>
             </div>
             <div>
-              <Link href="/portal">Edit</Link>
+              <SheetModal
+                cta={`Edit`}
+                title={`Edit ${person?.first_name}`}
+                description={""}
+              >
+                <EditPerson person={person} account={account} />
+              </SheetModal>
             </div>
           </div>
         </div>
