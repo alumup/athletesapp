@@ -53,9 +53,6 @@ const Teams = ({ rosters, person, profile }) => {
                     <span className="text-md font-bold">
                       {roster.teams?.name}
                     </span>
-                    <span className="text-sm font-light">
-                      ${roster.fees?.amount}
-                    </span>
                   </div>
                 </div>
                 <div>

@@ -185,17 +185,27 @@ export const formatDate = (date: string, time: string): string => {
 };
 
 export const formatDay = (date: string) => {
+  const parsedDate = new Date(date);
+  if (isNaN(parsedDate.getTime())) {
+    console.error("Invalid date provided:", date);
+    return "Invalid Date"; // Return a default or error message
+  }
   return new Intl.DateTimeFormat("en-US", {
     timeZone: "UTC",
     day: "numeric",
-  }).format(new Date(date));
+  }).format(parsedDate);
 };
 
 export const formatMonth = (date: string) => {
+  const parsedDate = new Date(date);
+  if (isNaN(parsedDate.getTime())) {
+    console.error("Invalid date provided:", date);
+    return "Invalid Date"; // Return a default or error message
+  }
   return new Intl.DateTimeFormat("en-US", {
     timeZone: "UTC",
     month: "short",
-  }).format(new Date(date));
+  }).format(parsedDate);
 };
 
 export const formatTimeRange = (
@@ -262,7 +272,7 @@ export const formatStartTime = (startTime: string): string => {
     : `1970-01-01T${startTime}`;
 
   const options = {
-    timeZone: "UTC",
+    timeZone: "America/Denver", // Set to Denver time zone
     hour: "numeric" as "numeric",
     minute: "2-digit" as "2-digit",
     hour12: true,
