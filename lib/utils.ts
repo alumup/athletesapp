@@ -156,6 +156,34 @@ export function getInitials(firstName: string, lastName: string) {
   return firstInitial + lastInitial;
 }
 
+export function hasPaidFee(person: any, roster: any) {
+  if (roster.fees.amount === 0) {
+    return true;
+  }
+  // Check if there is a payment for the fee by the person
+  const paymentsForPerson = roster.fees.payments.filter(
+    (payment: any) => payment.person_id === person.id,
+  );
+
+  // Sort the payments by date, most recent first
+  paymentsForPerson.sort(
+    (a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
+
+  // Check if any of the payments status are 'succeeded'
+  const succeededPayment = paymentsForPerson.find(
+    (payment: any) => payment.status === "succeeded",
+  );
+
+  // If there is a 'succeeded' payment, return true
+  if (succeededPayment) {
+    return true;
+  }
+
+  // If there is no 'succeeded' payment, return false
+  return false;
+}
+
 export const formatDate = (date: string, time: string): string => {
   console.log("DATE", date);
   console.log("TIME", time);
@@ -285,4 +313,16 @@ export const formatStartTime = (startTime: string): string => {
   }
 
   return new Intl.DateTimeFormat("en-US", options).format(start);
+};
+
+
+export const formatDateOnly = (dateString: string): string => {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    console.error("Invalid date provided:", dateString);
+    return "Invalid Date"; // Handle the error as needed
+  }
+
+  // Use toISOString and slice to get the date in YYYY-MM-DD format in UTC
+  return date.toISOString().slice(0, 10);
 };
