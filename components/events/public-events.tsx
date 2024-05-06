@@ -71,7 +71,7 @@ export default function AccountPublicEvents({
                     }
                     alt={event?.name}
                   />
-                  <div className="absolute left-2 top-2 rounded bg-lime-300 border border-black p-2 text-black">
+                  <div className="absolute left-2 top-2 rounded border border-black bg-lime-300 p-2 text-black">
                     <div className="flex flex-col items-center">
                       <span className="text-md font-bold">
                         {formatDay(event?.schedule?.start_date)}
@@ -104,11 +104,11 @@ export default function AccountPublicEvents({
                       {event?.schedule?.start_time
                         ? formatStartTime(event.schedule.start_time)
                         : event?.schedule?.sessions?.[0]
-                          ? formatStartTime(
+                        ? formatStartTime(
                             event.schedule.sessions[0].start_time ||
-                            event.schedule.sessions[0]["start-time"],
+                              event.schedule.sessions[0]["start-time"],
                           )
-                          : ""}
+                        : ""}
                     </span>
                   </div>
                 )}
@@ -120,7 +120,7 @@ export default function AccountPublicEvents({
                 ) ? (
                   <Link
                     href={`/portal/events/${event.id}/rsvp?dependent=${selectedDependent?.id}`}
-                    className="text-xs self-end rounded border bg-white px-3 py-2 font-bold"
+                    className="self-end rounded border bg-white px-3 py-2 text-xs font-bold"
                   >
                     <div className="flex justify-between">
                       <CheckCircle className="mr-2 h-4 w-4" color="green" />

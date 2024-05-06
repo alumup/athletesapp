@@ -22,8 +22,8 @@ const TeamPage = ({ params }: { params: { id: string } }) => {
         .select("*, rosters(*)")
         .eq("id", params.id)
         .single();
-      
-      console.log("TEAM", data)
+
+      console.log("TEAM", data);
 
       if (error) toast("Error fetching team.");
       else setTeam(data);

@@ -315,7 +315,6 @@ export const formatStartTime = (startTime: string): string => {
   return new Intl.DateTimeFormat("en-US", options).format(start);
 };
 
-
 export const formatDateOnly = (dateString: string): string => {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) {

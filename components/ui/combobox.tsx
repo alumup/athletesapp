@@ -1,30 +1,28 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import React, { useState, useEffect } from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-
-
+} from "@/components/ui/popover";
 
 export function Combobox({ data }: any) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
 
-  console.log("DATA", data)
+  console.log("DATA", data);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -59,7 +57,7 @@ export function Combobox({ data }: any) {
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === item.value ? "opacity-100" : "opacity-0"
+                    value === item.value ? "opacity-100" : "opacity-0",
                   )}
                 />
                 {item.label}
@@ -68,7 +66,6 @@ export function Combobox({ data }: any) {
           </CommandGroup>
         </Command>
       </PopoverContent>
-
     </Popover>
   );
 }

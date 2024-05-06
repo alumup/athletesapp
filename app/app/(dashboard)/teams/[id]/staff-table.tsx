@@ -3,10 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { toast } from "sonner";
-import {
-  TrashIcon,
-  ArrowRightIcon,
-} from "@radix-ui/react-icons";
+import { TrashIcon, ArrowRightIcon } from "@radix-ui/react-icons";
 
 import {
   ColumnDef,

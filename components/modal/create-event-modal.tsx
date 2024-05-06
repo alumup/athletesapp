@@ -43,7 +43,6 @@ export default function CreateEventModal({
     control,
   } = useForm();
 
-
   const onSubmit = async (data: any) => {
     const { error } = await supabase.from("events").insert([
       {
@@ -103,24 +102,28 @@ export default function CreateEventModal({
             </div>
           )}
 
-          {team?.id || event?.id && (
-            <div className="col-span-2 flex flex-col space-y-2">
-              <label
-                htmlFor="team"
-                className="text-sm font-medium text-gray-700 dark:text-stone-300"
-              >
-                Team
-              </label>
-              <input
-                type="text"
-                id="team"
-                disabled
-                value={team?.name || event?.teams?.name}
-                className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-                {...register("team", { required: false, value: team?.id || event?.teams.id })}
-              />
-            </div>
-          )}
+          {team?.id ||
+            (event?.id && (
+              <div className="col-span-2 flex flex-col space-y-2">
+                <label
+                  htmlFor="team"
+                  className="text-sm font-medium text-gray-700 dark:text-stone-300"
+                >
+                  Team
+                </label>
+                <input
+                  type="text"
+                  id="team"
+                  disabled
+                  value={team?.name || event?.teams?.name}
+                  className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
+                  {...register("team", {
+                    required: false,
+                    value: team?.id || event?.teams.id,
+                  })}
+                />
+              </div>
+            ))}
 
           <div className="col-span-2 flex flex-col space-y-2">
             <label
@@ -151,7 +154,6 @@ export default function CreateEventModal({
               {...register("description", { required: true })}
             />
           </div>
-
 
           <div className="flex flex-col space-y-2">
             <label

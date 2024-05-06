@@ -30,10 +30,7 @@ export default function AddToStaffModal({
     formState: { errors },
   } = useForm();
 
-
-
   const onSubmit = async (data: any) => {
-
     // add the person to staff
     const { error } = await supabase.from("staff").insert([
       {
@@ -45,12 +42,10 @@ export default function AddToStaffModal({
       console.log("FORM ERRORS: ", error);
     } else {
       modal?.hide();
-      toast.success("staff member added to team")
+      toast.success("staff member added to team");
       onClose();
       refresh();
-      
     }
-
   };
 
   return (
@@ -87,7 +82,6 @@ export default function AddToStaffModal({
     </form>
   );
 }
-
 
 function CreateStaffButton() {
   const { pending } = useFormStatus();

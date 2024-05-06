@@ -28,7 +28,6 @@ const PersonPage = ({ params }: { params: Params }) => {
 
   const [person, setPerson] = useState<any>(null);
 
-  
   useEffect(() => {
     const getPerson = async () => {
       const { data, error } = await supabase
@@ -72,16 +71,13 @@ const PersonPage = ({ params }: { params: Params }) => {
     };
 
     getAccount();
-
-
   }, [params.id]);
-
 
   useEffect(() => {
     const fetchRosters = async () => {
       const personId = person?.id || profile?.people?.id;
 
-      console.log("PROFILE", personId)
+      console.log("PROFILE", personId);
 
       const { data: roster, error } = await supabase
         .from("rosters")
@@ -104,7 +100,7 @@ const PersonPage = ({ params }: { params: Params }) => {
         console.error("Error fetching staff status:", staffError);
         return;
       }
-      console.log("STAFF DATA", staffData)
+      console.log("STAFF DATA", staffData);
       // Merge staff data into roster if they are on staff
       if (staffData.length > 0) {
         const mergedRosters = [...roster, ...staffData];

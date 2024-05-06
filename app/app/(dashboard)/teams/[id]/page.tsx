@@ -1,8 +1,6 @@
 "use client";
 
-import {
-  createClientComponentClient,
-} from "@supabase/auth-helpers-nextjs";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 import { TeamTable } from "./table";
 import { StaffTable } from "./staff-table";
@@ -11,7 +9,7 @@ import GenericButton from "@/components/modal-buttons/generic-button";
 import CreateEventModal from "@/components/modal/create-event-modal";
 import { useEffect, useState } from "react";
 import AddToStaffModal from "@/components/modal/add-to-staff-modal";
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation";
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -61,18 +59,15 @@ async function getPrimaryContacts(supabase: any, person: any) {
   }
 }
 
-
-
 export default function TeamPage({ params }: { params: { id: string } }) {
   // const supabase = createServerComponentClient({ cookies })
   const supabase = createClientComponentClient();
-  const router = useRouter()
+  const router = useRouter();
   const [account, setAccount] = useState<any>({});
   const [user, setUser] = useState<any>({});
   const [team, setTeam] = useState<any>({});
 
   const [peopleWithPrimaryEmail, setPeopleWithPrimaryEmail] = useState<any>([]);
-
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -87,7 +82,9 @@ export default function TeamPage({ params }: { params: { id: string } }) {
     async function fetchTeam() {
       const { data: team, error } = await supabase
         .from("teams")
-        .select("*, rosters(*, people(*), fees(*, payments(*))), staff(*, people(*))")
+        .select(
+          "*, rosters(*, people(*), fees(*, payments(*))), staff(*, people(*))",
+        )
         .eq("id", params.id)
         .single();
 
@@ -95,15 +92,12 @@ export default function TeamPage({ params }: { params: { id: string } }) {
         console.error(error);
         return;
       }
-      console.log("TEAM", team)
+      console.log("TEAM", team);
       setTeam(team);
     }
 
-
     fetchTeam();
-
   }, []);
-
 
   useEffect(() => {
     const fetchAccount = async () => {
@@ -120,26 +114,29 @@ export default function TeamPage({ params }: { params: { id: string } }) {
     fetchAccount();
   }, [user]);
 
-
   useEffect(() => {
     const getPrimaryEmail = async () => {
       if (team.rosters) {
-        const peopleWithPrimaryEmailPromises = team.rosters.map(async (r: any) => {
-          const primaryPeople = await getPrimaryContacts(supabase, r.people);
-          return {
-            ...r.people,
-            primary_contacts: primaryPeople,
-            fees: r.fees || {
-              id: "",
-              name: "",
-              description: "",
-              amount: null,
-              type: "",
-            },
-          };
-        });
+        const peopleWithPrimaryEmailPromises = team.rosters.map(
+          async (r: any) => {
+            const primaryPeople = await getPrimaryContacts(supabase, r.people);
+            return {
+              ...r.people,
+              primary_contacts: primaryPeople,
+              fees: r.fees || {
+                id: "",
+                name: "",
+                description: "",
+                amount: null,
+                type: "",
+              },
+            };
+          },
+        );
 
-        const peopleWithPrimaryEmails = await Promise.all(peopleWithPrimaryEmailPromises);
+        const peopleWithPrimaryEmails = await Promise.all(
+          peopleWithPrimaryEmailPromises,
+        );
         setPeopleWithPrimaryEmail(peopleWithPrimaryEmails);
       }
     };
@@ -166,10 +163,7 @@ export default function TeamPage({ params }: { params: { id: string } }) {
               variant={undefined}
               classNames=""
             >
-              <AddToStaffModal
-                team={team}
-                onClose={() => router.refresh()}
-              />
+              <AddToStaffModal team={team} onClose={() => router.refresh()} />
             </GenericButton>
             <GenericButton
               cta="New Event"
@@ -180,7 +174,6 @@ export default function TeamPage({ params }: { params: { id: string } }) {
               <CreateEventModal account={account} team={team} />
             </GenericButton>
           </div>
-
         </div>
         <div className="mt-10">
           <h2 className="mb-3 text-xs font-bold uppercase text-zinc-500">
@@ -188,7 +181,10 @@ export default function TeamPage({ params }: { params: { id: string } }) {
           </h2>
           <div className="space-y-2">
             {team?.staff?.map((staffMember: any, index: number) => (
-              <div key={index} className="flex items-center border border-gray-200 p-3 rounded text-sm text-gray-700">
+              <div
+                key={index}
+                className="flex items-center rounded border border-gray-200 p-3 text-sm text-gray-700"
+              >
                 <Avatar className="mr-2">
                   <AvatarFallback className="text-black">
                     {getInitials(

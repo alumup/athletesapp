@@ -263,26 +263,24 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                       </div>
                       <div className="col-span-1 flex items-center justify-center">
                         <div className="flex items-center justify-center ">
-                          <Calendar className="h-4 w-4 mr-2" />
+                          <Calendar className="mr-2 h-4 w-4" />
                           <span className="text-sm md:text-lg">
                             <div className="flex items-center">
                               <div>
-                                <span className="text-sm md:text-lg mr-1">
+                                <span className="mr-1 text-sm md:text-lg">
                                   {formatMonth(event?.schedule?.start_date)}
                                 </span>
-                                <span
-                                  className="text-sm md:text-lg">
+                                <span className="text-sm md:text-lg">
                                   {formatDay(event?.schedule?.start_date)}
                                 </span>
                               </div>
                               {event?.schedule?.end_date && (
                                 <div>
                                   -
-                                  <span className="text-sm md:text-lg mr-1">
+                                  <span className="mr-1 text-sm md:text-lg">
                                     {formatMonth(event?.schedule?.end_date)}
                                   </span>
-                                  <span
-                                    className="text-sm md:text-lg">
+                                  <span className="text-sm md:text-lg">
                                     {formatDay(event?.schedule?.end_date)}
                                   </span>
                                 </div>

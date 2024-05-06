@@ -168,7 +168,6 @@ export default function EditPerson({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full p-1">
       <div className="relative flex flex-col space-y-4">
-
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-1 flex flex-col space-y-2">
             <label

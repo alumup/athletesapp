@@ -10,22 +10,14 @@ import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { toast } from "sonner";
 
-
-export default function EditPerson({
-  person,
-}: {
-  person: any;
-  account: any;
-}) {
+export default function EditPerson({ person }: { person: any; account: any }) {
   const supabase = createClientComponentClient();
-
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-
 
   const onSubmit = async (data: any) => {
     // Update the person
@@ -54,14 +46,13 @@ export default function EditPerson({
     toast.success(`${person.first_name} updated`);
   };
 
-
   useEffect(() => {
     if (person.birthdate) {
       console.log(formatDateOnly(person.birthdate));
     }
   }, [person.birthdate]);
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="w-full relative p-1">
+    <form onSubmit={handleSubmit(onSubmit)} className="relative w-full p-1">
       <div className="relative flex flex-col space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-1 flex flex-col space-y-2">
@@ -155,7 +146,9 @@ export default function EditPerson({
           <input
             type="date"
             id="birthdate"
-            defaultValue={person?.birthdate ? formatDateOnly(person?.birthdate) : ""}
+            defaultValue={
+              person?.birthdate ? formatDateOnly(person?.birthdate) : ""
+            }
             className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             {...register("birthdate")}
           />
@@ -209,19 +202,23 @@ export default function EditPerson({
     </form>
   );
 }
-function SubmitForm({person}: any) {
+function SubmitForm({ person }: any) {
   const { pending } = useFormStatus();
   return (
     <button
       className={cn(
-        "flex w-full py-4 px-3 items-center justify-center space-x-2 rounded border text-sm transition-all focus:outline-none",
+        "flex w-full items-center justify-center space-x-2 rounded border px-3 py-4 text-sm transition-all focus:outline-none",
         pending
           ? "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"
           : "border-black bg-black text-white hover:bg-white hover:text-black",
       )}
       disabled={pending}
     >
-      {pending ? <LoadingDots color="#808080" /> : <p>Update {person?.first_name}</p>}
+      {pending ? (
+        <LoadingDots color="#808080" />
+      ) : (
+        <p>Update {person?.first_name}</p>
+      )}
     </button>
   );
 }

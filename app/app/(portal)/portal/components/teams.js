@@ -7,11 +7,8 @@ import CreatePaymentModal from "@/components/modal/create-payment-modal";
 import useAccount from "@/hooks/useAccount";
 import Link from "next/link";
 
-
 const Teams = ({ rosters, person, profile }) => {
   const { account } = useAccount();
-
-
 
   return (
     <div className="mt-5 space-y-4">
