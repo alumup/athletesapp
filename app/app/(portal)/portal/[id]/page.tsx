@@ -27,6 +27,8 @@ const PersonPage = ({ params }: { params: Params }) => {
   const [filteredRosters, setFilteredRosters] = useState([]);
 
   const [person, setPerson] = useState<any>(null);
+
+  
   useEffect(() => {
     const getPerson = async () => {
       const { data, error } = await supabase
@@ -71,25 +73,49 @@ const PersonPage = ({ params }: { params: Params }) => {
 
     getAccount();
 
+
+  }, [params.id]);
+
+
+  useEffect(() => {
     const fetchRosters = async () => {
+      const personId = person?.id || profile?.people?.id;
+
+      console.log("PROFILE", personId)
+
       const { data: roster, error } = await supabase
         .from("rosters")
         .select("*, teams(*), fees(*, payments(*))")
+        .eq("person_id", personId)
         .order("created_at", { ascending: false });
 
-      setRosters(roster);
+      if (error) {
+        console.error("Error fetching rosters:", error);
+        return;
+      }
+
+      // Check if the person or profile is on staff
+      const { data: staffData, error: staffError } = await supabase
+        .from("staff")
+        .select("*, people(*), teams(*)")
+        .eq("person_id", personId);
+
+      if (staffError) {
+        console.error("Error fetching staff status:", staffError);
+        return;
+      }
+      console.log("STAFF DATA", staffData)
+      // Merge staff data into roster if they are on staff
+      if (staffData.length > 0) {
+        const mergedRosters = [...roster, ...staffData];
+        setRosters(mergedRosters);
+      } else {
+        setRosters(roster);
+      }
     };
 
     fetchRosters();
-  }, [params.id]);
-
-  useEffect(() => {
-    // Assuming person and profile are defined and used for filtering
-    const filtered = rosters?.filter(
-      (roster: any) => roster.person_id === (person?.id || profile?.people?.id),
-    );
-    setFilteredRosters(filtered);
-  }, [rosters, person, profile]);
+  }, [person, profile]);
 
   useEffect(() => {
     const getIndependents = async () => {
@@ -195,12 +221,12 @@ const PersonPage = ({ params }: { params: Params }) => {
           <h2 className="text-md font-bold">Team Events</h2>
         </div>
         <div className="h-full min-h-52 w-full">
-          {filteredRosters ? (
+          {rosters ? (
             <>
-              {filteredRosters.length > 0 ? (
+              {rosters.length > 0 ? (
                 <TeamEvents
                   dependent={person || profile?.people}
-                  rosters={filteredRosters}
+                  rosters={rosters}
                   profile={profile}
                 />
               ) : (
@@ -226,7 +252,7 @@ const PersonPage = ({ params }: { params: Params }) => {
           <h2 className="text-md font-bold">Teams</h2>
         </div>
 
-        <Teams person={person} rosters={filteredRosters} profile={profile} />
+        <Teams person={person} rosters={rosters} profile={profile} />
       </div>
     </div>
   );
