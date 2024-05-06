@@ -2,16 +2,21 @@
 
 import {
   createClientComponentClient,
-  createServerComponentClient,
 } from "@supabase/auth-helpers-nextjs";
 
 import { TeamTable } from "./table";
+import { StaffTable } from "./staff-table";
+
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreateEventModal from "@/components/modal/create-event-modal";
 import { useEffect, useState } from "react";
+import AddToStaffModal from "@/components/modal/add-to-staff-modal";
+import { useRouter } from 'next/navigation'
+import { getInitials } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 async function getPrimaryContacts(supabase: any, person: any) {
-  if (person.dependent) {
+  if (person?.dependent) {
     try {
       // Fetch the primary relationships
       const { data: relationships, error: relationshipError } = await supabase
@@ -56,14 +61,19 @@ async function getPrimaryContacts(supabase: any, person: any) {
   }
 }
 
+
+
 export default function TeamPage({ params }: { params: { id: string } }) {
   // const supabase = createServerComponentClient({ cookies })
   const supabase = createClientComponentClient();
+  const router = useRouter()
   const [account, setAccount] = useState<any>({});
   const [user, setUser] = useState<any>({});
   const [team, setTeam] = useState<any>({});
-  const [roster, setRoster] = useState<any>();
+
   const [peopleWithPrimaryEmail, setPeopleWithPrimaryEmail] = useState<any>([]);
+
+
   useEffect(() => {
     const fetchUser = async () => {
       const {
@@ -77,7 +87,7 @@ export default function TeamPage({ params }: { params: { id: string } }) {
     async function fetchTeam() {
       const { data: team, error } = await supabase
         .from("teams")
-        .select("*")
+        .select("*, rosters(*, people(*), fees(*, payments(*))), staff(*, people(*))")
         .eq("id", params.id)
         .single();
 
@@ -85,31 +95,15 @@ export default function TeamPage({ params }: { params: { id: string } }) {
         console.error(error);
         return;
       }
-
+      console.log("TEAM", team)
       setTeam(team);
     }
 
-    async function fetchRoster() {
-      const { data, error } = await supabase
-        .from("rosters")
-        .select("*, fees(*, payments(*)),people(*)")
-        .eq("team_id", params.id);
-
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      if (data) {
-        console.log("ROSTERS SUCCESSFULLY GATHERED");
-      }
-
-      setRoster(data);
-    }
 
     fetchTeam();
-    fetchRoster();
+
   }, []);
+
 
   useEffect(() => {
     const fetchAccount = async () => {
@@ -125,14 +119,12 @@ export default function TeamPage({ params }: { params: { id: string } }) {
 
     fetchAccount();
   }, [user]);
-  // const account = await getAccount();
 
-  // const account = await getAccount();
 
   useEffect(() => {
-    if (roster) {
-      const getPrimaryEmail = async () => {
-        const peopleWithPrimaryEmailPromises = roster?.map(async (r: any) => {
+    const getPrimaryEmail = async () => {
+      if (team.rosters) {
+        const peopleWithPrimaryEmailPromises = team.rosters.map(async (r: any) => {
           const primaryPeople = await getPrimaryContacts(supabase, r.people);
           return {
             ...r.people,
@@ -147,15 +139,13 @@ export default function TeamPage({ params }: { params: { id: string } }) {
           };
         });
 
-        const peopleWithPrimaryEmails = await Promise.all(
-          peopleWithPrimaryEmailPromises,
-        );
+        const peopleWithPrimaryEmails = await Promise.all(peopleWithPrimaryEmailPromises);
         setPeopleWithPrimaryEmail(peopleWithPrimaryEmails);
-      };
+      }
+    };
 
-      getPrimaryEmail();
-    }
-  }, [roster]);
+    getPrimaryEmail();
+  }, [team.rosters]);
 
   return (
     <div className="flex flex-col space-y-12">
@@ -165,25 +155,57 @@ export default function TeamPage({ params }: { params: { id: string } }) {
             <h1 className="font-cal truncate text-base font-bold sm:w-auto sm:text-2xl md:text-3xl">
               {team?.name}
             </h1>
-            <p className="text-sm text-gray-700">{team?.coach}</p>
           </div>
           {/* <GenericButton cta="Edit Person">
           <EditPersonModal person={person} account={account} />
         </GenericButton> */}
-          <GenericButton
-            cta="New Event"
-            size={undefined}
-            variant={undefined}
-            classNames=""
-          >
-            <CreateEventModal account={account} team={team} />
-          </GenericButton>
+          <div className="flex items-center space-x-2">
+            <GenericButton
+              cta="Add Staff"
+              size={undefined}
+              variant={undefined}
+              classNames=""
+            >
+              <AddToStaffModal
+                team={team}
+                onClose={() => router.refresh()}
+              />
+            </GenericButton>
+            <GenericButton
+              cta="New Event"
+              size={undefined}
+              variant={undefined}
+              classNames=""
+            >
+              <CreateEventModal account={account} team={team} />
+            </GenericButton>
+          </div>
+
+        </div>
+        <div className="mt-10">
+          <h2 className="mb-3 text-xs font-bold uppercase text-zinc-500">
+            Staff
+          </h2>
+          <div className="space-y-2">
+            {team?.staff?.map((staffMember: any, index: number) => (
+              <div key={index} className="flex items-center border border-gray-200 p-3 rounded text-sm text-gray-700">
+                <Avatar className="mr-2">
+                  <AvatarFallback className="text-black">
+                    {getInitials(
+                      staffMember.people?.first_name,
+                      staffMember.people?.last_name,
+                    )}
+                  </AvatarFallback>
+                </Avatar>
+                {staffMember.people.name}
+              </div>
+            ))}
+          </div>
         </div>
         <div className="mt-10">
           <h2 className="mb-3 text-xs font-bold uppercase text-zinc-500">
             Roster
           </h2>
-
           <TeamTable
             data={peopleWithPrimaryEmail}
             team={team}

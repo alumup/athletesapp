@@ -20,7 +20,7 @@ const Teams = ({ rosters, person, profile }) => {
           {rosters.map((roster, i) => (
             <Link
               key={i}
-              href={`/portal/teams/${roster.teams.id}`}
+              href={`/portal/teams/${roster.teams?.id}`}
               className="flex w-full rounded border border-gray-300 bg-gray-50 px-2 py-4"
             >
               <div className="flex w-full items-center justify-between">

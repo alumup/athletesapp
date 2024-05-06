@@ -386,10 +386,10 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                     <div key={subEvent.id} className="flex items-center">
                       <div className="flex flex-col items-center justify-center border-r border-gray-700 bg-lime-300 p-5">
                         <span className="text-lg font-bold">
-                          {formatDay(event?.schedule?.start_date)}
+                          {formatDay(subEvent?.schedule?.start_date)}
                         </span>
                         <span className="text-sm">
-                          {formatMonth(event?.schedule?.start_date)}
+                          {formatMonth(subEvent?.schedule?.start_date)}
                         </span>
                       </div>
                       <div className="p-3">
