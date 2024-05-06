@@ -103,7 +103,7 @@ export default function CreateEventModal({
             </div>
           )}
 
-          {team || event && (
+          {team?.id || event?.id && (
             <div className="col-span-2 flex flex-col space-y-2">
               <label
                 htmlFor="team"
