@@ -35,6 +35,8 @@ export default function TeamEvents({ dependent, rosters }: any) {
   }, [rosters]);
 
   useEffect(() => {
+
+    console.log("ROSTIES", rosters)
     const fetchEventsForTeams = async (teams: any) => {
       const promises = teams.map((team: any) =>
         supabase
@@ -53,7 +55,7 @@ export default function TeamEvents({ dependent, rosters }: any) {
       if (rosters && rosters.length > 0) {
         const teams = rosters.map((roster: { teams: any }) => roster.teams);
         const allEvents = await fetchEventsForTeams(teams.flat());
-        console.log(allEvents);
+        console.log("ALL EVENTS",allEvents);
         setEvents(allEvents);
       }
     };
@@ -67,10 +69,11 @@ export default function TeamEvents({ dependent, rosters }: any) {
     <div className={`h-full transition-all ${isVisible ? "" : "blur-lg"}`}>
       <div className="flex space-x-2 overflow-x-auto">
         {events
-          ?.filter((event: any) => !event.parent_id)
+          ?.filter((event: any) => !event.parent_id) // Filters out events with a parent_id
           .sort((a: any, b: any) => {
-            const aDateTime = new Date(formatDate(a.schedule.start_date, a.schedule.start_time));
-            const bDateTime = new Date(formatDate(b.schedule.start_date, b.schedule.start_time));
+            // Ensure both date and time are properly combined and parsed
+            const aDateTime = new Date(`${a.schedule.start_date}T${a.schedule.start_time}`);
+            const bDateTime = new Date(`${b.schedule.start_date}T${b.schedule.start_time}`);
             return aDateTime.getTime() - bDateTime.getTime();
           })
           .map((event: any) => (
