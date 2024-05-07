@@ -7,6 +7,7 @@ import {
   formatDate,
 } from "@/lib/utils";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useEffect, useState } from "react";
 import {
   AlarmClock,
   CheckCircle,
@@ -16,97 +17,37 @@ import {
   CalendarRange,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import Event from "./event";
 
-export default function TeamEvents({ dependent, rosters }: any) {
+export default function EventsList({ events, person_id }: any) {
   const supabase = createClientComponentClient();
-  const [events, setEvents] = useState<any>([]);
-  const [filteredEvents, setFilteredEvents] = useState<any>([]);
-
-  const personId = dependent?.to?.id || dependent?.id;
-  const person = dependent?.to || dependent;
-
-  const [isVisible, setIsVisible] = useState(false);
+  const [person, setPerson] = useState<any>();
 
   useEffect(() => {
-    if (rosters && rosters.length > 0) {
-      // Delay the visibility to allow for CSS transition
-      const timer = setTimeout(() => {
-        setIsVisible(true);
-      }, 100); // Adjust delay as needed
-      return () => clearTimeout(timer);
-    }
-  }, [rosters]);
+    const fetchPerson = async () => {
+      console.log("PERSON ID", person_id);
+      const { data, error } = await supabase
+        .from("people")
+        .select("*")
+        .eq("id", person_id)
+        .single();
 
-  useEffect(() => {
-    console.log("ROSTIES", rosters);
-    const fetchEventsForTeams = async (teams: any) => {
-      const teamIds: any = [];
-      teams.forEach((team: any) => teamIds.push(team.id));
-      const res = await supabase
-        .from("events")
-        .select(
-          "*, teams(*), accounts(*), fees(*), rsvp(*), parent_id(*, rsvp(*)), events(*, teams(*), rsvp(*))",
-        )
-        .gte("date", new Date().toISOString())
-        .in("team_id", teamIds)
-        .order("date", { ascending: true });
-
-      return res.data || [];
+      setPerson(data);
     };
 
-    const getEvents = async () => {
-      if (rosters && rosters.length > 0) {
-        const teams = rosters.map((roster: { teams: any }) => roster.teams);
-        const allEvents = await fetchEventsForTeams(teams.flat());
-        setEvents(allEvents);
-      }
-    };
-
-    if (dependent) {
-      getEvents();
-    }
-  }, [dependent, rosters]);
-
-  useEffect(() => {
-    const sortEvents = async () => {
-      const newEvents = [];
-      const parentEvents = events?.filter((event: any) => !event.parent_id);
-
-      newEvents.push(...parentEvents);
-
-      // Uncomment if all (parent + subevents) needs to be visible
-      // parentEvents.forEach((parentEvent: any) => {
-      //   if (
-      //     parentEvent?.events &&
-      //     parentEvent.rsvp.some(
-      //       (rs: any) => rs.person_id === personId && rs.status === "paid",
-      //     )
-      //   ) {
-      //     newEvents.push(...parentEvent.events);
-      //   }
-      // });
-
-      console.log("ALL EVENTS", newEvents);
-
-      setFilteredEvents(newEvents);
-    };
-
-    sortEvents();
-  }, [events]);
+    fetchPerson();
+  }, [person_id]);
 
   return (
-    <div className={`h-full transition-all ${isVisible ? "" : "blur-lg"}`}>
+    <div className="h-full">
       <div className="flex space-x-2 overflow-x-auto">
-        {filteredEvents
+        {events
           .sort((a: any, b: any) => {
             // Ensure both date and time are properly combined and parsed
             const aDateTime = new Date(
-              `${a.schedule.start_date}T${a.schedule.start_time || "00:00"}`,
+              `${a.schedule.start_date}T${a.schedule.start_time}`,
             );
             const bDateTime = new Date(
-              `${b.schedule.start_date}T${b.schedule.start_time || "00:00"}`,
+              `${b.schedule.start_date}T${b.schedule.start_time}`,
             );
             return aDateTime.getTime() - bDateTime.getTime();
           })
@@ -158,30 +99,43 @@ export default function TeamEvents({ dependent, rosters }: any) {
                     </span>
                   </div>
 
-                  {!event?.parent_id && (
+                  <div className="mb-2 flex items-center space-x-2">
+                    <CalendarRange className="h-4 w-4" />
+                    <span className="text-xs">
+                      <div className="flex items-center">
+                        <div>
+                          <span className="mr-1 text-xs">
+                            {formatMonth(event?.schedule?.start_date)}
+                          </span>
+                          <span className="text-xs">
+                            {formatDay(event?.schedule?.start_date)}
+                          </span>
+                        </div>
+                        {event?.schedule?.end_date && (
+                          <div>
+                            -
+                            <span className="mr-1 text-xs">
+                              {formatMonth(event?.schedule?.end_date)}
+                            </span>
+                            <span className="text-xs">
+                              {formatDay(event?.schedule?.end_date)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </span>
+                  </div>
+
+                  {event?.schedule?.start_time && (
                     <div className="mb-2 flex items-center space-x-2">
-                      <CalendarRange className="h-4 w-4" />
+                      <Clock className="h-4 w-4" />
                       <span className="text-xs">
                         <div className="flex items-center">
                           <div>
                             <span className="mr-1 text-xs">
-                              {formatMonth(event?.schedule?.start_date)}
-                            </span>
-                            <span className="text-xs">
-                              {formatDay(event?.schedule?.start_date)}
+                              {event?.schedule?.start_time}
                             </span>
                           </div>
-                          {event?.schedule?.end_date && (
-                            <div>
-                              -
-                              <span className="mr-1 text-xs">
-                                {formatMonth(event?.schedule?.end_date)}
-                              </span>
-                              <span className="text-xs">
-                                {formatDay(event?.schedule?.end_date)}
-                              </span>
-                            </div>
-                          )}
                         </div>
                       </span>
                     </div>
@@ -204,10 +158,12 @@ export default function TeamEvents({ dependent, rosters }: any) {
 
                   {event?.rsvp?.find(
                     (rs: any) =>
-                      rs.person_id === personId && rs.status === "paid",
+                      rs.person_id === person_id && rs.status === "paid",
                   ) ? (
                     <Link
-                      href={`/portal/events/${event.id}/rsvp?dependent=${personId}`}
+                      href={`/portal/events/${event.id}/rsvp?dependent=${
+                        person?.id || person_id
+                      }`}
                       className=" self-end rounded border bg-white px-3 py-2 font-bold"
                     >
                       <div className="flex justify-between text-xs">
@@ -217,7 +173,7 @@ export default function TeamEvents({ dependent, rosters }: any) {
                     </Link>
                   ) : (
                     <Link
-                      href={`/portal/events/${event?.id}/rsvp?dependent=${personId}`}
+                      href={`/portal/events/${event?.id}/rsvp?dependent=${person_id}`}
                       className="self-end rounded bg-black px-6 py-2 text-xs font-bold text-white"
                     >
                       RSVP
@@ -225,30 +181,6 @@ export default function TeamEvents({ dependent, rosters }: any) {
                   )}
                 </div>
               </div>
-              {/* If you want to show subevents immediately after main event. */}
-              {/* {event?.events &&
-                event.rsvp.some(
-                  (rs: any) =>
-                    rs.person_id === personId && rs.status === "paid",
-                ) &&
-                event.events
-                  .sort((a: any, b: any) => {
-                    const aDateTime = new Date(
-                      formatDate(a.schedule.start_date, a.schedule.start_time),
-                    );
-                    const bDateTime = new Date(
-                      formatDate(b.schedule.start_date, b.schedule.start_time),
-                    );
-                    return aDateTime.getTime() - bDateTime.getTime();
-                  })
-                  .map((se: any, index: any) => (
-                    <div
-                      key={index}
-                      className="my-3 flex rounded-lg border border-gray-200"
-                    >
-                      <Event event={se} person={person} />
-                    </div>
-                  ))} */}
             </>
           ))}
       </div>

@@ -244,7 +244,7 @@ const PersonPage = ({ params }: { params: Params }) => {
           <h2 className="text-md font-bold">Teams</h2>
         </div>
 
-        <Teams person={person} rosters={rosters}  />
+        <Teams person={person} rosters={rosters} />
       </div>
     </div>
   );
