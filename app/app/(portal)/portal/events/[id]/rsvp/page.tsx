@@ -72,11 +72,11 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
       const { data, error } = await supabase
         .from("events")
         .select(
-          "*,accounts(*), fees(*), rsvp(*, people(*)), parent_id(*), events(*)",
+          "*,accounts(*), fees(*), rsvp(*, people(*)), parent_id(*,rsvp(*)), events(*, teams(*), rsvp(*))",
         )
         .eq("id", params.id)
         .single();
-      console.log(data);
+
       if (!error && data) {
         console.log("EVENTZZZ", data);
         setEvent(data);
@@ -299,24 +299,26 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                           {event?.fees?.type == "free" ? (
                             <button
                               onClick={updateRSVP}
-                              className="flex w-full justify-center items-center font-bold rounded bg-black p-2 px-4 text-white 
-                              transition ease-in-out hover:bg-lime-900 hover:shadow-lg duration-300"
+                              className="flex w-full items-center justify-center rounded bg-black p-2 px-4 font-bold text-white 
+                              transition duration-300 ease-in-out hover:bg-lime-900 hover:shadow-lg"
                             >
-                              <MousePointerClick className='h-5 w-5 mr-3 rotate-90' />
-                              <span>{`${dependant
-                                ? `RSVP for ${dependant?.first_name}`
-                                : "RSVP"
-                                }`}</span>
+                              <MousePointerClick className="mr-3 h-5 w-5 rotate-90" />
+                              <span>{`${
+                                dependant
+                                  ? `RSVP for ${dependant?.first_name}`
+                                  : "RSVP"
+                              }`}</span>
                             </button>
                           ) : (
                             <GenericButton
                               size="lg"
                               variant="default"
                               classNames={"w-full"}
-                              cta={`${dependant
-                                ? `Pay for ${dependant?.first_name}`
-                                : "Pay"
-                                } $${(event?.fees?.amount).toFixed(2)}`}
+                              cta={`${
+                                dependant
+                                  ? `Pay for ${dependant?.first_name}`
+                                  : "Pay"
+                              } $${(event?.fees?.amount).toFixed(2)}`}
                             >
                               <CreatePaymentModalMultipleParticipants
                                 account={event?.accounts}
@@ -329,28 +331,33 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                           )}
                         </>
                       ) : (
-                        <button className="flex w-full items-center justify-center md:justify-end rounded p-2 px-4">
+                        <button className="flex w-full items-center justify-center rounded p-2 px-4 md:justify-end">
                           <CheckCircle className="mr-3 h-5 w-5" color="green" />
-                          <span className="text-lime-700 font-semibold">Going</span>
+                          <span className="font-semibold text-lime-700">
+                            Going
+                          </span>
                         </button>
                       )
                     ) : isParentPaid ? (
                       isGoing ? (
-                        <button className="flex w-full items-center justify-center md:justify-end rounded p-2 px-4">
+                        <button className="flex w-full items-center justify-center rounded p-2 px-4 md:justify-end">
                           <CheckCircle className="mr-3 h-5 w-5" color="green" />
-                          <span className="text-lime-700 font-semibold">Going</span>
+                          <span className="font-semibold text-lime-700">
+                            Going
+                          </span>
                         </button>
                       ) : (
                         <button
                           onClick={updateRSVP}
-                          className="flex w-full justify-center items-center font-bold rounded bg-black p-2 px-4 text-white 
-                          transition ease-in-out hover:bg-lime-900 hover:shadow-lg duration-300"
+                          className="flex w-full items-center justify-center rounded bg-black p-2 px-4 font-bold text-white 
+                          transition duration-300 ease-in-out hover:bg-lime-900 hover:shadow-lg"
                         >
-                          <MousePointerClick className='h-5 w-5 mr-3 rotate-90' />
-                          <span>{`${dependant
-                            ? `RSVP for ${dependant?.first_name}`
-                            : "RSVP"
-                            }`}</span>
+                          <MousePointerClick className="mr-3 h-5 w-5 rotate-90" />
+                          <span>{`${
+                            dependant
+                              ? `RSVP for ${dependant?.first_name}`
+                              : "RSVP"
+                          }`}</span>
                         </button>
                       )
                     ) : (
@@ -369,50 +376,104 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                 {event?.description}
               </p>
 
-              <div className="divide-y divide-gray-700 overflow-hidden rounded border border-gray-700">
-                <h3 className="text-x p-3 font-bold">Schedule</h3>
-                {event.events
-                  .sort((a: any, b: any) => {
-                    const aDateTime = new Date(
-                      formatDate(a.schedule.start_date, a.schedule.start_time),
-                    );
-                    const bDateTime = new Date(
-                      formatDate(b.schedule.start_date, b.schedule.start_time),
-                    );
-                    return aDateTime.getTime() - bDateTime.getTime();
-                  })
-                  .map((subEvent: any) => (
-                    <div key={subEvent.id} className="flex items-center">
-                      <div className="flex flex-col items-center justify-center border-r border-gray-700 bg-lime-300 p-5">
-                        <span className="text-lg font-bold">
-                          {formatDay(subEvent?.schedule?.start_date)}
-                        </span>
-                        <span className="text-sm">
-                          {formatMonth(subEvent?.schedule?.start_date)}
-                        </span>
-                      </div>
-                      <div className="p-3">
-                        <h4 className="font-semibold">{subEvent.name}</h4>
+              {!event?.parent_id && (
+                <div className="divide-y divide-gray-700 overflow-hidden rounded border border-gray-700">
+                  <h3 className="text-x p-3 font-bold">Schedule</h3>
+                  {event.events
+                    .sort((a: any, b: any) => {
+                      const aDateTime = new Date(
+                        formatDate(
+                          a.schedule.start_date,
+                          a.schedule.start_time,
+                        ),
+                      );
+                      const bDateTime = new Date(
+                        formatDate(
+                          b.schedule.start_date,
+                          b.schedule.start_time,
+                        ),
+                      );
+                      return aDateTime.getTime() - bDateTime.getTime();
+                    })
+                    .map((subEvent: any) => (
+                      <div key={subEvent.id} className="flex items-center">
+                        <div className="flex flex-col items-center justify-center border-r border-gray-700 bg-lime-300 p-5">
+                          <span className="text-lg font-bold">
+                            {formatDay(subEvent?.schedule?.start_date)}
+                          </span>
+                          <span className="text-sm">
+                            {formatMonth(subEvent?.schedule?.start_date)}
+                          </span>
+                        </div>
+                        <div className="flex w-full justify-between p-3">
+                          <div>
+                            <h4 className="font-semibold">{subEvent.name}</h4>
 
-                        {subEvent?.schedule?.start_time && (
-                          <div className="mb-2 flex items-center space-x-2">
-                            <Clock className="h-4 w-4" />
-                            <span className="text-sm">
-                              {formatTimeRange(
-                                subEvent.schedule.start_date,
-                                subEvent.schedule.start_time,
-                                subEvent.schedule.end_date,
-                                subEvent.schedule?.end_time,
-                              )}
-                            </span>
+                            {subEvent?.schedule?.start_time && (
+                              <div className="mb-2 flex items-center space-x-2">
+                                <Clock className="h-4 w-4" />
+                                <span className="text-sm">
+                                  {formatTimeRange(
+                                    subEvent.schedule.start_date,
+                                    subEvent.schedule.start_time,
+                                    subEvent.schedule.end_date,
+                                    subEvent.schedule?.end_time,
+                                  )}
+                                </span>
+                              </div>
+                            )}
                           </div>
-                        )}
+                          <div>
+                            {subEvent?.rsvp?.find(
+                              (rs: any) =>
+                                rs.person_id === dependant?.id &&
+                                rs.status === "paid",
+                            ) ? (
+                              <Link
+                                href={`/portal/events/${
+                                  subEvent.id
+                                }/rsvp?dependent=${
+                                  dependant?.id || currentDependent
+                                }`}
+                                className="self-end rounded bg-white px-6 py-2 text-xs font-bold"
+                              >
+                                <div className="flex justify-between text-xs">
+                                  <CheckCircle
+                                    className="mr-2 h-4 w-4"
+                                    color="green"
+                                  />
+                                  <span>Going</span>
+                                </div>
+                              </Link>
+                            ) : (
+                              <Link
+                                href={`/portal/events/${
+                                  subEvent?.id
+                                }/rsvp?dependent=${
+                                  dependant?.id || currentDependent
+                                }`}
+                                className="self-end rounded bg-black px-6 py-2 text-xs font-bold text-white"
+                              >
+                                RSVP
+                              </Link>
+                            )}
+                          </div>
+                        </div>
+
+                        <div></div>
                       </div>
-                    </div>
-                  ))}
-                {/* More content */}
-              </div>
-              {/* This section needs refactoring */}
+                    ))}
+                  {/* More content */}
+                </div>
+              )}
+              {/* Subevents */}
+              {/* {
+                !event?.parent_id &&
+                <div>
+                  <h3 className="text-x p-3 pb-0 font-bold">RSVP for schedules</h3>
+                  <EventsList events={event.events} person_id={dependant?.id} />
+                </div>
+              } */}
             </div>
           </div>
         </div>
