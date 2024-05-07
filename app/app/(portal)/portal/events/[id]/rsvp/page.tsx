@@ -298,7 +298,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                           {event?.fees?.type == "free" ? (
                             <button
                               onClick={updateRSVP}
-                              className="flex w-full rounded border-2 border-black bg-black p-2 px-4 text-white hover:bg-black hover:text-white"
+                              className="flex w-full justify-center rounded border-2 border-black bg-black p-2 px-4 text-white hover:bg-black hover:text-white"
                             >
                               {/* <CheckCircle className='h-5 w-5 mr-3' /> */}
                               <span>{`${
