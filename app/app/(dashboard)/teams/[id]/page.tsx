@@ -12,6 +12,8 @@ import AddToStaffModal from "@/components/modal/add-to-staff-modal";
 import { useRouter } from "next/navigation";
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Link from "next/link";
+import { Calendar } from "lucide-react";
 
 async function getPrimaryContacts(supabase: any, person: any) {
   if (person?.dependent) {
@@ -83,7 +85,7 @@ export default function TeamPage({ params }: { params: { id: string } }) {
       const { data: team, error } = await supabase
         .from("teams")
         .select(
-          "*, rosters(*, people(*), fees(*, payments(*))), staff(*, people(*))",
+          "*, events(*), rosters(*, people(*), fees(*, payments(*))), staff(*, people(*))",
         )
         .eq("id", params.id)
         .single();
@@ -179,11 +181,11 @@ export default function TeamPage({ params }: { params: { id: string } }) {
           <h2 className="mb-3 text-xs font-bold uppercase text-zinc-500">
             Staff
           </h2>
-          <div className="space-y-2">
+          <div className="flex space-y-2 overflow-x-auto">
             {team?.staff?.map((staffMember: any, index: number) => (
               <div
                 key={index}
-                className="flex items-center rounded border border-gray-200 p-3 text-sm text-gray-700"
+                className="flex items-center rounded p-3 text-sm text-gray-700"
               >
                 <Avatar className="mr-2">
                   <AvatarFallback className="text-black">
@@ -196,6 +198,53 @@ export default function TeamPage({ params }: { params: { id: string } }) {
                 {staffMember.people.name}
               </div>
             ))}
+          </div>
+        </div>
+        <div className="mt-10">
+          <h2 className="mb-3 text-xs font-bold uppercase text-zinc-500">
+            Events
+          </h2>
+          <div className="flex overflow-x-auto">
+            {team?.events
+              ?.filter((tEvents: any) => !tEvents.parent_id)
+              .sort((a: any, b: any) => {
+                // Ensure both date and time are properly combined and parsed
+                const aDateTime = new Date(`${a.schedule.start_date}`);
+                const bDateTime = new Date(`${b.schedule.start_date}`);
+                return aDateTime.getTime() - bDateTime.getTime();
+              })
+              .map((teamEvents: any, index: number) => (
+                <Link
+                  href={`/events/${teamEvents.id}`}
+                  key={index}
+                  className="mr-2 flex min-w-60 items-center rounded-lg border p-3 text-sm text-gray-700"
+                >
+                  <Avatar className="mr-2">
+                    <AvatarImage
+                      src={
+                        teamEvents.cover_image ||
+                        "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"
+                      }
+                    />
+                    <AvatarFallback className="text-black">
+                      {getInitials(teamEvents.name, "")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h4 className="font-semibold">{teamEvents.name}</h4>
+                    {teamEvents?.schedule?.start_date && (
+                      <div className="mb-2 flex items-center space-x-2">
+                        <Calendar className="h-4 w-4" />
+                        <span className="text-sm">
+                          {new Date(
+                            teamEvents.schedule.start_date,
+                          ).toDateString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              ))}
           </div>
         </div>
         <div className="mt-10">

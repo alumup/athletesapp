@@ -6,8 +6,11 @@ import { EventTable } from "./table";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreateEventModal from "@/components/modal/create-event-modal";
 import IconButton from "@/components/modal-buttons/icon-button";
-import { Share } from "lucide-react";
+import { Calendar, Share } from "lucide-react";
 import ShareModal from "@/components/modal/share-modal";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/utils";
 
 export default async function EventPage({
   params,
@@ -19,7 +22,7 @@ export default async function EventPage({
   async function fetchEvent() {
     const { data: events, error } = await supabase
       .from("events")
-      .select("*, teams(*)")
+      .select("*, teams(*), events(*)")
       .eq("id", params.id)
       .single();
 
@@ -118,6 +121,54 @@ export default async function EventPage({
             </GenericButton>
           </div>
         </div>
+        {!event.parent_id && (
+          <div className="mt-10">
+            <h2 className="mb-1 text-xs font-bold uppercase text-zinc-500">
+              Sub Events
+            </h2>
+            <div className="flex overflow-x-auto">
+              {event?.events
+                ?.sort((a: any, b: any) => {
+                  // Ensure both date and time are properly combined and parsed
+                  const aDateTime = new Date(`${a.schedule.start_date}`);
+                  const bDateTime = new Date(`${b.schedule.start_date}`);
+                  return aDateTime.getTime() - bDateTime.getTime();
+                })
+                .map((teamEvents: any, index: number) => (
+                  <Link
+                    href={`/events/${teamEvents.id}`}
+                    key={index}
+                    className="mr-2 flex min-w-60 items-center rounded-lg border p-3 text-sm text-gray-700"
+                  >
+                    <Avatar className="mr-2">
+                      <AvatarImage
+                        src={
+                          teamEvents.cover_image ||
+                          "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"
+                        }
+                      />
+                      <AvatarFallback className="text-black">
+                        {getInitials(teamEvents.name, "")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h4 className="font-semibold">{teamEvents.name}</h4>
+                      {teamEvents?.schedule?.start_date && (
+                        <div className="mb-2 flex items-center space-x-2">
+                          <Calendar className="h-4 w-4" />
+                          <span className="text-sm">
+                            {new Date(
+                              teamEvents.schedule.start_date,
+                            ).toDateString()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+            </div>
+          </div>
+        )}
         <div className="mt-10">
           <h2 className="mb-1 text-xs font-bold uppercase text-zinc-500">
             Participants

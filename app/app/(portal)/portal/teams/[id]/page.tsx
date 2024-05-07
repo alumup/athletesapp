@@ -23,7 +23,7 @@ const TeamPage = ({ params }: { params: { id: string } }) => {
     const getTeam = async () => {
       const { data, error } = await supabase
         .from("teams")
-        .select("*, rosters(*), events(*)")
+        .select("*, rosters(*), events(*, teams(*),rsvp(*))")
         .eq("id", params.id)
         .single();
 
@@ -39,7 +39,7 @@ const TeamPage = ({ params }: { params: { id: string } }) => {
   return (
     <div>
       <div className="bg-gray-100 p-5">
-        <Link href="/portal">
+        <Link href={`/portal/${person_id}`}>
           <span className="flex items-center">
             <ChevronLeft className="h-4 w-4" /> Back
           </span>
@@ -91,15 +91,10 @@ const TeamPage = ({ params }: { params: { id: string } }) => {
           {team ? (
             <>
               {team.rosters.length > 0 ? (
-                <Events
-                  events={team.events}
-                  person_id={person_id}
-                />
+                <Events events={team.events} person_id={person_id} />
               ) : (
                 <div className="flex h-full min-h-48 w-full flex-col items-center justify-center">
-                  <p>
-                    doesn't have any upcoming team events.
-                  </p>
+                  <p>doesn't have any upcoming team events.</p>
                 </div>
               )}
             </>

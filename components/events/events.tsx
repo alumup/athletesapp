@@ -22,7 +22,7 @@ import Event from "./event";
 
 export default function Events({ events, person_id }: any) {
   const supabase = createClientComponentClient();
-  const [person, setPerson] = useState<any>()
+  const [person, setPerson] = useState<any>();
 
   useEffect(() => {
     const fetchPerson = async () => {
@@ -33,12 +33,11 @@ export default function Events({ events, person_id }: any) {
         .eq("id", person_id)
         .single();
 
-      setPerson(data)
+      setPerson(data);
     };
 
     fetchPerson();
   }, [person_id]);
-
 
   return (
     <div className="h-full">
@@ -47,12 +46,8 @@ export default function Events({ events, person_id }: any) {
           ?.filter((event: any) => !event.parent_id) // Filters out events with a parent_id
           .sort((a: any, b: any) => {
             // Ensure both date and time are properly combined and parsed
-            const aDateTime = new Date(
-              `${a.schedule.start_date}T${a.schedule.start_time}`,
-            );
-            const bDateTime = new Date(
-              `${b.schedule.start_date}T${b.schedule.start_time}`,
-            );
+            const aDateTime = new Date(`${a.schedule.start_date}`);
+            const bDateTime = new Date(`${b.schedule.start_date}`);
             return aDateTime.getTime() - bDateTime.getTime();
           })
           .map((event: any) => (
@@ -152,17 +147,17 @@ export default function Events({ events, person_id }: any) {
                         {event?.schedule?.start_time
                           ? formatStartTime(event.schedule.start_time)
                           : event?.schedule?.sessions?.[0]
-                            ? formatStartTime(
+                          ? formatStartTime(
                               event.schedule.sessions[0].start_time,
                             )
-                            : ""}
+                          : ""}
                       </span>
                     </div>
                   )}
 
                   {event?.rsvp?.find(
                     (rs: any) =>
-                      rs.person_id === person.id && rs.status === "paid",
+                      rs.person_id === person?.id && rs.status === "paid",
                   ) ? (
                     <Link
                       href={`/portal/events/${event.id}/rsvp?dependent=${person.id}`}
@@ -184,7 +179,6 @@ export default function Events({ events, person_id }: any) {
                 </div>
               </div>
               {event?.events &&
-              
                 event.events
                   .sort((a: any, b: any) => {
                     const aDateTime = new Date(
