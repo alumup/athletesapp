@@ -19,7 +19,7 @@ export async function POST(req) {
   const subject = data?.subject;
   const email = data?.email;
   const encryptedEmail = data?.encryptedEmail;
-  const message = `You've been invited to join ${account.name} to manage your athletes. If you have an Athletes App account please sign in at ${sign_in}. If you don't click this link to get access to your account. ${domain}/login?email=${encryptedEmail}&account_id=${account.id}&people_id=${person.id}&sign_up=true`;
+  const message = `You've been invited to join ${account.name} on Athletes App®. If you have an Athletes App account please sign in at ${sign_in}. If you don't click this link to get access to your account. ${domain}/login?email=${encryptedEmail}&account_id=${account.id}&people_id=${person.id}&sign_up=true`;
 
   try {
     // loop through the people array and send an email to each person
