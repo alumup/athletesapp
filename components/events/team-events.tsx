@@ -22,6 +22,7 @@ import Event from "./event";
 export default function TeamEvents({ dependent, rosters }: any) {
   const supabase = createClientComponentClient();
   const [events, setEvents] = useState<any>([]);
+  const [filteredEvents, setFilteredEvents] = useState<any>([]);
 
   const personId = dependent?.to?.id || dependent?.id;
   const person = dependent?.to || dependent;
@@ -69,18 +70,40 @@ export default function TeamEvents({ dependent, rosters }: any) {
     }
   }, [dependent, rosters]);
 
+  useEffect(() => {
+    const sortEvents = async () => {
+      const newEvents = [];
+      const parentEvents = events?.filter((event: any) => !event.parent_id);
+
+      newEvents.push(...parentEvents);
+      parentEvents.forEach((parentEvent: any) => {
+        if (
+          parentEvent?.events &&
+          parentEvent.rsvp.some(
+            (rs: any) => rs.person_id === personId && rs.status === "paid",
+          )
+        ) {
+          newEvents.push(...parentEvent.events);
+        }
+      });
+
+      setFilteredEvents(newEvents);
+    };
+
+    sortEvents();
+  }, [events]);
+
   return (
     <div className={`h-full transition-all ${isVisible ? "" : "blur-lg"}`}>
       <div className="flex space-x-2 overflow-x-auto">
-        {events
-          ?.filter((event: any) => !event.parent_id) // Filters out events with a parent_id
+        {filteredEvents
           .sort((a: any, b: any) => {
             // Ensure both date and time are properly combined and parsed
             const aDateTime = new Date(
-              `${a.schedule.start_date}T${a.schedule.start_time}`,
+              `${a.schedule.start_date}T${a.schedule.start_time || "00:00"}`,
             );
             const bDateTime = new Date(
-              `${b.schedule.start_date}T${b.schedule.start_time}`,
+              `${b.schedule.start_date}T${b.schedule.start_time || "00:00"}`,
             );
             return aDateTime.getTime() - bDateTime.getTime();
           })
@@ -132,43 +155,30 @@ export default function TeamEvents({ dependent, rosters }: any) {
                     </span>
                   </div>
 
-                  <div className="mb-2 flex items-center space-x-2">
-                    <CalendarRange className="h-4 w-4" />
-                    <span className="text-xs">
-                      <div className="flex items-center">
-                        <div>
-                          <span className="mr-1 text-xs">
-                            {formatMonth(event?.schedule?.start_date)}
-                          </span>
-                          <span className="text-xs">
-                            {formatDay(event?.schedule?.start_date)}
-                          </span>
-                        </div>
-                        {event?.schedule?.end_date && (
-                          <div>
-                            -
-                            <span className="mr-1 text-xs">
-                              {formatMonth(event?.schedule?.end_date)}
-                            </span>
-                            <span className="text-xs">
-                              {formatDay(event?.schedule?.end_date)}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </span>
-                  </div>
-
-                  {event?.schedule?.start_time && (
+                  {!event?.parent_id && (
                     <div className="mb-2 flex items-center space-x-2">
-                      <Clock className="h-4 w-4" />
+                      <CalendarRange className="h-4 w-4" />
                       <span className="text-xs">
                         <div className="flex items-center">
                           <div>
                             <span className="mr-1 text-xs">
-                              {event?.schedule?.start_time}
+                              {formatMonth(event?.schedule?.start_date)}
+                            </span>
+                            <span className="text-xs">
+                              {formatDay(event?.schedule?.start_date)}
                             </span>
                           </div>
+                          {event?.schedule?.end_date && (
+                            <div>
+                              -
+                              <span className="mr-1 text-xs">
+                                {formatMonth(event?.schedule?.end_date)}
+                              </span>
+                              <span className="text-xs">
+                                {formatDay(event?.schedule?.end_date)}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </span>
                     </div>
@@ -212,7 +222,8 @@ export default function TeamEvents({ dependent, rosters }: any) {
                   )}
                 </div>
               </div>
-              {event?.events &&
+              {/* If you want to show subevents immediately after main event. */}
+              {/* {event?.events &&
                 event.rsvp.some(
                   (rs: any) =>
                     rs.person_id === personId && rs.status === "paid",
@@ -234,7 +245,7 @@ export default function TeamEvents({ dependent, rosters }: any) {
                     >
                       <Event event={se} person={person} />
                     </div>
-                  ))}
+                  ))} */}
             </>
           ))}
       </div>
