@@ -17,6 +17,7 @@ import {
   Clock,
   Loader,
   MapPin,
+  MousePointerClick,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -298,25 +299,24 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                           {event?.fees?.type == "free" ? (
                             <button
                               onClick={updateRSVP}
-                              className="flex w-full rounded border-2 border-black bg-black p-2 px-4 text-white hover:bg-black hover:text-white"
+                              className="flex w-full justify-center items-center font-bold rounded bg-black p-2 px-4 text-white 
+                              transition ease-in-out hover:bg-lime-900 hover:shadow-lg duration-300"
                             >
-                              {/* <CheckCircle className='h-5 w-5 mr-3' /> */}
-                              <span>{`${
-                                dependant
-                                  ? `RSVP for ${dependant?.first_name}`
-                                  : "RSVP"
-                              }`}</span>
+                              <MousePointerClick className='h-5 w-5 mr-3 rotate-90' />
+                              <span>{`${dependant
+                                ? `RSVP for ${dependant?.first_name}`
+                                : "RSVP"
+                                }`}</span>
                             </button>
                           ) : (
                             <GenericButton
                               size="lg"
                               variant="default"
                               classNames={"w-full"}
-                              cta={`${
-                                dependant
-                                  ? `Pay for ${dependant?.first_name}`
-                                  : "Pay"
-                              } $${(event?.fees?.amount).toFixed(2)}`}
+                              cta={`${dependant
+                                ? `Pay for ${dependant?.first_name}`
+                                : "Pay"
+                                } $${(event?.fees?.amount).toFixed(2)}`}
                             >
                               <CreatePaymentModalMultipleParticipants
                                 account={event?.accounts}
@@ -329,27 +329,28 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
                           )}
                         </>
                       ) : (
-                        <button className="flex w-full items-center justify-center rounded border bg-lime-500 p-2 px-4">
-                          <CheckCircle className="mr-3 h-5 w-5" color="white" />
-                          <span className="text-white">Going</span>
+                        <button className="flex w-full items-center justify-center md:justify-end rounded p-2 px-4">
+                          <CheckCircle className="mr-3 h-5 w-5" color="green" />
+                          <span className="text-lime-700 font-semibold">Going</span>
                         </button>
                       )
                     ) : isParentPaid ? (
                       isGoing ? (
-                        <button className="flex w-full items-center justify-center rounded border bg-lime-500 p-2 px-4">
-                          <CheckCircle className="mr-3 h-5 w-5" color="white" />
-                          <span className="text-white">Going</span>
+                        <button className="flex w-full items-center justify-center md:justify-end rounded p-2 px-4">
+                          <CheckCircle className="mr-3 h-5 w-5" color="green" />
+                          <span className="text-lime-700 font-semibold">Going</span>
                         </button>
                       ) : (
                         <button
                           onClick={updateRSVP}
-                          className="flex rounded-full border-2 border-black bg-black p-2 px-4 text-white hover:bg-black hover:text-white "
+                          className="flex w-full justify-center items-center font-bold rounded bg-black p-2 px-4 text-white 
+                          transition ease-in-out hover:bg-lime-900 hover:shadow-lg duration-300"
                         >
-                          <span>{`${
-                            dependant
-                              ? `Register for ${dependant?.first_name}`
-                              : "Register"
-                          }`}</span>
+                          <MousePointerClick className='h-5 w-5 mr-3 rotate-90' />
+                          <span>{`${dependant
+                            ? `RSVP for ${dependant?.first_name}`
+                            : "RSVP"
+                            }`}</span>
                         </button>
                       )
                     ) : (

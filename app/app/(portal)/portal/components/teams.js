@@ -7,7 +7,7 @@ import CreatePaymentModal from "@/components/modal/create-payment-modal";
 import useAccount from "@/hooks/useAccount";
 import Link from "next/link";
 
-const Teams = ({ rosters, person, profile }) => {
+const Teams = ({ rosters, person }) => {
   const { account } = useAccount();
 
   return (
@@ -17,7 +17,7 @@ const Teams = ({ rosters, person, profile }) => {
           {rosters.map((roster, i) => (
             <Link
               key={i}
-              href={`/portal/teams/${roster.teams?.id}`}
+              href={`/portal/teams/${roster.teams?.id}?person=${person.id}`}
               className="flex w-full rounded border border-gray-300 bg-gray-50 px-2 py-4"
             >
               <div className="flex w-full items-center justify-between">
