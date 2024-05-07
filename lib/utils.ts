@@ -185,8 +185,6 @@ export function hasPaidFee(person: any, roster: any) {
 }
 
 export const formatDate = (date: string, time: string): string => {
-  console.log("DATE", date);
-  console.log("TIME", time);
   // Validate the input formats for date and time
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) {
     console.error("Invalid date or time format:", date, time);
@@ -242,9 +240,9 @@ export const formatTimeRange = (
   endDate: string,
   endTime: string,
 ) => {
-  console.log(
-    `Received start: ${startDate} ${startTime}, end: ${endDate} ${endTime}`,
-  ); // Debug log for input verification
+  // console.log(
+  //   `Received start: ${startDate} ${startTime}, end: ${endDate} ${endTime}`,
+  // ); // Debug log for input verification
 
   // Validate input formats for dates and times
   if (
