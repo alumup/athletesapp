@@ -24,7 +24,6 @@ const PersonPage = ({ params }: { params: Params }) => {
   const [independents, setIndependents] = useState<any>(null);
   const [toRelationships, setToRelationships] = useState<any>(null);
   const [rosters, setRosters] = useState<any>(null);
-  const [filteredRosters, setFilteredRosters] = useState([]);
 
   const [person, setPerson] = useState<any>(null);
 
@@ -100,7 +99,6 @@ const PersonPage = ({ params }: { params: Params }) => {
         console.error("Error fetching staff status:", staffError);
         return;
       }
-      console.log("STAFF DATA", staffData);
       // Merge staff data into roster if they are on staff
       if (staffData.length > 0) {
         const mergedRosters = [...roster, ...staffData];
@@ -137,8 +135,6 @@ const PersonPage = ({ params }: { params: Params }) => {
     const fetchToRelationships = async () => {
       let independentIds =
         independents?.map((independent: any) => independent.id) || [];
-
-      console.log("IDS", independentIds);
 
       const { data, error } = await supabase
         .from("relationships")
@@ -248,7 +244,7 @@ const PersonPage = ({ params }: { params: Params }) => {
           <h2 className="text-md font-bold">Teams</h2>
         </div>
 
-        <Teams person={person} rosters={rosters} profile={profile} />
+        <Teams person={person} rosters={rosters}  />
       </div>
     </div>
   );
