@@ -19,7 +19,7 @@ export default function AccountPublicEvents({
       const { data, error } = await supabase
         .from("events")
         .select("*,accounts(*), fees(*), rsvp(*), parent_id(*, rsvp(*))")
-        .gte("date", new Date().toISOString())
+        .gte("date", new Date().toLocaleString("en-US", { timeZone: "America/Denver" }))
         .eq("account_id", account?.id)
         .eq("visibility", "public")
         .is("team_id", null)
