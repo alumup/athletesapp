@@ -23,7 +23,7 @@ const TeamPage = ({ params }: { params: { id: string } }) => {
     const getTeam = async () => {
       const { data, error } = await supabase
         .from("teams")
-        .select("*, rosters(*), events(*, teams(*),rsvp(*))")
+        .select("*, rosters(*), events(*, teams(*),rsvp(*), events(*, rsvp(*),teams(*)))")
         .eq("id", params.id)
         .single();
 
