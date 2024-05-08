@@ -49,7 +49,7 @@ export default function TeamEvents({ dependent, rosters }: any) {
         .select(
           "*, teams(*), accounts(*), fees(*), rsvp(*), parent_id(*, rsvp(*)), events(*, teams(*), rsvp(*))",
         )
-        .gte("date", new Date().toISOString())
+        .gte("date", new Date().toLocaleString("en-US", { timeZone: "America/Denver" }))
         .in("team_id", teamIds)
         .order("date", { ascending: true });
 
@@ -194,10 +194,10 @@ export default function TeamEvents({ dependent, rosters }: any) {
                         {event?.schedule?.start_time
                           ? formatStartTime(event.schedule.start_time)
                           : event?.schedule?.sessions?.[0]
-                          ? formatStartTime(
+                            ? formatStartTime(
                               event.schedule.sessions[0].start_time,
                             )
-                          : ""}
+                            : ""}
                       </span>
                     </div>
                   )}
