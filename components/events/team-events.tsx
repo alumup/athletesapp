@@ -110,123 +110,125 @@ export default function TeamEvents({ dependent, rosters }: any) {
             );
             return aDateTime.getTime() - bDateTime.getTime();
           })
-          .map((event: any) => (
-            <>
-              <div
-                key={event?.id}
-                className="my-3 flex rounded-lg border border-gray-200"
-              >
-                <div className="flex w-64 flex-col justify-between rounded-r-lg bg-white p-2">
-                  <div className="relative h-32 w-full rounded-lg">
-                    <Image
-                      className=" object-cover"
-                      src={
-                        event?.cover_image ||
-                        "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"
-                      }
-                      fill
-                      alt={event?.name}
-                    />
-                    <div className="absolute left-2 top-2 rounded border border-black bg-lime-300 p-2 text-black">
-                      <div className="flex flex-col items-center">
-                        <span className="text-md font-bold">
-                          {formatDay(event?.schedule?.start_date)}
-                        </span>
-                        <span className="text-xs">
-                          {formatMonth(event?.schedule?.start_date)}
-                        </span>
-                      </div>
-                    </div>
-                    {event?.parent_id && (
-                      <div className="absolute right-2 top-2 rounded bg-gray-300 p-2 text-black">
-                        <Group className="h-4 w-4" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-2 inline-flex">
-                    <span className="rounded-full border border-lime-300 bg-lime-100 px-2 py-0.5 text-[10px] text-lime-900">
-                      {" "}
-                      {event?.teams?.name}
-                    </span>
-                  </div>
-                  <h2 className="text-md mb-1 font-bold">{event?.name}</h2>
-
-                  <div className="mb-2 flex items-center space-x-2">
-                    <MapPin className="h-4 w-4" />
-                    <span className="text-sm">
-                      {event?.location?.name || event?.location}
-                    </span>
-                  </div>
-
-                  {!event?.parent_id && (
-                    <div className="mb-2 flex items-center space-x-2">
-                      <CalendarRange className="h-4 w-4" />
-                      <span className="text-xs">
-                        <div className="flex items-center">
-                          <div>
-                            <span className="mr-1 text-xs">
-                              {formatMonth(event?.schedule?.start_date)}
-                            </span>
-                            <span className="text-xs">
+          .map((event: any) => {
+            if (new Date(`${event.schedule.end_date}T${event.schedule.end_time || "00:00"}`) > new Date())
+              return (
+                <>
+                  <div
+                    key={event?.id}
+                    className="my-3 flex rounded-lg border border-gray-200"
+                  >
+                    <div className="flex w-64 flex-col justify-between rounded-r-lg bg-white p-2">
+                      <div className="relative h-32 w-full rounded-lg">
+                        <Image
+                          className=" object-cover"
+                          src={
+                            event?.cover_image ||
+                            "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"
+                          }
+                          fill
+                          alt={event?.name}
+                        />
+                        <div className="absolute left-2 top-2 rounded border border-black bg-lime-300 p-2 text-black">
+                          <div className="flex flex-col items-center">
+                            <span className="text-md font-bold">
                               {formatDay(event?.schedule?.start_date)}
                             </span>
+                            <span className="text-xs">
+                              {formatMonth(event?.schedule?.start_date)}
+                            </span>
                           </div>
-                          {event?.schedule?.end_date && (
-                            <div>
-                              -
-                              <span className="mr-1 text-xs">
-                                {formatMonth(event?.schedule?.end_date)}
-                              </span>
-                              <span className="text-xs">
-                                {formatDay(event?.schedule?.end_date)}
-                              </span>
-                            </div>
-                          )}
                         </div>
-                      </span>
-                    </div>
-                  )}
-
-                  {event?.schedule && event?.schedule?.start_time && (
-                    <div>
-                      <span className="flex items-center space-x-2 text-xs">
-                        <AlarmClock className="mr-2 h-4 w-4" />
-                        {event?.schedule?.start_time
-                          ? formatStartTime(event.schedule.start_time)
-                          : event?.schedule?.sessions?.[0]
-                            ? formatStartTime(
-                              event.schedule.sessions[0].start_time,
-                            )
-                            : ""}
-                      </span>
-                    </div>
-                  )}
-
-                  {event?.rsvp?.find(
-                    (rs: any) =>
-                      rs.person_id === personId && rs.status === "paid",
-                  ) ? (
-                    <Link
-                      href={`/portal/events/${event.id}/rsvp?dependent=${personId}`}
-                      className=" self-end rounded border bg-white px-3 py-2 font-bold"
-                    >
-                      <div className="flex justify-between text-xs">
-                        <CheckCircle className="mr-2 h-4 w-4" color="green" />
-                        <span>Going</span>
+                        {event?.parent_id && (
+                          <div className="absolute right-2 top-2 rounded bg-gray-300 p-2 text-black">
+                            <Group className="h-4 w-4" />
+                          </div>
+                        )}
                       </div>
-                    </Link>
-                  ) : (
-                    <Link
-                      href={`/portal/events/${event?.id}/rsvp?dependent=${personId}`}
-                      className="self-end rounded bg-black px-6 py-2 text-xs font-bold text-white"
-                    >
-                      RSVP
-                    </Link>
-                  )}
-                </div>
-              </div>
-              {/* If you want to show subevents immediately after main event. */}
-              {/* {event?.events &&
+                      <div className="mt-2 inline-flex">
+                        <span className="rounded-full border border-lime-300 bg-lime-100 px-2 py-0.5 text-[10px] text-lime-900">
+                          {" "}
+                          {event?.teams?.name}
+                        </span>
+                      </div>
+                      <h2 className="text-md mb-1 font-bold">{event?.name}</h2>
+
+                      <div className="mb-2 flex items-center space-x-2">
+                        <MapPin className="h-4 w-4" />
+                        <span className="text-sm">
+                          {event?.location?.name || event?.location}
+                        </span>
+                      </div>
+
+                      {!event?.parent_id && (
+                        <div className="mb-2 flex items-center space-x-2">
+                          <CalendarRange className="h-4 w-4" />
+                          <span className="text-xs">
+                            <div className="flex items-center">
+                              <div>
+                                <span className="mr-1 text-xs">
+                                  {formatMonth(event?.schedule?.start_date)}
+                                </span>
+                                <span className="text-xs">
+                                  {formatDay(event?.schedule?.start_date)}
+                                </span>
+                              </div>
+                              {event?.schedule?.end_date && (
+                                <div>
+                                  -
+                                  <span className="mr-1 text-xs">
+                                    {formatMonth(event?.schedule?.end_date)}
+                                  </span>
+                                  <span className="text-xs">
+                                    {formatDay(event?.schedule?.end_date)}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </span>
+                        </div>
+                      )}
+
+                      {event?.schedule && event?.schedule?.start_time && (
+                        <div>
+                          <span className="flex items-center space-x-2 text-xs">
+                            <AlarmClock className="mr-2 h-4 w-4" />
+                            {event?.schedule?.start_time
+                              ? formatStartTime(event.schedule.start_time)
+                              : event?.schedule?.sessions?.[0]
+                                ? formatStartTime(
+                                  event.schedule.sessions[0].start_time,
+                                )
+                                : ""}
+                          </span>
+                        </div>
+                      )}
+
+                      {event?.rsvp?.find(
+                        (rs: any) =>
+                          rs.person_id === personId && rs.status === "paid",
+                      ) ? (
+                        <Link
+                          href={`/portal/events/${event.id}/rsvp?dependent=${personId}`}
+                          className=" self-end rounded border bg-white px-3 py-2 font-bold"
+                        >
+                          <div className="flex justify-between text-xs">
+                            <CheckCircle className="mr-2 h-4 w-4" color="green" />
+                            <span>Going</span>
+                          </div>
+                        </Link>
+                      ) : (
+                        <Link
+                          href={`/portal/events/${event?.id}/rsvp?dependent=${personId}`}
+                          className="self-end rounded bg-black px-6 py-2 text-xs font-bold text-white"
+                        >
+                          RSVP
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                  {/* If you want to show subevents immediately after main event. */}
+                  {/* {event?.events &&
                 event.rsvp.some(
                   (rs: any) =>
                     rs.person_id === personId && rs.status === "paid",
@@ -249,8 +251,9 @@ export default function TeamEvents({ dependent, rosters }: any) {
                       <Event event={se} person={person} />
                     </div>
                   ))} */}
-            </>
-          ))}
+                </>
+              )
+          })}
       </div>
     </div>
   );
