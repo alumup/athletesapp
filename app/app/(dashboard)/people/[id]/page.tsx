@@ -3,14 +3,11 @@ import { useState, useEffect, Key } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import Link from "next/link";
 import { getAccount, getPrimaryContacts } from "@/lib/fetchers/client";
-import GenericButton from "@/components/modal-buttons/generic-button";
-import EditPersonModal from "@/components/modal/edit-person-modal";
 import {
   CardTitle,
   CardHeader,
   CardContent,
   Card,
-  CardDescription,
 } from "@/components/ui/card";
 import { fullName } from "@/lib/utils";
 import { toast } from "sonner";
@@ -152,9 +149,11 @@ export default function PersonPage({ params }: { params: { id: string } }) {
   }, []);
 
   async function hasProfile(person: any) {
-    let email = person?.primary_contacts[0].email;
-    if (person.dependent && person.email !== "") {
+    let email = "";
+    if (person.email) {
       email = person.email;
+    } else if (person?.primary_contacts[0]?.email) {
+      email = person.primary_contacts[0].email;
     }
     const { data, error } = await supabase
       .from("profiles")
