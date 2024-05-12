@@ -240,7 +240,7 @@ export default function Component() {
                 </Avatar>
                 <div className="grid gap-1">
                   <p className="text-sm font-medium leading-none">
-                    Jackson Lee
+                    Jackson Leez
                   </p>
                   <p className="text-muted-foreground text-sm">
                     jackson.lee@email.com
