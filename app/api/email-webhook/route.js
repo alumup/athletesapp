@@ -1,27 +1,19 @@
 // app/api/email-webhook/route.js
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
-// import resend from "@/lib/resend";
 import { Webhook } from 'svix';
 
 export async function POST(req) {
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
-  // Get the raw body and signature
-  const rawBody = await req.text();
-  const signature = req.headers.get('resend-signature');
+  // Get the raw body and headers
+  const payload = await req.text();
+  const headers = Object.fromEntries(req.headers);
 
   try {
     // Verify the webhook signature
     const wh = new Webhook(process.env.RESEND_WEBHOOK_SECRET);
-    // Throws on error, returns the verified content on success
-    const event = wh.verify(payload, headers);    
-
-    // const event = resend.webhooks.verify({
-    //   payload: rawBody,
-    //   signature: signature,
-    //   signingKey: process.env.RESEND_WEBHOOK_SECRET,
-    // });
+    const event = wh.verify(payload, headers);
 
     const { type, data } = event;
 
@@ -47,7 +39,7 @@ export async function POST(req) {
         updateData = { status: 'bounced', bounced_at: new Date().toISOString() };
         break;
       case 'email.complained':
-        updateData = { status: 'complained', bounced_at: new Date().toISOString() };
+        updateData = { status: 'complained', complained_at: new Date().toISOString() };
         break;
     }
 
