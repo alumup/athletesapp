@@ -2,7 +2,7 @@
 import { createClient } from '@supabase/supabase-js';
 import resend from "@/lib/resend";
 import { NextResponse } from 'next/server';
-
+import resend from "@/lib/resend";
 
 export async function POST(req) {
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
@@ -41,6 +41,9 @@ export async function POST(req) {
         break;
       case 'email.bounced':
         updateData = { status: 'bounced', bounced_at: new Date().toISOString() };
+        break;
+      case 'email.complained':
+        updateData = { status: 'complained', bounced_at: new Date().toISOString() };
         break;
     }
 
