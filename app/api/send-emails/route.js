@@ -51,7 +51,7 @@ export async function POST(req) {
               .insert({
                 account_id: account.id,
                 sender: sender,
-                recipient: contact.email,
+                recipient_id: contact.id,
                 subject: subject,
                 content: message,
                 status: 'sent',
