@@ -1,9 +1,8 @@
 // app/api/email-webhook/route.js
 import { createClient } from '@supabase/supabase-js';
-import { Resend } from '@resend/node';
+import resend from "@/lib/resend";
 import { NextResponse } from 'next/server';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
