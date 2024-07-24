@@ -1,8 +1,8 @@
 // app/api/email-webhook/route.js
 import { createClient } from '@supabase/supabase-js';
-import resend from "@/lib/resend";
 import { NextResponse } from 'next/server';
-import resend from "@/lib/resend";
+// import resend from "@/lib/resend";
+import { Webhook } from 'svix';
 
 export async function POST(req) {
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
@@ -13,11 +13,15 @@ export async function POST(req) {
 
   try {
     // Verify the webhook signature
-    const event = resend.webhooks.verify({
-      payload: rawBody,
-      signature: signature,
-      signingKey: process.env.RESEND_WEBHOOK_SECRET,
-    });
+    const wh = new Webhook(secret);
+    // Throws on error, returns the verified content on success
+    const event = wh.verify(payload, headers);    
+
+    // const event = resend.webhooks.verify({
+    //   payload: rawBody,
+    //   signature: signature,
+    //   signingKey: process.env.RESEND_WEBHOOK_SECRET,
+    // });
 
     const { type, data } = event;
 
