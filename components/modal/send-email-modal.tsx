@@ -19,7 +19,7 @@ export default function SendEmailModal({
 }) {
   const { refresh } = useRouter();
   const [emailIsSending, setEmailIsSending] = useState(false);
-  const [emailError, setEmailError] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const modal = useModal();
   const {
     register,
@@ -33,22 +33,39 @@ export default function SendEmailModal({
   // Functions to handle actions
   const handleSendEmail = ({ data }: { data: any }) => {
     console.log("handleSendEmail called", data);
+    if (!data.sender || !data.subject || !data.message || !data.preview) {
+      console.error("Missing required fields");
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    const emailData = {
+      account: account,
+      people: people,
+      sender: data.sender,
+      subject: data.subject,
+      message: data.message.getHTML(),
+      preview: data.preview,
+    };
+
+    console.log("Sending email with data:", JSON.stringify(emailData, null, 2));
+
     setEmailIsSending(true);
+    setEmailError(null);
+
     fetch("/api/send-emails", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        account: account,
-        people: people,
-        sender: data.sender,
-        subject: data.subject,
-        message: data.message.getHTML(),
-        preview: data.preview,
-      }),
+      body: JSON.stringify(emailData),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then((data) => {
         setEmailIsSending(false);
         modal?.hide();
@@ -59,8 +76,9 @@ export default function SendEmailModal({
       })
       .catch((error) => {
         setEmailIsSending(false);
-        setEmailError(true);
+        setEmailError(error.message || "An unknown error occurred");
         console.error("Error:", error);
+        toast.error(`Failed to send email: ${error.message}`);
       });
   };
 
@@ -84,7 +102,7 @@ export default function SendEmailModal({
 
         {emailError && (
           <span className="text-sm text-red-500">
-            There was an error sending the email
+            Error sending email: {emailError}
           </span>
         )}
 
@@ -101,7 +119,7 @@ export default function SendEmailModal({
             {...register("sender", { required: true })}
           >
             {account?.senders.map((sender: any) => (
-              <option value={`${sender.name} <${sender.email}>`}>
+              <option key={sender.email} value={`${sender.name} <${sender.email}>`}>
                 {sender.email}
               </option>
             ))}
