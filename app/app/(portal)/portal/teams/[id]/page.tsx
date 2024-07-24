@@ -34,7 +34,7 @@ const TeamPage = ({ params }: { params: { id: string } }) => {
     };
 
     getTeam();
-  }, []);
+  }, [params.id, supabase]);
 
   return (
     <div>
@@ -88,13 +88,13 @@ const TeamPage = ({ params }: { params: { id: string } }) => {
           <h2 className="text-md font-bold">Team Events</h2>
         </div>
         <div className="h-full min-h-52 w-full px-5">
-          {team ? (
+          {team?.name ? (
             <>
-              {team.rosters.length > 0 ? (
+              {team.events && team.events.length > 0 ? (
                 <Events events={team.events} person_id={person_id} />
               ) : (
                 <div className="flex h-full min-h-48 w-full flex-col items-center justify-center">
-                  <p>doesn't have any upcoming team events.</p>
+                  <p>{team.name} doesn&apos;t have any upcoming team events.</p>
                 </div>
               )}
             </>

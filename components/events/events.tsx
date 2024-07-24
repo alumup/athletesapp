@@ -26,6 +26,7 @@ export default function Events({ events, person_id }: any) {
   const [filteredEvents, setFilteredEvents] = useState<any>([]);
 
   useEffect(() => {
+    console.log(events)
     const sortEvents = async () => {
       const newEvents = [];
       const parentEvents = events?.filter((event: any) => !event.parent_id);
@@ -42,6 +43,8 @@ export default function Events({ events, person_id }: any) {
           newEvents.push(...parentEvent.events);
         }
       });
+
+      console.log(newEvents)
 
       setFilteredEvents(newEvents);
     };
