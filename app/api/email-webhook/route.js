@@ -13,7 +13,7 @@ export async function POST(req) {
 
   try {
     // Verify the webhook signature
-    const wh = new Webhook(secret);
+    const wh = new Webhook(process.env.RESEND_WEBHOOK_SECRET);
     // Throws on error, returns the verified content on success
     const event = wh.verify(payload, headers);    
 
