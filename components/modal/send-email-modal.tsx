@@ -90,7 +90,7 @@ export default function SendEmailModal({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="w-full rounded-md bg-white dark:bg-black md:max-w-md md:border md:border-stone-200 md:shadow dark:md:border-stone-700"
+      className="w-full min-w-md rounded-md bg-white md:max-w-md md:border md:border-stone-200 md:shadow"
     >
       <div className="relative flex max-h-[700px] flex-col space-y-4 overflow-y-scroll p-5 md:p-10">
         <div className="flex w-full items-center">
@@ -132,7 +132,7 @@ export default function SendEmailModal({
         <div className="flex flex-col space-y-2">
           <label
             htmlFor="subject"
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+            className="text-sm font-medium text-gray-700"
           >
             Subject
           </label>

@@ -7,8 +7,12 @@ import {
   TrashIcon,
   ListBulletIcon,
   MixerHorizontalIcon,
-  ArrowRightIcon,
+  ArrowRightIcon
 } from "@radix-ui/react-icons";
+
+import {
+  ShieldIcon, UsersIcon 
+} from "lucide-react"
 
 import {
   ColumnDef,
@@ -56,6 +60,7 @@ export type Person = {
   email: string;
   phone: string;
   primary_contacts: any;
+  relationships: any;
 };
 
 const columns: ColumnDef<Person>[] = [
@@ -79,27 +84,24 @@ const columns: ColumnDef<Person>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: "dependent",
+    header: "",
+    cell: ({ row }) => (
+      <div className="flex items-center space-x-2">
+        {!row.getValue("dependent") ? (
+          /* this is showing if the person is an independent */
+          <ShieldIcon className="h-4 w-4 text-green-500" />
+        ) : null}
+        {row.original.relationships && row.original.relationships.length > 0 && (
+          <UsersIcon className="h-4 w-4 text-green-500" />
+        )}
+      </div>
+    ),
+  },
+  {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => <div>{row.getValue("name")}</div>,
-  },
-  {
-    accessorKey: "dependent",
-    header: "Dependent of",
-    cell: ({ row }) => (
-      <div className="space-x-2">
-        {row.getValue("dependent") &&
-          row.original.primary_contacts.map((contact: any, index: any) => (
-            <Link
-              key={index}
-              href={`/people/${contact?.id}`}
-              className="titlecase cursor-pointer rounded-full border border-gray-300 bg-gray-100 px-2 py-1 lowercase"
-            >
-              {contact?.name}
-            </Link>
-          ))}
-      </div>
-    ),
   },
   {
     accessorKey: "tags",

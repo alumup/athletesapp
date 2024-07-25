@@ -21,13 +21,25 @@ export async function POST(req) {
 
     console.log("SENDER", sender);
 
-    // Extract all primary contacts into a single array
-    const allPrimaryContacts = people.flatMap(
-      (person) => person.primary_contacts,
-    );
+    // Extract all primary contacts and people with emails into a single array, removing duplicates
+    const allRecipients = people.flatMap((person) => {
+      const recipients = new Set();
+      
+      // Add primary contacts
+      (person.primary_contacts || []).forEach(contact => {
+        recipients.add(JSON.stringify(contact));
+      });
+
+      // Add person if they have an email and it's not already included
+      if (person.email && ![...recipients].some(r => JSON.parse(r).email === person.email)) {
+        recipients.add(JSON.stringify(person));
+      }
+
+      return Array.from(recipients).map(r => JSON.parse(r));
+    });
 
     // Then use the same logic to send emails
-    const emailPromises = allPrimaryContacts.map((contact, index) => {
+    const emailPromises = allRecipients.map((contact, index) => {
       return new Promise((resolve, reject) => {
         setTimeout(async () => {
           try {

@@ -16,7 +16,7 @@ export default function PeoplePage() {
   const fetchPeople = async (account) => {
     const { data: people, error } = await supabase
       .from("people")
-      .select("*")
+      .select("*, relationships!relationships_person_id_fkey(*)")
       .eq("account_id", account?.id);
     // need to get only people that belong to this account
 
