@@ -27,7 +27,7 @@ const PortalPage = () => {
   const [user, setUser] = useState<any>();
   const [profile, setProfile] = useState<any>();
   const [independents, setIndependents] = useState<any>(null);
-  const [toRelationships, setToRelationships] = useState<any>(null);
+  const [toRelationships, setToRelationships] = useState<any[]>([]);
   const [rosters, setRosters] = useState<any>(null);
   const [loading, setLoading] = useState<any>(true);
   const [error, setError] = useState<any>(null);
@@ -113,12 +113,14 @@ const PortalPage = () => {
         return;
       }
 
-      if (data) {
-        console.log("Relationships", data);
+      if (data && data.length > 0) {
+        setToRelationships(data);
+        setSelectedDependent(data[0]);
+      } else {
+        setToRelationships([]);
+        setSelectedDependent(null);
       }
 
-      setToRelationships(data);
-      setSelectedDependent(data[0]);
       console.log("SELECTED DEPENDENT", data[0]);
     };
 
@@ -187,7 +189,11 @@ const PortalPage = () => {
       )}
 
       <div className="mt-5">
-        <SelectPerson relationships={toRelationships} params={undefined} />
+        {toRelationships ? (
+          <SelectPerson relationships={toRelationships} params={undefined} />
+        ) : (
+          <p>Loading relationships...</p>
+        )}
       </div>
     </div>
   );
