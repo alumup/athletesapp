@@ -1,16 +1,20 @@
-"use client";
 import { PortalUserNav } from "@/components/navigation/portal-user-nav";
 import Link from "next/link";
-import { ReactNode, useEffect, useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import SelectPerson from "./components/select-person";
+import { ReactNode } from "react";
+import Image from "next/image";
 
 export default function PortalLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <div className="sticky top-0 z-10 flex w-full justify-between border border-b border-gray-300 bg-gray-50 p-5">
         <Link href="/">
-          <img src="/athletes-logo.svg" className="h-auto w-[50px]" />
+          <Image
+            src="/athletes-logo.svg"
+            alt="Athletes Logo"
+            className="h-auto w-[50px]"
+            width={50}
+            height={50}
+          />
         </Link>
         <PortalUserNav />
       </div>

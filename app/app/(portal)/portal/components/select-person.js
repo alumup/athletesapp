@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import Link from "next/link";
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -10,7 +10,7 @@ import { ChevronRight } from "lucide-react";
 const SelectPerson = ({ params, relationships }) => {
   const [selectedName, setSelectedName] = useState("Select Dependent");
   const [isLoading, setIsLoading] = useState(true); // Added loading state
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
 

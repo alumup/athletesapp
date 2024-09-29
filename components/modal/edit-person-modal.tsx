@@ -1,10 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import { useForm, useFieldArray } from "react-hook-form";
 import { useRouter } from "next/navigation";
-// @ts-expect-error
-import { experimental_useFormStatus as useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
@@ -27,7 +26,7 @@ export default function EditPersonModal({
 }) {
   const { refresh } = useRouter();
   const modal = useModal();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const [tags, setTags] = useState<any>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -148,7 +147,7 @@ export default function EditPersonModal({
 
     getTags();
     getRelationships();
-  }, []);
+  }, [account.id, person.id, supabase]);
 
   useEffect(() => {
     const getSelectedTags = async () => {
@@ -165,7 +164,7 @@ export default function EditPersonModal({
     };
 
     getSelectedTags();
-  }, []);
+  }, [person.id, supabase]);
 
   return (
     <form
@@ -331,7 +330,7 @@ export default function EditPersonModal({
 
           <div className="flex flex-col space-y-2">
             <label
-              htmlFor="tags"
+              htmlFor="tagSelect"
               className="text-sm font-medium text-gray-700 dark:text-stone-300"
             >
               Tags
@@ -350,6 +349,7 @@ export default function EditPersonModal({
             </div>
 
             <select
+              id="tagSelect"
               onChange={handleTagSelect}
               className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
             >
@@ -388,11 +388,16 @@ export default function EditPersonModal({
                 </div>
               </div>
             ))}
-
             {fields.map((field, index) => (
-              <div className="mt-2 flex w-full flex-col">
+              <div key={field.id} className="mt-2 flex w-full flex-col">
+                <label
+                  htmlFor={`relationship-name-${index}`}
+                  className="text-sm font-medium text-gray-700 dark:text-stone-300"
+                >
+                  Relationship Type
+                </label>
                 <select
-                  id="name"
+                  id={`relationship-name-${index}`}
                   className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
                   {...register(`relationships.${index}.name`, {
                     required: true,
@@ -402,16 +407,16 @@ export default function EditPersonModal({
                   <option value="Guardian">Guardian</option>
                 </select>
                 <input
-                  key={field.id}
                   placeholder="Relationship ID"
                   {...register(`relationships.${index}.id`, { required: true })}
                   className="mt-2 rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-                  defaultValue={field.id} // make sure to set up defaultValue
+                  defaultValue={field.id}
                 />
-                <label>
+                <label className="mt-2 flex items-center">
                   <input
                     type="checkbox"
                     {...register(`relationships.${index}.primary`)}
+                    className="mr-2"
                   />
                   Primary Contact
                 </label>
@@ -419,7 +424,7 @@ export default function EditPersonModal({
             ))}
             <button
               type="button"
-              className="infline-flex rounded border border-zinc-900 border-zinc-900 px-2 py-2 text-xs"
+              className="inline-flex rounded border border-zinc-900 px-2 py-2 text-xs"
               onClick={() => append({ id: "" })}
             >
               Add New Relationship
@@ -437,6 +442,9 @@ function CreateSiteFormButton() {
   return (
     <div className="flex items-center justify-end rounded-b-lg border-t border-stone-200 p-3 md:bg-stone-50  md:px-10">
       <button
+        title="Update person"
+        aria-label="Update person"
+        type="submit"
         className={cn(
           "fixed inset-x-0 bottom-0 flex h-10 w-full items-center justify-center space-x-2 rounded-md border text-sm transition-all focus:outline-none md:relative",
           pending

@@ -1,10 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useForm, useFieldArray } from "react-hook-form";
+
+import { createClient } from "@/lib/supabase/client"
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-// @ts-expect-error
-import { experimental_useFormStatus as useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
@@ -18,7 +17,7 @@ export default function CreateRegistrantModal({
 }) {
   const { refresh } = useRouter();
   const modal = useModal();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const {
     register,

@@ -1,5 +1,5 @@
 "use client";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 
 import { PeopleTable } from "./table";
 
@@ -9,7 +9,7 @@ import SheetModal from "@/components/modal/sheet";
 import NewPerson from "./new";
 
 export default function PeoplePage() {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [people, setPeople] = useState([]);
   const [account, setAccount] = useState(null);
 

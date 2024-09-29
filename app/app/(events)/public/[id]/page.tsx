@@ -2,14 +2,14 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const PublicAccountEvents = ({ params }: { params: { id: string } }) => {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [events, setEvents] = useState<any>([]);
 
   useEffect(() => {

@@ -9,7 +9,7 @@ import {
 } from "@/lib/utils";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreatePaymentModalMultipleParticipants from "@/components/modal/create-payment-modal-multiple-participants";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import {
   Calendar,
   CheckCircle,
@@ -26,7 +26,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const EventRSVP = ({ params }: { params: { id: string } }) => {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const searchParams = useSearchParams();
 
   const { refresh } = useRouter();
@@ -185,7 +185,7 @@ const EventRSVP = ({ params }: { params: { id: string } }) => {
       };
       getProfile();
     }
-  }, [user]);
+  }, [currentDependent, event?.id, params.id, searchParams, selectedDependants, supabase, user]);
 
   const updateRSVP = async () => {
     const { data, error } = await supabase

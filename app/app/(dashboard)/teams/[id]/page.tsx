@@ -1,11 +1,12 @@
 "use client";
 
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 
 import { TeamTable } from "./table";
 
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreateEventModal from "@/components/modal/create-event-modal";
+import EditTeamModal from "@/components/modal/edit-team-modal";
 import { useEffect, useState } from "react";
 import AddToStaffModal from "@/components/modal/add-to-staff-modal";
 import { useRouter } from "next/navigation";
@@ -62,7 +63,7 @@ async function getPrimaryContacts(supabase: any, person: any) {
 
 export default function TeamPage({ params }: { params: { id: string } }) {
   // const supabase = createServerComponentClient({ cookies })
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const router = useRouter();
   const [account, setAccount] = useState<any>({});
   const [user, setUser] = useState<any>({});
@@ -143,7 +144,7 @@ export default function TeamPage({ params }: { params: { id: string } }) {
     };
 
     getPrimaryEmail();
-  }, [team.rosters]);
+  }, [supabase, team.rosters]);
 
   return (
     <div className="flex flex-col space-y-12">
@@ -165,6 +166,14 @@ export default function TeamPage({ params }: { params: { id: string } }) {
               classNames=""
             >
               <AddToStaffModal team={team} onClose={() => router.refresh()} />
+            </GenericButton>
+            <GenericButton
+              cta="Edit Team"
+              size={undefined}
+              variant={undefined}
+              classNames=""
+            >
+              <EditTeamModal account={account} team={team} />
             </GenericButton>
             <GenericButton
               cta="New Event"

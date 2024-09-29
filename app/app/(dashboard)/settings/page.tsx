@@ -1,13 +1,13 @@
 "use client";
 
 import LoadingDots from "@/components/icons/loading-dots";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function SettingsPage() {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const searchParams = useSearchParams();
 
   const scope = searchParams.get("scope");

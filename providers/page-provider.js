@@ -1,6 +1,6 @@
 "use client";
 
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import { createContext, useState, useContext, useEffect } from "react";
 import { useSearchParams, usePathname, useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,7 +10,7 @@ import { getSiteData } from "@/lib/fetchers/client";
 export const PageContext = createContext();
 
 function PageProvider({ children }) {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const searchParams = useSearchParams();
   const params = useParams();
   const pathname = usePathname();

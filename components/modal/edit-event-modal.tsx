@@ -1,14 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client"
-import { useFieldArray, useForm } from "react-hook-form";
-import { useRouter, useParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
 
-export default function CreateEventModal({
+export default function EditEventModal({
   account,
   team,
   event,
@@ -23,6 +23,14 @@ export default function CreateEventModal({
   const supabase = createClient();
   const [fees, setFees] = useState<any>([]);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+    setValue,
+  } = useForm();
+
   useEffect(() => {
     const getFees = async () => {
       const { data } = await supabase
@@ -30,41 +38,61 @@ export default function CreateEventModal({
         .select("*")
         .eq("account_id", account?.id);
 
-      console.log(data);
       setFees(data);
     };
     getFees();
-  }, []);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    control,
-  } = useForm();
+
+    // If we're editing an existing event, populate the form fields
+    if (event) {
+      setValue("name", event.name);
+      setValue("description", event.description);
+      setValue("location", event.location?.name);
+      setValue("start_date", event.schedule?.start_date);
+      setValue("end_date", event.schedule?.end_date);
+      setValue("start_time", event.schedule?.start_time);
+      setValue("end_time", event.schedule?.end_time);
+      setValue("visibility", event.visibility);
+      setValue("fees", event.fees);
+    }
+  }, [event, account?.id, setValue, supabase]);
 
   const onSubmit = async (data: any) => {
-    const { error } = await supabase.from("events").insert([
-      {
-        account_id: account?.id,
-        name: data.name,
-        description: data.description,
-        team_id: team?.id || event?.teams.id,
-        location: {
-          name: data.location,
-        },
-        schedule: {
-          start_date: data.start_date,
-          end_date: data.end_date || null,
-          start_time: data.start_time,
-          end_time: data.end_time,
-        },
-        visibility: data.visibility,
-        fees: data.fees || null,
-        cover_image: data.cover_image || null,
-        date: data.start_date,
-        parent_id: event?.id,
+    const eventData = {
+      account_id: account?.id,
+      name: data.name,
+      description: data.description,
+      team_id: team?.id || event?.teams?.id,
+      location: {
+        name: data.location,
       },
-    ]);
+      schedule: {
+        start_date: data.start_date,
+        end_date: data.end_date || null,
+        start_time: data.start_time,
+        end_time: data.end_time,
+      },
+      visibility: data.visibility,
+      fees: data.fees || null,
+      cover_image: data.cover_image || null,
+      date: data.start_date,
+      parent_id: event?.parent_id,
+    };
+
+    let error;
+    if (event) {
+      // Update existing event
+      const { error: updateError } = await supabase
+        .from("events")
+        .update(eventData)
+        .eq("id", event.id);
+      error = updateError;
+    } else {
+      // Create new event
+      const { error: insertError } = await supabase
+        .from("events")
+        .insert([eventData]);
+      error = insertError;
+    }
 
     if (error) {
       console.log("FORM ERRORS: ", error);
@@ -80,7 +108,9 @@ export default function CreateEventModal({
       className="scrollable w-full rounded-md bg-white md:max-w-5xl md:border md:border-gray-300 md:shadow"
     >
       <div className="relative flex flex-col space-y-4 p-5 md:p-10">
-        <h2 className="font-cal text-2xl dark:text-white">New event</h2>
+        <h2 className="font-cal text-2xl dark:text-white">
+          {event ? "Edit Event" : "New Event"}
+        </h2>
         <div className="grid grid-cols-2 gap-5">
           {event && (
             <div className="col-span-2 flex flex-col space-y-2">
@@ -282,12 +312,13 @@ export default function CreateEventModal({
       </div>
 
       <div className="flex items-center justify-end rounded-b-lg border-t border-stone-200 bg-stone-50 p-3 dark:border-stone-700 dark:bg-stone-800 md:px-10">
-        <CreateSiteFormButton />
+        <EditEventFormButton isEditing={!!event} />
       </div>
     </form>
   );
 }
-function CreateSiteFormButton() {
+
+function EditEventFormButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
     <button
@@ -299,7 +330,11 @@ function CreateSiteFormButton() {
       )}
       disabled={pending}
     >
-      {pending ? <LoadingDots color="#808080" /> : <p>Create Event</p>}
+      {pending ? (
+        <LoadingDots color="#808080" />
+      ) : (
+        <p>{isEditing ? "Update Event" : "Create Event"}</p>
+      )}
     </button>
   );
 }

@@ -1,13 +1,12 @@
 "use client";
 import { ArrowLeftIcon, PlusIcon } from "@radix-ui/react-icons";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { CheckCircle } from "lucide-react";
+import { createClient } from "@/lib/supabase/client"
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 const NewDependent = ({ params }: { params: { id: string } }) => {
   const [dependents, setDependents] = useState<any[]>([]);
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   useEffect(() => {
     const getDependents = async () => {
@@ -20,7 +19,7 @@ const NewDependent = ({ params }: { params: { id: string } }) => {
     };
 
     getDependents();
-  }, []);
+  }, [params.id, supabase]);
 
   return (
     <>
@@ -44,12 +43,11 @@ const NewDependent = ({ params }: { params: { id: string } }) => {
           </Link>
         </div>
         <div>
-          <div className="bg-white p-6  md:mx-auto">
-            <ul role="list" className="divide-y divide-gray-100">
-              <div className="flex flex-col">
-                <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                  <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                    <div className="overflow-hidden border-b border-gray-200 shadow sm:rounded-lg">
+          <div className="bg-white p-6 md:mx-auto">
+            <div className="flex flex-col">
+              <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                  <div className="overflow-hidden border-b border-gray-200 shadow sm:rounded-lg">
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                           <tr>
@@ -99,10 +97,10 @@ const NewDependent = ({ params }: { params: { id: string } }) => {
                   </div>
                 </div>
               </div>
-            </ul>
+            </div>
           </div>
         </div>
-      </div>
+     
     </>
   );
 };

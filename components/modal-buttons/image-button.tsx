@@ -14,6 +14,9 @@ export default function ImageButton({
   const modal = useModal();
   return (
     <button
+      title="Open image"
+      aria-label="Open image"
+      type="button"
       onClick={() => modal?.show(children)}
       className="cursor relative h-52 w-52 overflow-hidden rounded bg-gray-200"
     >

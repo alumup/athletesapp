@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 
 import Link from "next/link";
 import { getInitials } from "@/lib/utils";
@@ -19,7 +19,7 @@ import SelectPerson from "./components/select-person";
 import { Separator } from "@/components/ui/separator";
 
 const PortalPage = () => {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const searchParams = useSearchParams();
 
@@ -94,14 +94,12 @@ const PortalPage = () => {
     };
 
     if (user !== null) getIndependents();
-  }, [user]);
+  }, [supabase, user]);
 
   useEffect(() => {
     const fetchToRelationships = async () => {
       let independentIds =
         independents?.map((independent: any) => independent.id) || [];
-
-      console.log("IDS", independentIds);
 
       const { data, error } = await supabase
         .from("relationships")

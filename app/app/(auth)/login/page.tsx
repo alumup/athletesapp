@@ -1,36 +1,37 @@
-"use client";
+'use client'
+
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Messages from "./messages";
-import { useSearchParams } from "next/navigation";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useSearchParams, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import LoadingDots from "@/components/icons/loading-dots";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { decryptId } from "@/app/utils/ecryption";
+import { signup, login } from './actions';
 
 export default function Login() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [emailIsSending, setEmailIsSending] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const from_events = searchParams.get("from_events");
-
   const account_id = searchParams.get("account_id");
   const people_id = searchParams.get("people_id");
-  const email =
-    from_events === "" || !from_events
-      ? decryptId(searchParams.get("email") as string)
-      : (searchParams.get("email") as string) || "";
+  const email = from_events === "true"
+    ? (searchParams.get("email") as string) || ""
+    : decryptId(searchParams.get("email") as string);
   const sign_up = searchParams.get("sign_up");
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [account, setAccount] = useState<any>(null);
 
   const isDisabled = email !== "";
+  const signUp = sign_up === "true";
 
   useEffect(() => {
     const fetchPersonData = async () => {
@@ -55,7 +56,6 @@ export default function Login() {
   useEffect(() => {
     const fetchAccountData = async () => {
       if (account_id) {
-        console.log("ACCOUNT ID", account_id);
         const { data, error } = await supabase
           .from("accounts")
           .select("*")
@@ -65,85 +65,75 @@ export default function Login() {
         if (error) {
           console.error("Error: ", error);
         } else {
-          console.log("ACCOUNT", data);
           setAccount(data);
         }
       }
     };
     fetchAccountData();
-  }, [account_id]);
+  }, [account_id, people_id]);
 
-  const signUp = sign_up === "true" ? true : false;
-
-  const handleSignIn = async (event: any) => {
+  const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setEmailIsSending(true);
 
-    setEmailIsSending(true); // Set emailIsSending to true before making the request
+    const formData = new FormData(event.currentTarget);
 
-    const formData = new FormData(event.target);
-    const response = await fetch("/api/auth/sign-in", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      setEmailIsSending(false); // Set emailIsSending to false after the request is complete
-      toast.error("Invalid login credentials");
-    }
-
-    if (response.ok) {
-      router.push("/");
+    try {
+      const result = await login(formData);
+      
+      if (result && result.error) {
+        setEmailIsSending(false);
+        toast.error(result.error);
+      } else {
+        // The login action will handle the redirect
+        toast.success("Logged in successfully!");
+      }
+    } catch (error) {
+      setEmailIsSending(false);
+      toast.error("Login failed");
     }
   };
 
-  const handleSignUp = async (event: any) => {
+  const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setEmailIsSending(true);
 
-    setEmailIsSending(true); // Set emailIsSending to true before making the request
+    const formData = new FormData(event.currentTarget);
+    formData.append("from_events", from_events || "");
+    formData.append("account_id", account_id || "");
 
-    const formData = new FormData(event.target);
-
-    const url =
-      from_events === ""
-        ? "/api/auth/sign-up"
-        : "/api/auth/sign-up?from_events=true";
-    const response = await fetch(url, {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      setEmailIsSending(false); // Set emailIsSending to false after the request is complete
+    try {
+      const result = await signup(formData);
+      
+      if (result?.error) {
+        setEmailIsSending(false);
+        toast.error(result.error);
+      } else {
+        // The signup action will handle the redirect, so we don't need to do it here
+        toast.success("Account created successfully!");
+      }
+    } catch (error) {
+      setEmailIsSending(false);
       toast.error("Sign up failed");
-    }
-
-    if (response.ok) {
-      const url =
-        from_events === "" ? "/dashboard" : "/dashboard?from_events=true";
-      router.push(url);
     }
   };
 
   return (
     <div>
       <div className="flex items-center justify-center">
-        <img src="athletes-logo.svg" className="h-auto w-[75px]" />
+        <img src="athletes-logo.svg" className="h-auto w-[75px]" alt="Athletes Logo" />
       </div>
 
       <div className="mt-5 w-[300px] rounded border border-gray-100 bg-gray-50 p-3 shadow md:w-[400px]">
         {account?.name && (
           <div className="rounded border border-gray-300 bg-gray-100 p-5">
             <p className="text-center text-sm">
-              Sign up to manage your{" "}
-              <span className="font-bold">{account?.name}</span> athletes.
+              Sign up to manage your <span className="font-bold">{account?.name}</span> athletes.
             </p>
           </div>
         )}
 
-        <Tabs
-          defaultValue={signUp ? "signUp" : "signIn"}
-          className="mt-5 w-full"
-        >
+        <Tabs defaultValue={signUp ? "signUp" : "signIn"} className="mt-5 w-full">
           <TabsList className="mb-5 grid w-full grid-cols-2 gap-2 rounded border border-gray-300 bg-gray-200 p-1">
             <TabsTrigger
               value="signIn"
@@ -179,14 +169,14 @@ export default function Login() {
               </label>
               <div className="relative flex w-full items-center justify-center overflow-hidden">
                 <input
-                  className="w-full  rounded-md border bg-inherit px-4 py-2 pr-10"
+                  className="w-full rounded-md border bg-inherit px-4 py-2 pr-10"
                   type={showPassword ? "text" : "password"}
                   name="password"
                   placeholder="••••••••"
                   required
                 />
                 <div
-                  className="absolute inset-y-0 right-3 z-30 flex items-center"
+                  className="absolute inset-y-0 right-3 z-30 flex items-center cursor-pointer"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -227,7 +217,7 @@ export default function Login() {
                 First Name
               </label>
               <input
-                className="mb-6  rounded-md border bg-inherit px-4 py-2"
+                className="mb-6 rounded-md border bg-inherit px-4 py-2"
                 name="first_name"
                 placeholder="First Name"
                 defaultValue={firstName || ""}
@@ -237,7 +227,7 @@ export default function Login() {
                 Last Name
               </label>
               <input
-                className="mb-6  rounded-md border bg-inherit px-4 py-2"
+                className="mb-6 rounded-md border bg-inherit px-4 py-2"
                 name="last_name"
                 placeholder="Last Name"
                 defaultValue={lastName || ""}
@@ -246,15 +236,15 @@ export default function Login() {
               <input
                 className="mb-6 hidden rounded-md border bg-inherit px-4 py-2"
                 name="account_id"
-                placeholder="First Name"
                 defaultValue={account_id || ""}
                 required
+                aria-label="Account ID"
               />
               <input
                 className="mb-6 hidden rounded-md border bg-inherit px-4 py-2"
                 name="people_id"
                 defaultValue={people_id || ""}
-                // required
+                aria-label="People ID"
               />
               <label className="text-md" htmlFor="email">
                 Email
@@ -272,14 +262,14 @@ export default function Login() {
               </label>
               <div className="relative flex w-full items-center justify-center overflow-hidden">
                 <input
-                  className="w-full  rounded-md border bg-inherit px-4 py-2 pr-10"
+                  className="w-full rounded-md border bg-inherit px-4 py-2 pr-10"
                   type={showPassword ? "text" : "password"}
                   name="password"
                   placeholder="••••••••"
                   required
                 />
                 <div
-                  className="absolute inset-y-0 right-3 z-30 flex items-center"
+                  className="absolute inset-y-0 right-3 z-30 flex items-center cursor-pointer"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -299,6 +289,18 @@ export default function Login() {
                   <span>Create Account</span>
                 )}
               </button>
+              <input
+                type="hidden"
+                name="from_events"
+                value={from_events || ""}
+                aria-label="From Events"
+              />
+              <input
+                type="hidden"
+                name="account_id"
+                value={account_id || ""}
+                aria-label="Account ID"
+              />
             </form>
           </TabsContent>
         </Tabs>

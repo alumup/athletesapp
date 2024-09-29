@@ -1,6 +1,6 @@
 "use client";
 import { ArrowLeftIcon } from "@radix-ui/react-icons";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import {
   Calendar,
   CheckCircle,
@@ -16,7 +16,7 @@ const TeamEvents = ({ params }: { params: { id: string } }) => {
   const [events, setEvents] = useState<any>([]);
   const [modalUpdate, setModalUpdate] = useState<any>(false);
 
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   useEffect(() => {
     const getEvents = async () => {
@@ -43,7 +43,7 @@ const TeamEvents = ({ params }: { params: { id: string } }) => {
     };
 
     getEvents();
-  }, [modalUpdate]);
+  }, [modalUpdate, supabase]);
 
   return (
     <>
@@ -65,100 +65,94 @@ const TeamEvents = ({ params }: { params: { id: string } }) => {
         <div>
           <div className="bg-white p-6  md:mx-auto">
             <ul role="list" className="divide-y divide-gray-100">
-              <div className="flex flex-col">
-                <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                  <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                    {events?.map((event: any) => (
-                      <div key={event.id}>
-                        <div className="group relative overflow-hidden  rounded-t-xl border p-5">
-                          <div className="flex items-center justify-between gap-4">
-                            <div className="w-fit transform transition-all duration-500">
-                              <h1 className="mb-2 text-3xl text-gray-900">
-                                {event.name}
-                              </h1>
-                              <div className="flex">
-                                <MapPin className="mr-2 h-5 w-5" />
-                                <p className="font-normal text-gray-900">
-                                  {event?.location?.name}
-                                </p>
-                              </div>
-                              <div className="flex">
-                                <Calendar className="mr-2 h-5 w-5" />
-
-                                <p className="font-normal text-gray-900">
-                                  {event?.schedule?.start_date
-                                    ? new Date(
-                                        event?.schedule?.start_date,
-                                      ).toDateString()
-                                    : ""}
-                                </p>
-                              </div>
-                              <div className="flex">
-                                <Users className="mr-2 h-5 w-5" />
-                                <p className="font-normal text-gray-900">
-                                  {event?.accounts?.name}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="w-fit transform transition-all duration-500">
-                              <div className="flex">
-                                <CheckCircle
-                                  color="green"
-                                  className="mr-2 h-5 w-5"
-                                />
-                                <p className="font-normal text-gray-900">
-                                  {
-                                    event?.rsvp.filter(
-                                      (rsv: any) => rsv.status === "paid",
-                                    ).length
-                                  }{" "}
-                                  Going
-                                </p>
-                              </div>
-                              <div className="flex">
-                                <XCircle color="red" className="mr-2 h-5 w-5" />
-
-                                <p className="font-normal text-gray-900">
-                                  0 Not Going
-                                </p>
-                              </div>
-                              <div className="flex">
-                                <HelpCircle className="mr-2 h-5 w-5" />
-                                <p className="font-normal text-gray-900">
-                                  {
-                                    event?.rsvp.filter(
-                                      (rsv: any) => rsv.status === "undecided",
-                                    ).length
-                                  }{" "}
-                                  Maybe
-                                </p>
-                              </div>
-                            </div>
-                          </div>
+              {events?.map((event: any) => (
+                <li key={event.id}>
+                  <div className="group relative overflow-hidden  rounded-t-xl border p-5">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="w-fit transform transition-all duration-500">
+                        <h1 className="mb-2 text-3xl text-gray-900">
+                          {event.name}
+                        </h1>
+                        <div className="flex">
+                          <MapPin className="mr-2 h-5 w-5" />
+                          <p className="font-normal text-gray-900">
+                            {event?.location?.name}
+                          </p>
                         </div>
-                        {!event.rsvp.find(
-                          (rsv: any) =>
-                            rsv.person_id === params.id &&
-                            rsv.status === "paid",
-                        ) ? (
-                          <Link
-                            href={`/portal/dependants/${params.id}/events/${event.id}`}
-                            className="mb-5 flex h-8 w-full items-center justify-center rounded-b-lg border bg-sky-200 p-5 text-sm font-medium ring-offset-white"
-                          >
-                            <Calendar className="h-5 w-5" />
-                            <span className="text-md">Tap To RSVP</span>
-                          </Link>
-                        ) : (
-                          <div className="mb-5 flex h-8 w-full items-center justify-center rounded-b-lg border bg-green-500 p-5 text-sm font-medium ring-offset-white">
-                            <CheckCircle className="h-5 w-5" />
-                            <span className="text-md">You're Going</span>
-                          </div>
-                        )}
+                        <div className="flex">
+                          <Calendar className="mr-2 h-5 w-5" />
+
+                          <p className="font-normal text-gray-900">
+                            {event?.schedule?.start_date
+                              ? new Date(
+                                  event?.schedule?.start_date,
+                                ).toDateString()
+                              : ""}
+                          </p>
+                        </div>
+                        <div className="flex">
+                          <Users className="mr-2 h-5 w-5" />
+                          <p className="font-normal text-gray-900">
+                            {event?.accounts?.name}
+                          </p>
+                        </div>
                       </div>
-                    ))}
+                      <div className="w-fit transform transition-all duration-500">
+                        <div className="flex">
+                          <CheckCircle
+                            color="green"
+                            className="mr-2 h-5 w-5"
+                          />
+                          <p className="font-normal text-gray-900">
+                            {
+                              event?.rsvp.filter(
+                                (rsv: any) => rsv.status === "paid",
+                              ).length
+                            }{" "}
+                            Going
+                          </p>
+                        </div>
+                        <div className="flex">
+                          <XCircle color="red" className="mr-2 h-5 w-5" />
+
+                          <p className="font-normal text-gray-900">
+                            0 Not Going
+                          </p>
+                        </div>
+                        <div className="flex">
+                          <HelpCircle className="mr-2 h-5 w-5" />
+                          <p className="font-normal text-gray-900">
+                            {
+                              event?.rsvp.filter(
+                                (rsv: any) => rsv.status === "undecided",
+                              ).length
+                            }{" "}
+                            Maybe
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
+                  {!event.rsvp.find(
+                    (rsv: any) =>
+                      rsv.person_id === params.id &&
+                      rsv.status === "paid",
+                  ) ? (
+                    <Link
+                      href={`/portal/dependants/${params.id}/events/${event.id}`}
+                      className="mb-5 flex h-8 w-full items-center justify-center rounded-b-lg border bg-sky-200 p-5 text-sm font-medium ring-offset-white"
+                    >
+                      <Calendar className="h-5 w-5" />
+                      <span className="text-md">Tap To RSVP</span>
+                    </Link>
+                  ) : (
+                    <div className="mb-5 flex h-8 w-full items-center justify-center rounded-b-lg border bg-green-500 p-5 text-sm font-medium ring-offset-white">
+                      <CheckCircle className="h-5 w-5" />
+                      <span className="text-md">You&apos;re Going</span>
+                    </div>
+                  )}
+                </li>
+              ))}
             </ul>
           </div>
         </div>

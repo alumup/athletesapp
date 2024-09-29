@@ -19,6 +19,8 @@ module.exports = {
         "spin-reverse-slower": "spin-reverse 6s linear infinite",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        blink: 'blink 1.4s infinite both',
+        "loading-dots": "rotate 1s linear infinite",
       },
       colors: {
         primary: {
@@ -63,6 +65,11 @@ module.exports = {
           to: {
             transform: "rotate(-360deg)",
           },
+        },
+        blink: {
+          '0%': { opacity: '0.2' },
+          '20%': { opacity: '1' },
+          '100%': { opacity: '0.2' },
         },
       },
       transitionProperty: {

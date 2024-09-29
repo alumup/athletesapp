@@ -1,30 +1,44 @@
 "use client";
 import { formatDateOnly } from "@/lib/utils";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
-
-// @ts-expect-error
-import { experimental_useFormStatus as useFormStatus } from "react-dom";
+import { useState } from "react";
+import {  useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { toast } from "sonner";
 
 export default function EditPerson({ person }: { person: any; account: any }) {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
+
+
+  console.log(person);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+    reset,
+  } = useForm({
+    defaultValues: {
+      first_name: person?.first_name || '',
+      last_name: person?.last_name || '',
+      email: person?.email || '',
+      phone: person?.phone || '',
+      birthdate: person?.birthdate ? formatDateOnly(person.birthdate) : '',
+      grade: person?.grade || '',
+      aau_number: person?.aau_number || '',
+    },
+  });
 
   const onSubmit = async (data: any) => {
-    // Update the person
-    const { error } = await supabase
-      .from("people")
-      .update([
-        {
+    console.log("Submitting data:", data);
+    console.log("Person ID:", person.id);
+
+    try {
+      const { error, data: updatedPerson } = await supabase
+        .from("people")
+        .update({
           name: `${data.first_name} ${data.last_name}`,
           first_name: data.first_name,
           last_name: data.last_name,
@@ -33,28 +47,48 @@ export default function EditPerson({ person }: { person: any; account: any }) {
           birthdate: data.birthdate === "" ? null : data.birthdate,
           grade: data.grade,
           aau_number: data.aau_number,
-        },
-      ])
-      .eq("id", person.id);
+        })
+        .eq("id", person.id)
+        .select();
 
-    if (error) {
-      console.log("FORM ERRORS: ", error);
-      return;
+      console.log("Supabase response:", { error, updatedPerson });
+
+      if (error) {
+        console.error("Supabase error:", error);
+        toast.error("There was an error updating the person");
+      } else if (updatedPerson && updatedPerson.length > 0) {
+        console.log("Updated person:", updatedPerson[0]);
+        toast.success(`${data.first_name} updated`);
+        reset(data);
+      } else {
+        console.log("No error, but no updated person returned");
+        toast.error("Update may have been successful, but couldn't confirm");
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      toast.error("An unexpected error occurred");
     }
-
-    // Navigate to the person that was edited
-    toast.success(`${person.first_name} updated`);
   };
 
-  useEffect(() => {
-    if (person.birthdate) {
-      console.log(formatDateOnly(person.birthdate));
-    }
-  }, [person.birthdate]);
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="relative w-full p-1">
       <div className="relative flex flex-col space-y-4">
         <div className="grid grid-cols-2 gap-4">
+          <div className="col-span-2 flex flex-col space-y-2">
+            <label
+              htmlFor="id"
+              className="text-sm font-medium text-gray-700 dark:text-stone-300"
+            >
+              ID
+            </label>
+            <input
+              type="text"
+              id="id"
+              value={person?.id || ''}
+              disabled
+              className="rounded-md border border-stone-200 bg-stone-100 px-3 py-2 text-sm text-stone-600 focus:outline-none dark:border-stone-700 dark:bg-stone-900 dark:text-stone-400"
+            />
+          </div>
           <div className="col-span-1 flex flex-col space-y-2">
             <label
               htmlFor="first_name"
@@ -202,10 +236,15 @@ export default function EditPerson({ person }: { person: any; account: any }) {
     </form>
   );
 }
-function SubmitForm({ person }: any) {
+
+function SubmitForm({ person }: { person: any }) {
   const { pending } = useFormStatus();
+  
   return (
     <button
+      title="Update person"
+      aria-label="Update person"
+      type="submit"
       className={cn(
         "flex w-full items-center justify-center space-x-2 rounded border px-3 py-4 text-sm transition-all focus:outline-none",
         pending

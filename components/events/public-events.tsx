@@ -1,17 +1,18 @@
 "use client";
 
 import { formatDay, formatMonth, formatStartTime } from "@/lib/utils";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import { AlarmClock, CheckCircle, MapPin } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Image from 'next/image';
 
 export default function AccountPublicEvents({
   account,
   profile,
   selectedDependent,
 }: any) {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [events, setEvents] = useState<any>([]);
 
   useEffect(() => {
@@ -50,96 +51,102 @@ export default function AccountPublicEvents({
     };
 
     getEvents();
-  }, [account, selectedDependent]);
+  }, [account, profile?.id, selectedDependent, supabase]);
 
   return (
     <div>
-      <div className="flex space-x-2 overflow-x-auto">
-        {events?.map((event: any) => {
-          return (
-            <div
-              key={event.id}
-              className="my-3 flex rounded-lg border border-gray-200"
-            >
-              <div className="flex w-64 flex-col justify-between rounded-r-lg bg-gray-50 p-2">
-                <div className="relative">
-                  <img
-                    className="h-32 w-full w-full rounded-lg object-cover"
-                    src={
-                      event?.cover_image ||
-                      "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"
-                    }
-                    alt={event?.name}
-                  />
-                  <div className="absolute left-2 top-2 rounded border border-black bg-lime-300 p-2 text-black">
-                    <div className="flex flex-col items-center">
-                      <span className="text-md font-bold">
-                        {formatDay(event?.schedule?.start_date)}
-                      </span>
-                      <span className="text-xs">
-                        {formatMonth(event?.schedule?.start_date)}
-                      </span>
+      {events.length === 0 ? (
+        <p className="text-center text-gray-500 my-4">No events found</p>
+      ) : (
+        <div className="flex space-x-2 overflow-x-auto">
+          {events?.map((event: any) => {
+            return (
+              <div
+                key={event.id}
+                className="my-3 flex rounded-lg border border-gray-200"
+              >
+                <div className="flex w-64 flex-col justify-between rounded-r-lg bg-gray-50 p-2">
+                  <div className="relative">
+                    <Image
+                      className="h-32 w-full rounded-lg object-cover"
+                      src={
+                        event?.cover_image ||
+                        "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"
+                      }
+                      alt={event?.name}
+                      width={256}
+                      height={128}
+                    />
+                    <div className="absolute left-2 top-2 rounded border border-black bg-lime-300 p-2 text-black">
+                      <div className="flex flex-col items-center">
+                        <span className="text-md font-bold">
+                          {formatDay(event?.schedule?.start_date)}
+                        </span>
+                        <span className="text-xs">
+                          {formatMonth(event?.schedule?.start_date)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <h2 className="mb-2 pr-5 pt-2 text-lg font-bold">
-                  {event.name}
-                </h2>
-                <span className="rounded-full bg-lime-100 text-lime-500">
-                  {event?.parent_id && (
-                    <span className="text-xs">({event.parent_id?.name})</span>
-                  )}
-                </span>
-                <div className="mb-4 flex items-center space-x-2">
-                  <MapPin className="h-4 w-4" />
-                  <span className="text-xs">
-                    {event?.location?.name || event?.location}
+                  <h2 className="mb-2 pr-5 pt-2 text-lg font-bold">
+                    {event.name}
+                  </h2>
+                  <span className="rounded-full bg-lime-100 text-lime-500">
+                    {event?.parent_id && (
+                      <span className="text-xs">({event.parent_id?.name})</span>
+                    )}
                   </span>
-                </div>
-
-                {event?.schedule && (
-                  <div>
-                    <span className="flex items-center space-x-2 text-xs">
-                      <AlarmClock className="mr-2 h-4 w-4" />
-                      {event?.schedule?.start_time
-                        ? formatStartTime(event.schedule.start_time)
-                        : event?.schedule?.sessions?.[0]
-                        ? formatStartTime(
-                            event.schedule.sessions[0].start_time ||
-                              event.schedule.sessions[0]["start-time"],
-                          )
-                        : ""}
+                  <div className="mb-4 flex items-center space-x-2">
+                    <MapPin className="h-4 w-4" />
+                    <span className="text-xs">
+                      {event?.location?.name || event?.location}
                     </span>
                   </div>
-                )}
 
-                {event?.rsvp?.find(
-                  (rs: any) =>
-                    rs.person_id === selectedDependent?.id &&
-                    rs.status === "paid",
-                ) ? (
-                  <Link
-                    href={`/portal/events/${event.id}/rsvp?dependent=${selectedDependent?.id}`}
-                    className="self-end rounded border bg-white px-3 py-2 text-xs font-bold"
-                  >
-                    <div className="flex justify-between">
-                      <CheckCircle className="mr-2 h-4 w-4" color="green" />
-                      <span>Going</span>
+                  {event?.schedule && (
+                    <div>
+                      <span className="flex items-center space-x-2 text-xs">
+                        <AlarmClock className="mr-2 h-4 w-4" />
+                        {event?.schedule?.start_time
+                          ? formatStartTime(event.schedule.start_time)
+                          : event?.schedule?.sessions?.[0]
+                          ? formatStartTime(
+                              event.schedule.sessions[0].start_time ||
+                                event.schedule.sessions[0]["start-time"],
+                            )
+                          : ""}
+                      </span>
                     </div>
-                  </Link>
-                ) : (
-                  <Link
-                    href={`/portal/events/${event.id}/rsvp?dependent=${selectedDependent?.id}`}
-                    className="self-end rounded bg-black px-6 py-2 text-xs font-bold text-white"
-                  >
-                    SEE MORE
-                  </Link>
-                )}
+                  )}
+
+                  {event?.rsvp?.find(
+                    (rs: any) =>
+                      rs.person_id === selectedDependent?.id &&
+                      rs.status === "paid",
+                  ) ? (
+                    <Link
+                      href={`/portal/events/${event.id}/rsvp?dependent=${selectedDependent?.id}`}
+                      className="self-end rounded border bg-white px-3 py-2 text-xs font-bold"
+                    >
+                      <div className="flex justify-between">
+                        <CheckCircle className="mr-2 h-4 w-4" color="green" />
+                        <span>Going</span>
+                      </div>
+                    </Link>
+                  ) : (
+                    <Link
+                      href={`/portal/events/${event.id}/rsvp?dependent=${selectedDependent?.id}`}
+                      className="self-end rounded bg-black px-6 py-2 text-xs font-bold text-white"
+                    >
+                      SEE MORE
+                    </Link>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

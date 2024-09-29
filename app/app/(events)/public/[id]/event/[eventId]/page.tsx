@@ -9,7 +9,7 @@ import {
   formatDay,
   formatMonth,
 } from "@/lib/utils";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -37,7 +37,7 @@ const PublicAccountEventsDetail = ({
 }: {
   params: { id: string; eventId: string };
 }) => {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [event, setEvent] = useState<any>();
 
   useEffect(() => {

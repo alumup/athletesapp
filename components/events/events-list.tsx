@@ -6,7 +6,7 @@ import {
   formatMonth,
   formatDate,
 } from "@/lib/utils";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import { useEffect, useState } from "react";
 import {
   AlarmClock,
@@ -19,7 +19,7 @@ import {
 import Link from "next/link";
 
 export default function EventsList({ events, person_id }: any) {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [person, setPerson] = useState<any>();
 
   useEffect(() => {
