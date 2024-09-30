@@ -23,7 +23,7 @@ export async function login(formData: any): Promise<{ error?: string } | void> {
   }
 
   // revalidatePath('/dashboard')
-  redirect('/dashboard')
+  redirect('/')
 }
 
 export async function signup(formData: FormData): Promise<{ error?: string } | void> {
