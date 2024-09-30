@@ -1,39 +1,22 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 
-import Link from "next/link";
-import { getInitials } from "@/lib/utils";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { BellIcon, CheckCircleIcon, PlusCircle } from "lucide-react";
-import AccountEvents from "@/components/events/account-events";
-import TeamEvents from "@/components/events/team-events";
-import GenericButton from "@/components/modal-buttons/generic-button";
-import CreatePaymentModal from "@/components/modal/create-payment-modal";
-import { useSearchParams } from "next/navigation";
+
+import { BellIcon, PlusCircle } from "lucide-react";
 import CreateDependentModal from "@/components/modal/create-dependent-modal";
 import IconButton from "@/components/modal-buttons/icon-button";
-import AccountPublicEvents from "@/components/events/public-events";
 import SelectPerson from "./components/select-person";
-import { Separator } from "@/components/ui/separator";
 
 const PortalPage = () => {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
-  const searchParams = useSearchParams();
-
-  const [account, setAccount] = useState<any>();
   const [user, setUser] = useState<any>();
   const [profile, setProfile] = useState<any>();
   const [independents, setIndependents] = useState<any>(null);
   const [toRelationships, setToRelationships] = useState<any[]>([]);
-  const [rosters, setRosters] = useState<any>(null);
-  const [loading, setLoading] = useState<any>(true);
-  const [error, setError] = useState<any>(null);
-  const [selectedDependent, setSelectedDependent] = useState<any>();
 
-  const from_events = searchParams.get("from_events");
 
   useEffect(() => {
     const getAccount = async () => {
@@ -59,21 +42,11 @@ const PortalPage = () => {
         console.log("Error fetching profile: ", profileError.message);
 
       setProfile(profile);
-      setAccount(profile?.accounts);
+
     };
 
     getAccount();
 
-    const fetchRosters = async () => {
-      const { data: roster, error } = await supabase
-        .from("rosters")
-        .select("*, teams(*), fees(*, payments(*))")
-        .order("created_at", { ascending: false });
-
-      setRosters(roster);
-    };
-
-    fetchRosters();
   }, []);
 
   useEffect(() => {
@@ -94,14 +67,12 @@ const PortalPage = () => {
     };
 
     if (user !== null) getIndependents();
-  }, [user]);
+  }, [supabase, user]);
 
   useEffect(() => {
     const fetchToRelationships = async () => {
       let independentIds =
         independents?.map((independent: any) => independent.id) || [];
-
-      console.log("IDS", independentIds);
 
       const { data, error } = await supabase
         .from("relationships")
@@ -115,49 +86,15 @@ const PortalPage = () => {
 
       if (data && data.length > 0) {
         setToRelationships(data);
-        setSelectedDependent(data[0]);
       } else {
         setToRelationships([]);
-        setSelectedDependent(null);
       }
 
-      console.log("SELECTED DEPENDENT", data[0]);
     };
 
     if (independents && independents.length > 0) fetchToRelationships();
   }, [independents]);
 
-  function hasPaidFee(relation: any, roster: any) {
-    // Immediately return true if the fee is 0
-    if (roster.fees.amount === 0) {
-      return true;
-    }
-
-    // Check if there is a payment for the fee by the person
-    const paymentsForPerson = roster.fees.payments.filter(
-      (payment: { person_id: any }) =>
-        payment.person_id === (relation?.to?.id || relation?.people?.id),
-    );
-
-    // Sort the payments by date, most recent first
-    paymentsForPerson.sort(
-      (a: { date: string }, b: { date: string }) =>
-        new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
-
-    // Check if any of the payments status are 'succeeded'
-    const succeededPayment = paymentsForPerson.find(
-      (payment: { status: string }) => payment.status === "succeeded",
-    );
-
-    // If there is a 'succeeded' payment, return true
-    if (succeededPayment) {
-      return true;
-    }
-
-    // If there is no 'succeeded' payment, return false
-    return false;
-  }
 
   return (
     <div className="mt-10 p-5">

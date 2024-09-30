@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import { useForm, useFieldArray } from "react-hook-form";
 import { useFormData } from "@/providers/form-provider";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,7 +24,7 @@ export const Person = ({
   isLastStep,
 }) => {
   const { formData, setFormValues, event } = useFormData();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const [current, setCurrent] = useState(0);
   const [person, setPerson] = useState([]);

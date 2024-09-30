@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 
 import { useForm, Controller } from "react-hook-form";
 import { useFormData } from "@/providers/form-provider";
@@ -17,7 +17,7 @@ export const Products = ({
   isFirstStep,
   isLastStep,
 }) => {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const { setFormValues } = useFormData();
 
   const [tickets, setTickets] = useState([]);

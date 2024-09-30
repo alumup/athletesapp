@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { TrashIcon, ArrowRightIcon } from "@radix-ui/react-icons";
 
@@ -132,7 +132,7 @@ export function StaffTable({
   account: any;
 }) {
   const { refresh } = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);

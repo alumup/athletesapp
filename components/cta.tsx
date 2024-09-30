@@ -12,6 +12,9 @@ export default function CTA() {
           lg:flex-row lg:space-y-0 lg:pt-3 xl:mx-auto`}
     >
       <button
+        title="Close CTA"
+        aria-label="Close CTA"
+        type="button"
         onClick={() => setCloseCTA(!closeCTA)}
         className={`${
           closeCTA ? "rotate-180" : "rotate-0"
@@ -43,9 +46,11 @@ export default function CTA() {
           This is a demo site showcasing how to build a multi-tenant application
           with{" "}
           <a
+            title="Platformize"
+            aria-label="Platformize"
+            rel="noopener noreferrer"
             className="font-semibold text-black underline dark:text-white"
             href="https://platformize.co"
-            rel="noreferrer"
             target="_blank"
           >
             custom domain
@@ -59,9 +64,11 @@ export default function CTA() {
         } flex w-full flex-col space-y-3 text-center sm:flex-row sm:space-x-3 sm:space-y-0 lg:w-auto`}
       >
         <a
+          title="Create your publication"
+          aria-label="Create your publication"
           className="whitespace-no-wrap font-title flex-auto rounded-md border border-stone-200 px-5 py-1 text-lg text-black transition-all duration-150 ease-in-out hover:border-black dark:border-stone-700 dark:text-white dark:hover:border-white sm:py-3"
           href="https://app.vercel.pub"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           target="_blank"
         >
           Create your publication
@@ -69,7 +76,7 @@ export default function CTA() {
         <a
           className="whitespace-no-wrap font-title flex-auto rounded-md border border-black bg-black px-5 py-1 text-lg text-white transition-all duration-150 ease-in-out hover:bg-white hover:text-black dark:border-white dark:bg-white dark:text-black dark:hover:bg-black dark:hover:text-white sm:py-3"
           href="https://vercel.com/guides/nextjs-multi-tenant-application"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           target="_blank"
         >
           Clone and deploy

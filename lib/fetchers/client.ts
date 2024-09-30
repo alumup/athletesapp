@@ -1,9 +1,9 @@
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import { getDomainQuery } from "../utils";
 import Shopify, { createShopify } from "../shopify";
 
 export async function getAccountWithDomain(domain: string) {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const [domainKey, domainValue] = getDomainQuery(domain);
 
@@ -43,7 +43,7 @@ export async function getAccountWithDomain(domain: string) {
 }
 
 export async function getAccount() {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const {
     data: { user },
@@ -67,7 +67,7 @@ export async function getAccount() {
 }
 
 export async function getSiteId(domain: string) {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   console.log("public root domain", process.env.NEXT_PUBLIC_ROOT_DOMAIN);
 
@@ -84,7 +84,7 @@ export async function getSiteId(domain: string) {
 }
 
 export async function getSiteData(domain: any) {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const [domainKey, domainValue] = getDomainQuery(domain);
   const { data, error } = await supabase
@@ -97,7 +97,7 @@ export async function getSiteData(domain: any) {
 }
 
 export async function getShopifyToken(account_id: string) {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const { data, error } = await supabase
     .from("accounts")
@@ -118,7 +118,7 @@ export async function getAccountShopify(domain: string) {
 }
 
 export async function getPrimaryContact(person: any) {
-  const supabase = createClientComponentClient(); // replace with your Supabase client
+  const supabase = createClient(); // replace with your Supabase client
 
   if (person.dependent) {
     try {
@@ -160,7 +160,7 @@ export async function getPrimaryContact(person: any) {
 }
 
 export async function getPrimaryContacts(person: any) {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   if (person?.dependent) {
     try {

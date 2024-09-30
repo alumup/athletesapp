@@ -2,27 +2,24 @@
  * @type {import('next').NextConfig}
  */
 module.exports = {
-  experimental: {
-    serverActions: true,
-  },
   images: {
-    domains: [
-      "public.blob.vercel-storage.com",
-      "res.cloudinary.com",
-      "abs.twimg.com",
-      "pbs.twimg.com",
-      "avatars.githubusercontent.com",
-      "www.google.com",
-      "flag.vercel.app",
-      "illustrations.popsy.co",
-      "zkoxnmdrhgbjovfvparc.supabase.co",
-      "cdn.shopify.com",
-      "framerusercontent.com",
-      "bloximages.chicago2.vip.townnews.com",
+    remotePatterns: [
+      { hostname: "public.blob.vercel-storage.com" },
+      { hostname: "res.cloudinary.com" },
+      { hostname: "abs.twimg.com" },
+      { hostname: "pbs.twimg.com" },
+      { hostname: "avatars.githubusercontent.com" },
+      { hostname: "www.google.com" },
+      { hostname: "flag.vercel.app" },
+      { hostname: "illustrations.popsy.co" },
+      { hostname: "zkoxnmdrhgbjovfvparc.supabase.co" },
+      { hostname: "cdn.shopify.com" },
+      { hostname: "framerusercontent.com" },
+      { hostname: "bloximages.chicago2.vip.townnews.com" },
     ],
   },
   reactStrictMode: false,
   eslint: {
     ignoreDuringBuilds: true,
-  },
-};
+  }
+}

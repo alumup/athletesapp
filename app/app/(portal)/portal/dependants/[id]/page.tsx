@@ -4,7 +4,7 @@ import CreateDependentModal from "@/components/modal/create-dependent-modal";
 import CreatePersonModal from "@/components/modal/create-person-modal";
 import EditPersonModal from "@/components/modal/edit-person-modal";
 import { ArrowLeftIcon, GroupIcon, PlusIcon } from "@radix-ui/react-icons";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import { profile } from "console";
 import {
   CalendarIcon,
@@ -21,7 +21,7 @@ const Dependants = ({ params }: { params: { id: string } }) => {
   const [dependants, setDependants] = useState<any[]>([]);
   const [modalUpdate, setModalUpdate] = useState<any>(false);
 
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   useEffect(() => {
     const getDependents = async () => {

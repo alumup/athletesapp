@@ -1,6 +1,4 @@
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import Link from "next/link";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreateTeamModal from "@/components/modal/create-team-modal";
@@ -8,7 +6,7 @@ import { TeamTable } from "./table";
 import { getAccount } from "@/lib/fetchers/server";
 
 export default async function TeamsPage() {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = createClient();
 
   const {
     data: { user },
@@ -23,6 +21,7 @@ export default async function TeamsPage() {
   const { data: teams, error } = await supabase
     .from("teams")
     .select("*, rosters(*, people(*)))")
+    .eq("is_active", true)
     .eq("account_id", account.id);
 
   return (

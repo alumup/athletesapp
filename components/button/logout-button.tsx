@@ -2,9 +2,9 @@
 
 import { LogOut } from "lucide-react";
 
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 
-const supabase = createClientComponentClient();
+const supabase = createClient();
 
 async function signOut() {
   const { error } = await supabase.auth.signOut();
@@ -14,6 +14,9 @@ async function signOut() {
 export default function LogoutButton() {
   return (
     <button
+      title="Sign out"
+      aria-label="Sign out"
+      type="button"
       onClick={() => signOut()}
       className="rounded-lg p-1.5 text-stone-700 transition-all duration-150 ease-in-out hover:bg-stone-200 active:bg-stone-300 dark:text-white dark:hover:bg-stone-700 dark:active:bg-stone-800"
     >

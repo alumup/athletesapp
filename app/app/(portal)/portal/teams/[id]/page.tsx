@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import Link from "next/link";
 import { toast } from "sonner";
 import { Calendar, ChevronLeft, Loader } from "lucide-react";
@@ -14,7 +14,7 @@ import { useSearchParams } from "next/navigation";
 const TeamPage = ({ params }: { params: { id: string } }) => {
   const { account } = useAccount();
   const searchParams = useSearchParams();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [team, setTeam] = useState<any>(null);
 
   const person_id = searchParams.get("person");

@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, Key } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { getAccount, getPrimaryContacts } from "@/lib/fetchers/client";
 import {
@@ -20,7 +20,7 @@ import EditPerson from "./edit";
 import { encryptId } from "@/app/utils/ecryption";
 
 export default function PersonPage({ params }: { params: { id: string } }) {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const [person, setPerson] = useState<any>(null);
   const [toRelationships, setToRelationships] = useState<any>(null);

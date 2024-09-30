@@ -129,6 +129,9 @@ export default function Nav({ children }: { children: ReactNode }) {
   return (
     <>
       <button
+        title="Open sidebar"
+        aria-label="Open sidebar"
+        type="button"
         className={`fixed z-20 ${
           // left align for Editor, right align for other pages
           segments[0] === "post" && segments.length === 2 && !showSidebar

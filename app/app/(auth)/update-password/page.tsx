@@ -2,7 +2,7 @@
 
 import LoadingDots from "@/components/icons/loading-dots";
 import { EyeSlashIcon } from "@heroicons/react/24/outline";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 import { EyeIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 export default function UpdatePassword() {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [emailIsSending, setEmailIsSending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 

@@ -1,13 +1,13 @@
 "use client";
 
 import { formatStartTime, formatDay, formatMonth } from "@/lib/utils";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import { AlarmClock, CheckCircle, MapPin } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function AccountEvents({ dependent, events }: any) {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   // const [events, setEvents] = useState<any>([]);
   const [isGoing, setIsGoing] = useState<boolean>(false);
 

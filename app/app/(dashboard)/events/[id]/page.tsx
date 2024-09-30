@@ -1,5 +1,4 @@
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 import { getAccount, getPrimaryContacts } from "@/lib/fetchers/server";
 
 import { EventTable } from "./table";
@@ -17,7 +16,7 @@ export default async function EventPage({
 }: {
   params: { id: string };
 }) {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = createClient();
 
   async function fetchEvent() {
     const { data: events, error } = await supabase

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useRouter } from "next/navigation";
 
@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 export default function NewPerson({ account }: { account: any }) {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [tags, setTags] = useState<any>([]);
   const [submitting, setSubmitting] = useState<any>(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -56,7 +56,7 @@ export default function NewPerson({ account }: { account: any }) {
     };
 
     getTags();
-  }, []);
+  }, [account.id, supabase]);
 
   const onSubmit = async (data: any) => {
     // Create a new person
@@ -255,7 +255,14 @@ export default function NewPerson({ account }: { account: any }) {
             ))}
           </div>
 
+          <label
+            htmlFor="tagSelect"
+            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+          >
+            Select Tag
+          </label>
           <select
+            id="tagSelect"
             onChange={handleTagSelect}
             className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
           >
@@ -298,11 +305,16 @@ export default function NewPerson({ account }: { account: any }) {
           >
             Relationships
           </label>
-
           {fields.map((field, index) => (
-            <div className="mt-2 flex w-full flex-col">
+            <div key={field.id} className="mt-2 flex w-full flex-col">
+              <label
+                htmlFor={`relationship-name-${index}`}
+                className="text-sm font-medium text-gray-700 dark:text-stone-300"
+              >
+                Relationship Type
+              </label>
               <select
-                id="name"
+                id={`relationship-name-${index}`}
                 className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
                 {...register(`relationships.${index}.name`, { required: true })}
               >
@@ -310,16 +322,16 @@ export default function NewPerson({ account }: { account: any }) {
                 <option value="Guardian">Guardian</option>
               </select>
               <input
-                key={field.id}
                 placeholder="Relationship ID"
                 {...register(`relationships.${index}.id`, { required: true })}
                 className="mt-2 rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-                defaultValue={field.id} // make sure to set up defaultValue
+                defaultValue={field.id}
               />
-              <label>
+              <label className="mt-2 flex items-center">
                 <input
                   type="checkbox"
                   {...register(`relationships.${index}.primary`)}
+                  className="mr-2"
                 />
                 Primary Contact
               </label>
@@ -327,7 +339,7 @@ export default function NewPerson({ account }: { account: any }) {
           ))}
           <button
             type="button"
-            className="infline-flex rounded border border-zinc-900 border-zinc-900 px-2 py-2 text-xs"
+            className="inline-flex rounded border border-zinc-900 px-2 py-2 text-xs"
             onClick={() => append({ id: "" })}
           >
             Add New Relationship
@@ -336,6 +348,9 @@ export default function NewPerson({ account }: { account: any }) {
       </div>
       <div className="mt-10 flex items-center justify-center rounded-b-lg border-t border-stone-200 bg-stone-50">
         <button
+          title="Create person"
+          aria-label="Create person"
+          type="submit"
           className={cn(
             "flex h-10 w-full items-center justify-center space-x-2 rounded-md border text-sm transition-all focus:outline-none",
             submitting

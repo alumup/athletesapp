@@ -7,7 +7,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import LoadingSpinner from "./form/loading-spinner";
+import LoadingDots from "@/components/icons/loading-dots";
 
 export const StripeElements = ({ modal, fee, person }) => {
   const stripe = useStripe();
@@ -97,7 +97,7 @@ export const StripeElements = ({ modal, fee, person }) => {
       setPaymentSuccess(true);
       // router.refresh();
       router.push("/portal/thank-you");
-      modal.show(<LoadingSpinner />);
+      modal.show(<LoadingDots color="#080808" />);
       toast.success("Payment successful!");
     }
 

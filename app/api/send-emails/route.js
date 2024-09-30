@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import resend from "@/lib/resend";
 import { createClient } from '@supabase/supabase-js';
 
-export const maxDuration = 300; // This function can run for a maximum of 5 seconds
+export const maxDuration = 60; // This function can run for a maximum of 5 seconds
 
 // Initialize Supabase client
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);

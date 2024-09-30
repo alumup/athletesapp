@@ -6,7 +6,7 @@ import {
   formatMonth,
   formatDate,
 } from "@/lib/utils";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import {
   AlarmClock,
   CheckCircle,
@@ -20,7 +20,7 @@ import { useEffect, useState } from "react";
 import Event from "./event";
 
 export default function TeamEvents({ dependent, rosters }: any) {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [events, setEvents] = useState<any>([]);
   const [filteredEvents, setFilteredEvents] = useState<any>([]);
 

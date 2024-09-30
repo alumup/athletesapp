@@ -2,7 +2,7 @@
 import GenericButton from "@/components/modal-buttons/generic-button";
 import CreatePaymentModal from "@/components/modal/create-payment-modal";
 import { ArrowLeftIcon, ArrowRightIcon, PlusIcon } from "@radix-ui/react-icons";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import {
   Calendar,
   CheckCircle,
@@ -27,7 +27,7 @@ const EventDetails = ({
   const [user, setUser] = useState<any>();
   const [rsvp, setRsvp] = useState<any>();
   const [account, setAccount] = useState<any>();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   useEffect(() => {
     const getUser = async () => {

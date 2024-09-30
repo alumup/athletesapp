@@ -6,7 +6,7 @@ import { useModal } from "./provider";
 import { loadStripe } from "@stripe/stripe-js";
 import { StripeElements } from "@/components/stripe-elements";
 import { Elements } from "@stripe/react-stripe-js";
-import LoadingSpinner from "../form/loading-spinner";
+import LoadingDots from "@/components/icons/loading-dots";
 
 // Make sure to call loadStripe outside of a component’s render to avoid
 // recreating the Stripe object on every render.
@@ -119,7 +119,7 @@ export default function CreatePaymentModal({
         <div>
           {!clientSecret && (
             <div className="flex h-full w-full items-center justify-center text-center">
-              <LoadingSpinner />
+              <LoadingDots color="#808080" />
             </div>
           )}
 

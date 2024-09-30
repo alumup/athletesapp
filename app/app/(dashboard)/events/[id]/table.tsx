@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 
 import {
   TrashIcon,
@@ -45,7 +45,7 @@ import SendEmailModal from "@/components/modal/send-email-modal";
 import AddToTeamModal from "@/components/modal/add-to-team-modal";
 import SendButton from "@/components/modal-buttons/send-button";
 import IconButton from "@/components/modal-buttons/icon-button";
-import LoadingSpinner from "@/components/form/loading-spinner";
+import LoadingDots from "@/components/icons/loading-dots";
 
 export type Person = {
   id: string;
@@ -164,7 +164,7 @@ export function EventTable({
   data: Person[];
   account: any;
 }) {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -306,7 +306,7 @@ export function EventTable({
       <div className="rounded-md border">
         {!tableReady ? (
           <div className="flex w-full items-center justify-center p-10">
-            <LoadingSpinner />
+            <LoadingDots color="#808080" />
           </div>
         ) : (
           <Table>

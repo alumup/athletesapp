@@ -1,6 +1,6 @@
 "use client";
 
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 import { Calendar, ChevronLeft, Component, Loader, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -17,7 +17,7 @@ interface Params {
 }
 
 const PersonPage = ({ params }: { params: Params }) => {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [account, setAccount] = useState<any>();
   const [user, setUser] = useState<any>();
   const [profile, setProfile] = useState<any>();
@@ -75,8 +75,6 @@ const PersonPage = ({ params }: { params: Params }) => {
   useEffect(() => {
     const fetchRosters = async () => {
       const personId = person?.id || profile?.people?.id;
-
-      console.log("PROFILE", personId);
 
       const { data: roster, error } = await supabase
         .from("rosters")

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 
 export default function CreateRegModal({ event }) {
   const [currentPerson, setCurrentPerson] = useState(0);
@@ -39,7 +39,7 @@ export default function CreateRegModal({ event }) {
   });
   const registrationType = watch("registrationType");
   const numberOfKids = watch("numberOfKids");
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   useEffect(() => {
     // Disable body scroll when modal opens

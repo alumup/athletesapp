@@ -1,10 +1,9 @@
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase/server";
 import Shopify, { createShopify } from "../shopify";
 import { getDomainQuery } from "../utils";
 
 export async function getAccount() {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = createClient();
 
   const {
     data: { user },
@@ -28,7 +27,7 @@ export async function getAccount() {
 }
 
 export async function getShopifyToken(account_id: string) {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = createClient();
 
   const { data, error } = await supabase
     .from("accounts")
@@ -42,7 +41,7 @@ export async function getShopifyToken(account_id: string) {
 }
 
 export async function getSiteData(domain: string) {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = createClient();
 
   const [domainKey, domainValue] = getDomainQuery(domain);
 
@@ -56,7 +55,7 @@ export async function getSiteData(domain: string) {
 }
 
 export async function getAccountId(domain: string) {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = createClient();
 
   const [domainKey, domainValue] = getDomainQuery(domain);
 
@@ -75,7 +74,7 @@ export async function getAccountId(domain: string) {
 }
 
 export async function getSiteTheme(domain: string) {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = createClient();
 
   const [domainKey, domainValue] = getDomainQuery(domain);
 
@@ -101,7 +100,7 @@ export async function getAccountShopify(domain: string) {
 }
 
 export async function getPageDataBySiteAndSlug(site_id: string, slug: string) {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = createClient();
   const { data, error } = await supabase
     .from("pages")
     .select("*")
@@ -118,7 +117,7 @@ export async function getPageDataBySiteAndSlug(site_id: string, slug: string) {
 }
 
 export async function getPrimaryContact(person: any) {
-  const supabase = createServerComponentClient({ cookies }); // replace with your Supabase client
+  const supabase = createClient();
 
   if (person.dependent) {
     try {
@@ -160,7 +159,7 @@ export async function getPrimaryContact(person: any) {
 }
 
 export async function getPrimaryContacts(person: any) {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = createClient();
 
   if (person.dependent) {
     try {

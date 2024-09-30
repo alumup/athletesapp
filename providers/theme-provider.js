@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useContext } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import { Raleway, Playfair_Display, Inter } from "next/font/google";
 import { useParams } from "next/navigation";
 import tinycolor from "tinycolor2";
@@ -13,7 +13,7 @@ export const ThemeContext = React.createContext();
 
 function ThemeProvider({ site, children }) {
   const params = useParams();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const [theme, setTheme] = useState({
     colors: {},

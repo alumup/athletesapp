@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 
 const Relationships = ({ user, onDependentSelect }) => {
   const [independents, setIndependents] = useState([]);
   const [toRelationships, setToRelationships] = useState([]);
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   // Fetch independents
   useEffect(() => {

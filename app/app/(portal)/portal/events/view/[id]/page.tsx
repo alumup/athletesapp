@@ -1,14 +1,14 @@
 "use client";
 import GenericButton from "@/components/modal-buttons/generic-button";
 import { ArrowLeftIcon, ArrowRightIcon, PlusIcon } from "@radix-ui/react-icons";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 const EventDetails = ({ params }: { params: { id: string } }) => {
   const [events, setEvents] = useState<any[]>([]);
 
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   useEffect(() => {
     const getEvents = async () => {

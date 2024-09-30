@@ -1,11 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client"
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { getAccount } from "@/lib/fetchers/client";
-// @ts-expect-error
-import { experimental_useFormStatus as useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
@@ -21,7 +20,7 @@ export default function AddToStaffModal({
   const { refresh } = useRouter();
   const modal = useModal();
 
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   const {
     register,
