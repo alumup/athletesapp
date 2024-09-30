@@ -114,7 +114,7 @@ export default function TeamPage({ params }: { params: { id: string } }) {
     };
 
     fetchAccount();
-  }, [user]);
+  }, [user, supabase]);
 
   useEffect(() => {
     const getPrimaryEmail = async () => {
@@ -173,7 +173,7 @@ export default function TeamPage({ params }: { params: { id: string } }) {
               variant={undefined}
               classNames=""
             >
-              <EditTeamModal account={account} team={team} />
+              <EditTeamModal team={team} />
             </GenericButton>
             <GenericButton
               cta="New Event"
