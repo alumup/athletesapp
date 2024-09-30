@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { decryptId } from "@/app/utils/ecryption";
 import { signup, login } from './actions';
+import Image from 'next/image';
 
 export default function Login() {
   const router = useRouter();
@@ -51,7 +52,7 @@ export default function Login() {
       }
     };
     fetchPersonData();
-  }, [people_id]);
+  }, [people_id, supabase]);
 
   useEffect(() => {
     const fetchAccountData = async () => {
@@ -70,7 +71,7 @@ export default function Login() {
       }
     };
     fetchAccountData();
-  }, [account_id, people_id]);
+  }, [account_id, people_id, supabase]);
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -121,7 +122,7 @@ export default function Login() {
   return (
     <div>
       <div className="flex items-center justify-center">
-        <img src="athletes-logo.svg" className="h-auto w-[75px]" alt="Athletes Logo" />
+        <Image src="/athletes-logo.svg" width={75} height={75} alt="Athletes Logo" />
       </div>
 
       <div className="mt-5 w-[300px] rounded border border-gray-100 bg-gray-50 p-3 shadow md:w-[400px]">
