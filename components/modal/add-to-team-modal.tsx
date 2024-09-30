@@ -51,6 +51,7 @@ export default function AddToTeamModal({
       const { data: teams, error } = await supabase
         .from("teams")
         .select("*")
+        .eq("is_active", true)
         .eq("account_id", account?.id);
       if (error) {
         console.log("ERROR: ", error);
@@ -64,13 +65,17 @@ export default function AddToTeamModal({
       const { data: fees, error } = await supabase
         .from("fees")
         .select("*")
+        .eq("is_active", true)
         .eq("account_id", account?.id);
       if (error) {
         console.log("ERROR: ", error);
       } else {
-        console.log("FEEEEEES: ", fees);
-        setFees(fees);
-        setValue("fee", fees[0].id);
+        setFees(fees || []);
+        if (fees && fees.length > 0) {
+          setValue("fee", fees[0].id);
+        } else {
+          setValue("fee", "No Available Fees");
+        }
       }
     }
 
@@ -83,7 +88,6 @@ export default function AddToTeamModal({
   }, []);
 
   const onSubmit = async (data: any) => {
-    console.log("TEAM ID", data.team);
     // add every person to the list
     people.forEach(async (person: any) => {
       const { error } = await supabase.from("rosters").insert([

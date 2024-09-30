@@ -78,8 +78,9 @@ const PersonPage = ({ params }: { params: Params }) => {
 
       const { data: roster, error } = await supabase
         .from("rosters")
-        .select("*, teams(*), fees(*, payments(*))")
+        .select("*, teams!inner(*), fees(*, payments(*))")
         .eq("person_id", personId)
+        .eq("teams.is_active", true)  // Filter by active teams
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -90,8 +91,9 @@ const PersonPage = ({ params }: { params: Params }) => {
       // Check if the person or profile is on staff
       const { data: staffData, error: staffError } = await supabase
         .from("staff")
-        .select("*, people(*), teams(*)")
-        .eq("person_id", personId);
+        .select("*, people(*), teams!inner(*)")
+        .eq("person_id", personId)
+        .eq("teams.is_active", true);  // Filter by active teams for staff
 
       if (staffError) {
         console.error("Error fetching staff status:", staffError);
@@ -213,7 +215,7 @@ const PersonPage = ({ params }: { params: Params }) => {
         <div className="h-full min-h-52 w-full">
           {rosters ? (
             <>
-              {rosters.length > 0 ? (
+              {rosters.some((roster: any) => roster.teams?.events?.length > 0) ? (
                 <TeamEvents
                   dependent={person || profile?.people}
                   rosters={rosters}
@@ -242,7 +244,10 @@ const PersonPage = ({ params }: { params: Params }) => {
           <h2 className="text-md font-bold">Teams</h2>
         </div>
 
-        <Teams person={person} rosters={rosters} />
+        <Teams 
+          person={person} 
+          rosters={rosters} 
+        />
       </div>
     </div>
   );

@@ -49,7 +49,7 @@ import SendEmailModal from "@/components/modal/send-email-modal";
 import AddToTeamModal from "@/components/modal/add-to-team-modal";
 import SendButton from "@/components/modal-buttons/send-button";
 import IconButton from "@/components/modal-buttons/icon-button";
-import LoadingDots from "@/components/loading-dots";
+import LoadingDots from "@/components/icons/loading-dots";
 
 export type Person = {
   id: string;
@@ -296,7 +296,7 @@ export function PeopleTable({
       <div className="rounded-md border">
         {!tableReady ? (
           <div className="flex w-full items-center justify-center p-10">
-            <LoadingDots className="h-1 w-1 bg-gray-500" />
+            <LoadingDots />
           </div>
         ) : (
           <Table>
