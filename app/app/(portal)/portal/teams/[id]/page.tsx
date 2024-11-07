@@ -10,12 +10,17 @@ import GenericButton from "@/components/modal-buttons/generic-button";
 import CreatePaymentModal from "@/components/modal/create-payment-modal";
 import useAccount from "@/hooks/useAccount";
 import { useSearchParams } from "next/navigation";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/utils";
+import { CheckCircle } from "lucide-react";
 
 const TeamPage = ({ params }: { params: { id: string } }) => {
   const { account } = useAccount();
   const searchParams = useSearchParams();
   const supabase = createClient();
   const [team, setTeam] = useState<any>(null);
+  const [person, setPerson] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
 
   const person_id = searchParams.get("person");
 
@@ -34,7 +39,28 @@ const TeamPage = ({ params }: { params: { id: string } }) => {
     };
 
     getTeam();
+
+
   }, [params.id, supabase]);
+
+  useEffect(() => {
+    const getPerson = async () => {
+      const { data, error } = await supabase
+        .from("people")
+        .select("*, profiles(*)")
+        .eq("id", person_id)
+        .single();
+
+      if (error) toast("Error fetching person.");
+      else {
+        setPerson(data);
+        setProfile(data.profiles[0]);
+      }
+    }
+
+
+    getPerson();
+  }, [person_id, supabase]);
 
   return (
     <div>
@@ -47,26 +73,26 @@ const TeamPage = ({ params }: { params: { id: string } }) => {
 
         <div className="mt-5">
           <div className="flex items-end justify-between">
-            {/* <Avatar className="mr-2">
+            <Avatar className="mr-2">
               <AvatarFallback className="text-black">
                 {getInitials(
                   person?.first_name,
                   person?.last_name,
                 )}
               </AvatarFallback>
-            </Avatar> */}
+            </Avatar>
             <div>
               <h1 className="text-4xl font-bold">{team?.name}</h1>
             </div>
             <div>
-              {/* {hasPaidFee(person, team.roster) ? (
+              {hasPaidFee(person, team?.roster) ? (
                 <CheckCircle className="h-5 w-5 text-green-500" />
               ) : (
                 <GenericButton
                   size="sm"
                   variant="default"
                   classNames=""
-                  cta={`Pay $${team?.roster.fees?.amount}`}
+                  cta={`Pay $${team?.roster?.fees?.amount}`}
                 >
                   <CreatePaymentModal
                     account={account}
@@ -76,7 +102,7 @@ const TeamPage = ({ params }: { params: { id: string } }) => {
                     person={person}
                   />
                 </GenericButton>
-              )}  */}
+              )} 
             </div>
           </div>
         </div>

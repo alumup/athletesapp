@@ -15,9 +15,9 @@ import LoadingDots from "@/components/icons/loading-dots";
 import { CheckBadgeIcon } from "@heroicons/react/24/outline";
 import LoadingCircle from "@/components/icons/loading-circle";
 
-import SheetModal from "@/components/modal/sheet";
-import EditPerson from "./edit";
 import { encryptId } from "@/app/utils/ecryption";
+import { Button } from "@/components/marketing/Button";
+import PersonSheet from "@/components/modal/person-sheet";
 
 export default function PersonPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -209,6 +209,8 @@ export default function PersonPage({ params }: { params: { id: string } }) {
       return;
     }
 
+    console.log('fetchFromRelationships', data)
+
     return data;
   }
 
@@ -233,43 +235,53 @@ export default function PersonPage({ params }: { params: { id: string } }) {
             </p>
           </div>
           <div className="flex items-center space-x-2">
-            {!person?.dependent && !profile && (
-              <button
+            {!person?.dependent && person.email !== "" && !profile && (
+              <Button
+                variant="outline"
+                color="lime"
+                className="text-md"
                 onClick={() => invitePerson({ person, account })}
-                className="text-md rounded bg-lime-500 px-3 py-1.5 text-white"
               >
                 {emailIsSending ? (
                   <LoadingDots color="#808080" />
                 ) : (
                   <span>Invite to Portal</span>
                 )}
-              </button>
+              </Button>
             )}
 
             {person?.dependent && person.email !== "" && !profile && (
-              <button
+              <Button
+                variant="outline"
+                color="black"
+                className="text-md"
                 onClick={() => invitePerson({ person, account })}
-                className="text-md rounded bg-lime-500 px-3 py-1.5 text-white"
               >
                 {emailIsSending ? (
                   <LoadingDots color="#808080" />
                 ) : (
                   <span>Invite to Portal</span>
                 )}
-              </button>
+              </Button>
             )}
 
-            <button className="rounded bg-black px-3 py-2 text-white">
+            <Button
+              variant="outline"
+              color="black"
+              className="text-md"
+            >
               Message
-            </button>
+            </Button>
 
-            <SheetModal
+            <PersonSheet 
+              person={person}
+              fromRelationships={fromRelationships}
+              mode="edit"
               cta={`Edit ${person?.first_name}`}
               title={`Edit ${person?.first_name}`}
               description="Edit this person"
-            >
-              <EditPerson person={person} account={account} />
-            </SheetModal>
+              account={account}
+            />
           </div>
         </div>
         <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-3">

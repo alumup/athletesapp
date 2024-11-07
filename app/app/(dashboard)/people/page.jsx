@@ -5,8 +5,7 @@ import { PeopleTable } from "./table";
 
 import { getAccount, getPrimaryContacts } from "@/lib/fetchers/client";
 import { useEffect, useState } from "react";
-import SheetModal from "@/components/modal/sheet";
-import NewPerson from "./new";
+import PersonSheet from "@/components/modal/person-sheet";
 
 export default function PeoplePage() {
   const supabase = createClient();
@@ -41,6 +40,7 @@ export default function PeoplePage() {
 
   const fetchAccount = async () => {
     const account = await getAccount();
+    console.log('account', account)
     setAccount(account);
     return account;
   };
@@ -77,13 +77,15 @@ export default function PeoplePage() {
               People
             </h1>
           </div>
-          <SheetModal
-            cta="+ New Person"
-            title="New Person"
-            description="Add a person to your database"
-          >
-            <NewPerson account={account} />
-          </SheetModal>
+          {account && (
+            <PersonSheet
+              cta="Create Person" // The button text that opens the sheet
+              title="Create New Person"
+              description="Add a new person to your account"
+              account={account}
+              mode="create" // 'create' | 'edit' | 'dependent'
+            />
+          )}
         </div>
         <div className="mt-10">
           {people && <PeopleTable data={people} account={account} />}

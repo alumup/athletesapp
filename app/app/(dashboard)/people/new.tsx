@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { toast } from "sonner";
+import { PlusIcon } from "lucide-react";
 
 export default function NewPerson({ account }: { account: any }) {
   const router = useRouter();
@@ -110,7 +111,11 @@ export default function NewPerson({ account }: { account: any }) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="w-full">
+    <form 
+      id="create-person-form"
+      onSubmit={handleSubmit(onSubmit)} 
+      className="flex h-full flex-col"
+    >
       <div className="relative flex flex-col space-y-4 p-1">
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-1 flex flex-col space-y-2">
@@ -301,7 +306,7 @@ export default function NewPerson({ account }: { account: any }) {
         <div className="flex flex-col space-y-2">
           <label
             htmlFor="relationships"
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+            className="text-sm font-bold text-gray-700 dark:text-stone-300"
           >
             Relationships
           </label>
@@ -339,10 +344,10 @@ export default function NewPerson({ account }: { account: any }) {
           ))}
           <button
             type="button"
-            className="inline-flex rounded border border-zinc-900 px-2 py-2 text-xs"
+            className="inline-flex items-center justify-center border rounded-md !bg-[#000000] px-2 py-2 text-xs text-white"
             onClick={() => append({ id: "" })}
           >
-            Add New Relationship
+            Add Relationship <PlusIcon className="ml-1 w-3 h-3" />
           </button>
         </div>
       </div>
@@ -352,14 +357,14 @@ export default function NewPerson({ account }: { account: any }) {
           aria-label="Create person"
           type="submit"
           className={cn(
-            "flex h-10 w-full items-center justify-center space-x-2 rounded-md border text-sm transition-all focus:outline-none",
+            "flex h-10 w-full items-center justify-center space-x-2 rounded-md border !bg-[#000000] text-sm text-white transition-all focus:outline-none",
             submitting
-              ? "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"
-              : "border-black bg-black text-white hover:bg-white hover:text-black",
+              ? "cursor-not-allowed"
+              : "cursor-pointer",
           )}
           disabled={submitting}
         >
-          {submitting ? <LoadingDots color="#808080" /> : <p>Create Person</p>}
+          {submitting ? <LoadingDots color="#808080" /> : <span>Create Person</span>}
         </button>
       </div>
     </form>

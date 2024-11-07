@@ -6,6 +6,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 export default function SheetModal({
   cta,
@@ -20,15 +21,25 @@ export default function SheetModal({
 }) {
   return (
     <Sheet>
-      <SheetTrigger className="rounded border border-black px-3 py-2 text-sm text-black">
-        {cta}
+      <SheetTrigger>
+        <Button 
+          variant="outline"
+          color="black"
+          className="text-xs"
+        >
+          {cta}
+        </Button>
       </SheetTrigger>
-      <SheetContent>
-        <SheetHeader>
+      <SheetContent side="right" className="flex h-full bg-white flex-col p-0">
+        <SheetHeader className="p-6">
           <SheetTitle>{title}</SheetTitle>
           <SheetDescription>{description}</SheetDescription>
         </SheetHeader>
-        <div className="relative relative mt-10 h-full w-full">{children}</div>
+        
+          <div className="px-6 pb-20">
+            {children}
+          </div>
+       
       </SheetContent>
     </Sheet>
   );

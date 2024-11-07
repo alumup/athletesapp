@@ -22,23 +22,6 @@ module.exports = {
         blink: 'blink 1.4s infinite both',
         "loading-dots": "rotate 1s linear infinite",
       },
-      colors: {
-        primary: {
-          DEFAULT: "var(--primary)",
-          100: "var(--color-primary-100)",
-          200: "var(--color-primary-200)",
-          300: "var(--color-primary-300)",
-          400: "var(--color-primary-400)",
-        },
-        foreground: "var(--foreground)",
-        background: "var(--background)",
-        "primary-foreground": "var(--color-primary-text)",
-      },
-      fontFamily: {
-        primary: "var(--font-primary)",
-        secondary: "var(--font-secondary)",
-        tertiary: "var(--font-tertiary)",
-      },
       keyframes: {
         "accordion-down": {
           from: { height: 0 },
@@ -48,38 +31,11 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: 0 },
         },
-        "fade-in": {
-          from: {
-            opacity: "0",
-          },
-          to: {
-            opacity: "1",
-          },
-        },
-        marquee: {
-          "100%": {
-            transform: "translateY(-50%)",
-          },
-        },
-        "spin-reverse": {
-          to: {
-            transform: "rotate(-360deg)",
-          },
-        },
-        blink: {
-          '0%': { opacity: '0.2' },
-          '20%': { opacity: '1' },
-          '100%': { opacity: '0.2' },
-        },
-      },
-      transitionProperty: {
-        height: "height",
       },
     },
   },
   plugins: [
     require("@tailwindcss/typography"),
     require("@tailwindcss/forms"),
-    require("tailwindcss-animate"),
   ],
 };

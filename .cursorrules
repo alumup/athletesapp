@@ -1,0 +1,51 @@
+{
+  "annotations": {
+    "auto-generate-documentation": true,
+    "typescript-checks": "strict",
+    "optimize-for-performance": true
+  },
+  "guidelines": {
+    "typescript": {
+      "use-strict-mode": true,
+      "prefer-interfaces-over-types": true,
+      "avoid-enums": true,
+      "use-functional-components": true
+    },
+    "javascript": {
+      "use-function-keyword": true,
+      "omit-semicolons": true,
+      "avoid-unnecessary-curly-braces": true
+    },
+    "react": {
+      "minimize-use-client": true,
+      "favor-react-server-components": true,
+      "use-suspense-for-client-components": true,
+      "wrap-non-critical-dynamic-loading": true
+    },
+    "nextjs": {
+      "follow-docs-for-data-fetching": true,
+      "use-server-components-max": true,
+      "optimize-web-vitals": ["LCP", "CLS", "FID"]
+    },
+    "ui-styling": {
+      "use-tailwind-css": true,
+      "implement-responsive-design": true,
+      "use-mobile-first-approach": true
+    }
+  },
+  "suggestions": {
+    "error-handling": {
+      "prioritize-errors-and-edge-cases": true,
+      "use-early-returns-to-avoid-nesting": true
+    },
+    "security": {
+      "sanitize-user-inputs": true,
+      "implement-jwt-authentication": true,
+      "enforce-https-ssl": true
+    },
+    "performance": {
+      "lazy-load-images": true,
+      "use-webp-format-for-images": true
+    }
+  }
+}
