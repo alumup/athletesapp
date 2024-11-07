@@ -8,7 +8,7 @@ import GenericButton from "@/components/modal-buttons/generic-button";
 import CreateEventModal from "@/components/modal/create-event-modal";
 import EditTeamModal from "@/components/modal/edit-team-modal";
 import { useEffect, useState } from "react";
-import AddToStaffModal from "@/components/modal/add-to-staff-modal";
+import { AddToStaffSheet } from "@/components/modal/add-to-staff-modal";
 import { useRouter } from "next/navigation";
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -159,14 +159,7 @@ export default function TeamPage({ params }: { params: { id: string } }) {
           <EditPersonModal person={person} account={account} />
         </GenericButton> */}
           <div className="flex items-center space-x-2">
-            <GenericButton
-              cta="Add Staff"
-              size={undefined}
-              variant={undefined}
-              classNames=""
-            >
-              <AddToStaffModal team={team} onClose={() => router.refresh()} />
-            </GenericButton>
+            <AddToStaffSheet team={team} />
             <GenericButton
               cta="Edit Team"
               size={undefined}

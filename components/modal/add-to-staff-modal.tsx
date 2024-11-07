@@ -1,100 +1,212 @@
 "use client";
-import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client"
+
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { getAccount } from "@/lib/fetchers/client";
-import { useFormStatus } from "react-dom";
-import { cn } from "@/lib/utils";
-import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
 import { toast } from "sonner";
 
-export default function AddToStaffModal({
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Button } from "@/components/ui/button";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+
+// Define the form schema
+const formSchema = z.object({
+  person: z.string({
+    required_error: "Please select a person",
+  }),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+interface Person {
+  id: string;
+  first_name: string;
+  last_name: string;
+  name?: string;
+}
+
+export function AddToStaffSheet({
   team,
-  onClose,
 }: {
-  team: any;
-  onClose: any;
+  team: { id: string };
 }) {
   const { refresh } = useRouter();
   const modal = useModal();
-
   const supabase = createClient();
+  const [people, setPeople] = useState<Person[]>([]);
+  const [open, setOpen] = useState(false)
+  const [searchValue, setSearchValue] = useState("")
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm();
 
-  const onSubmit = async (data: any) => {
-    // add the person to staff
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+  });
+
+  useEffect(() => {
+    const fetchPeople = async () => {
+      const { data, error } = await supabase
+        .from('people')
+        .select('id, first_name, last_name, name')
+      if (data) setPeople(data)
+    }
+    fetchPeople()
+  }, [supabase])
+
+  const onSubmit = async (data: FormValues) => {
     const { error } = await supabase.from("staff").insert([
       {
         team_id: team.id,
         person_id: data.person,
       },
-    ]);
+    ])
+
     if (error) {
-      console.log("FORM ERRORS: ", error);
-    } else {
-      modal?.hide();
-      toast.success("staff member added to team");
-      onClose();
-      refresh();
+      toast.error("Failed to add staff member")
+      return
     }
-  };
+
+    modal?.hide()
+    toast.success("Staff member added to team")
+    refresh()
+  }
+
+ 
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="w-full rounded-md bg-white dark:bg-black md:max-w-md md:border md:border-stone-200 md:shadow dark:md:border-stone-700"
-    >
-      <div className="relative flex flex-col space-y-4 p-5 md:p-10">
-        <h2 className="font-cal text-2xl dark:text-white">Add to Staff</h2>
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button
+          variant="default"
+          color="primary"
+        >
+          Add Staff
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-full sm:w-[540px] bg-white flex flex-col px-5 py-8">
+        <SheetHeader>
+          <SheetTitle>Add Staff Member</SheetTitle>
+          <SheetDescription>
+            Add a new staff member to the system.
+          </SheetDescription>
+        </SheetHeader>
 
-        <div className="flex flex-col space-y-2">
-          <label
-            htmlFor="person"
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
-          >
-            Person
-          </label>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="h-full">
+            <div className="flex-1 flex flex-col space-y-4 p-5 md:p-10">
+              <FormField
+                control={form.control}
+                name="person"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Search Person</FormLabel>
+                      <div className="flex flex-col space-y-2">
+                              
+                                <Popover open={open} onOpenChange={setOpen}>
+                                  <PopoverTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      role="combobox"
+                                      aria-expanded={open}
+                                      className="w-full justify-between text-sm"
+                                    >
+                                      {searchValue
+                                        ? people.find((person) => person.name === searchValue)?.name
+                                        : "Search by name..."}
+                                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent 
+                                    className="mt-2 p-0 w-[--radix-popover-trigger-width] z-[100]" 
+                                    side="bottom" 
+                                    align="start"
+                                    sideOffset={4}
+                                  >
+                                    <Command>
+                                      <CommandInput placeholder="Search name..." />
+                                      <CommandList>
+                                        <CommandEmpty>No person found.</CommandEmpty>
+                                        <CommandGroup>
+                                          {people.map((person, index) => (
+                                            <CommandItem
+                                              key={person.id}
+                                              value={person.name || `${person.first_name} ${person.last_name}`}
+                                              className="mt-1 cursor-pointer pointer-events-auto opacity-100 data-[disabled]:!cursor-pointer data-[disabled]:!pointer-events-auto data-[disabled]:!opacity-100"
+                                              onSelect={(currentValue) => {
+                                                form.setValue("person", person.id, {
+                                                  shouldValidate: true,
+                                                  shouldDirty: true,
+                                                  shouldTouch: true
+                                                })
+                                                setSearchValue(currentValue === searchValue ? "" : currentValue)
+                                                setOpen(false)
+                                              }}
+                                            >
+                                              <Check
+                                                className={cn(
+                                                  "mr-2 h-4 w-4",
+                                                  searchValue === (person.name || `${person.first_name} ${person.last_name}`) ? "opacity-100" : "opacity-0"
+                                                )}
+                                              />
+                                              {person.name || `${person.first_name} ${person.last_name}`}
+                                            </CommandItem>
+                                          ))}
+                                        </CommandGroup>
+                                      </CommandList>
+                                    </Command>
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-          <input
-            type="text"
-            placeholder="Person ID"
-            id="person"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            {...register("person")}
-          />
-          {errors.list && (
-            <span className="text-sm text-red-500">This field is required</span>
-          )}
-        </div>
-      </div>
-      <div className="flex items-center justify-end rounded-b-lg border-t border-stone-200 bg-stone-50 p-3 dark:border-stone-700 dark:bg-stone-800 md:px-10">
-        <CreateStaffButton />
-      </div>
-    </form>
-  );
-}
-
-function CreateStaffButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      className={cn(
-        "flex h-10 w-full items-center justify-center space-x-2 rounded-md border text-sm transition-all focus:outline-none",
-        pending
-          ? "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
-          : "border-black bg-black text-white hover:bg-white hover:text-black dark:border-stone-700 dark:hover:border-stone-200 dark:hover:bg-black dark:hover:text-white dark:active:bg-stone-800",
-      )}
-      disabled={pending}
-    >
-      {pending ? <LoadingDots color="#808080" /> : <p>Add to Staff</p>}
-    </button>
-  );
+            <div className="absolute bottom-0 left-0 right-0 flex items-center justify-end border-t border-stone-200 bg-white p-3 md:px-10">
+              <Button
+                type="submit"
+                className="w-full"
+                variant="default"
+                disabled={!form.formState.isValid}
+              >
+                Add to Staff
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </SheetContent>
+    </Sheet>
+  )
 }
