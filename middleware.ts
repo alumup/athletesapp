@@ -43,6 +43,10 @@ export async function middleware(request: NextRequest) {
 
   const path = url.pathname
 
+  if (hostname.startsWith('www.')) {
+    return NextResponse.redirect(new URL(`https://${process.env.NEXT_PUBLIC_ROOT_DOMAIN}${path}`, request.url))
+  }
+
   if (hostname == `app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) {
     const { data: { session } } = await supabase.auth.getSession()
 
@@ -57,7 +61,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.rewrite(new URL(`/app${path === "/" ? "" : path}`, request.url))
   }
 
-  if (hostname === "localhost:3000" || hostname === `${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) {
+  if (hostname === "localhost:3000" || hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN) {
     return NextResponse.rewrite(new URL(`/home${path}`, request.url))
   }
 
