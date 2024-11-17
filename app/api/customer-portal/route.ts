@@ -9,16 +9,16 @@ export async function POST(req: Request) {
     const { email, sendEmail } = await req.json();
     const supabase = createClient();
 
-    // Get profile with account info
-    const { data: profile, error } = await supabase
-      .from("profiles")
-      .select("id, stripe_customer_id, email, account:accounts(stripe_id)")
+    // Get person with account info
+    const { data: person, error } = await supabase
+      .from("people")
+      .select("id, stripe_customer_id, email")
       .eq("email", email.toLowerCase())
       .single();
 
-    if (error || !profile) {
+    if (error || !person) {
       return NextResponse.json(
-        { error: "Profile not found" },
+        { error: "Person not found" },
         { status: 404 }
       );
     }
@@ -31,29 +31,29 @@ export async function POST(req: Request) {
       );
     }
 
-    let stripeCustomerId = profile.stripe_customer_id;
+    let stripeCustomerId = person.stripe_customer_id;
 
     // If no Stripe customer exists, create one
     if (!stripeCustomerId) {
       const customer = await stripe.customers.create({
         email: email.toLowerCase(),
         metadata: {
-          profileId: profile.id
+          person_id: person.id
         }
       }, {
         stripeAccount: connectedAccountId
       });
 
-      // Save the new customer ID to the profile
+      // Save the new customer ID to the person
       const { error: updateError } = await supabase
-        .from("profiles")
+        .from("people")
         .update({ stripe_customer_id: customer.id })
-        .eq("id", profile.id);
+        .eq("id", person.id);
 
       if (updateError) {
-        console.error("Error updating profile:", updateError);
+        console.error("Error updating person:", updateError);
         return NextResponse.json(
-          { error: "Failed to update profile" },
+          { error: "Failed to update person" },
           { status: 500 }
         );
       }

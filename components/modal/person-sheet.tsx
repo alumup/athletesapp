@@ -66,7 +66,7 @@ const formSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   phone: z.string().optional(),
-  email: z.string().email("Invalid email address if provided").optional().or(z.literal('')),
+  email: z.string().optional(),
   dependent: z.boolean().default(false),
   birthdate: z.date({
     required_error: "Birthdate is required",
@@ -80,13 +80,30 @@ const formSchema = z.object({
     primary: z.boolean().default(false)
   })).optional(),
 }).superRefine((data, ctx) => {
-  // Only validate relationships if dependent
+  // Validate relationships if dependent
   if (data.dependent && (!data.relationships || data.relationships.length === 0)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: "At least one relationship is required for dependents",
       path: ["relationships"]
     });
+  }
+
+  // Validate email if not dependent
+  if (!data.dependent) {
+    if (!data.email) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Email is required for non-dependents",
+        path: ["email"]
+      });
+    } else if (!z.string().email().safeParse(data.email).success) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid email address",
+        path: ["email"]
+      });
+    }
   }
 });
 
@@ -318,36 +335,12 @@ export default function PersonSheet({
     errors: form.formState.errors
   })
 
-  // Optional: Clean up duplicate relationships
-  const cleanupDuplicates = async () => {
-    // Get all relationships for this person
-    const { data: relationships } = await supabase
-      .from("relationships")
-      .select("*")
-      .eq("relation_id", person.id);
-
-    if (relationships) {
-      const dedupedIds = deduplicateRelationships(relationships).map(rel => rel.id);
-      
-      // Delete all relationships that aren't in the deduped list
-      const { error } = await supabase
-        .from("relationships")
-        .delete()
-        .eq("relation_id", person.id)
-        .not("id", "in", dedupedIds);
-
-      if (error) {
-        console.error("Failed to cleanup duplicates:", error);
-      }
-    }
-  };
-
   return (
     <Sheet>
       <SheetTrigger className="rounded border border-black px-3 py-2 text-sm text-black">
         {cta}
       </SheetTrigger>
-      <SheetContent side="right" className="flex h-full w-full flex-col p-0 sm:max-w-md bg-white">
+      <SheetContent side="right" className="flex h-full w-full flex-col p-2 sm:max-w-md bg-white">
         <Form {...form}>
           <form 
             onSubmit={form.handleSubmit(handleSubmit)} 
@@ -448,28 +441,30 @@ export default function PersonSheet({
                         )}
                       />
 
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="Enter email address" 
-                                type="email"
-                                {...field}
-                                value={field.value ?? ''}
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  field.onChange(value === '' ? '' : value)
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      {!form.watch("dependent") && (
+                        <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Email {!form.watch("dependent") && <span className="text-red-500">*</span>}</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  placeholder="Enter email address" 
+                                  type="email"
+                                  {...field}
+                                  value={field.value ?? ''}
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    field.onChange(value === '' ? null : value);
+                                  }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
                     </>
                   )}
 

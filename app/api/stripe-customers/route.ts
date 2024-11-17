@@ -7,12 +7,26 @@ export async function POST(req: Request) {
     const { email, accountId } = await req.json();
     const supabase = createClient();
     
-    // First check if there's an existing customer ID in the profile
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("stripe_customer_id")
+    // Find person by email AND account_id
+    const { data: person, error: personError } = await supabase
+      .from("people")
+      .select("id, stripe_customer_id")
       .eq("email", email.toLowerCase())
+      .eq("account_id", accountId)
       .single();
+
+    if (personError) {
+      console.error('Person lookup error:', personError);
+      return NextResponse.json(
+        { error: "Person not found" },
+        { status: 404 }
+      );
+    }
+
+    // Return existing customer ID if found
+    if (person?.stripe_customer_id) {
+      return NextResponse.json({ customerId: person.stripe_customer_id });
+    }
 
     // Get the account's Stripe ID
     const { data: account } = await supabase
@@ -21,29 +35,33 @@ export async function POST(req: Request) {
       .eq("id", accountId)
       .single();
 
-    if (profile?.stripe_customer_id) {
-      return NextResponse.json({ customerId: profile.stripe_customer_id });
-    }
-
-    // If no existing customer, create one through Stripe
+    // Create new customer through Stripe
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
       apiVersion: "2023-08-16",
       stripeAccount: account?.stripe_id,
     });
 
-    // Create new customer
     const customer = await stripe.customers.create({
       email,
       metadata: {
-        source: "athletes.app"
+        source: "athletes.app",
+        person_id: person.id
       }
     });
 
-    // Save the customer ID to the profile
-    await supabase
-      .from("profiles")
+    // Save the customer ID to the person record
+    const { error: updateError } = await supabase
+      .from("people")
       .update({ stripe_customer_id: customer.id })
-      .eq("email", email.toLowerCase());
+      .eq("id", person.id);
+
+    if (updateError) {
+      console.error('Error updating person with customer ID:', updateError);
+      return NextResponse.json(
+        { error: "Failed to update person record" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ customerId: customer.id });
   } catch (error: any) {
