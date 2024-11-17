@@ -53,7 +53,7 @@ export async function middleware(request: NextRequest) {
     } else if (session && path === "/login") {
       return NextResponse.redirect(new URL("/", request.url))
     }
-
+    
     return NextResponse.rewrite(new URL(`/app${path === "/" ? "" : path}`, request.url))
   }
 
