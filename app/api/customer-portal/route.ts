@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const connectedAccountId = profile.account[0]?.stripe_id;
+    const connectedAccountId = 'acct_1M46tAL4RG6ujCAq'
     if (!connectedAccountId) {
       return NextResponse.json(
         { error: "No connected Stripe account found" },
