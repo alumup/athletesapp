@@ -13,7 +13,6 @@ module.exports = {
       { hostname: "flag.vercel.app" },
       { hostname: "illustrations.popsy.co" },
       { hostname: "zkoxnmdrhgbjovfvparc.supabase.co" },
-      { hostname: "cdn.shopify.com" },
       { hostname: "framerusercontent.com" },
       { hostname: "bloximages.chicago2.vip.townnews.com" },
     ],

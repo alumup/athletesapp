@@ -3,7 +3,6 @@ interface Accounts {
   created_at?: string;
   name?: string;
   logo?: string;
-  shopify_storefront_access_token?: string;
   stripe_id?: string;
   application_fee?: any; // type unknown;
 }
