@@ -236,36 +236,6 @@ export default function PersonPage({ params }: { params: { id: string } }) {
             </p>
           </div>
           <div className="flex items-center space-x-2">
-            {!person?.dependent && person.email !== "" && !profile && (
-              <Button
-                variant="outline"
-                color="lime"
-                className="text-md"
-                onClick={() => invitePerson({ person, account })}
-              >
-                {emailIsSending ? (
-                  <LoadingDots color="#808080" />
-                ) : (
-                  <span>Invite to Portal</span>
-                )}
-              </Button>
-            )}
-
-            {person?.dependent && person.email !== "" && !profile && (
-              <Button
-                variant="outline"
-                color="black"
-                className="text-md"
-                onClick={() => invitePerson({ person, account })}
-              >
-                {emailIsSending ? (
-                  <LoadingDots color="#808080" />
-                ) : (
-                  <span>Invite to Portal</span>
-                )}
-              </Button>
-            )}
-
             <PersonSheet 
               person={person}
               fromRelationships={fromRelationships || []}
@@ -277,47 +247,10 @@ export default function PersonPage({ params }: { params: { id: string } }) {
             />
           </div>
         </div>
-        <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-3">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
-              <DollarSignIcon className="text-muted-foreground h-4 w-4" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">$15,231.89</div>
-              <p className="text-muted-foreground text-xs">
-                +20.1% from last year
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Events</CardTitle>
-              <UsersIcon className="text-muted-foreground h-4 w-4" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">12</div>
-              <p className="text-muted-foreground text-xs">
-                +180.1% from last year
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">People</CardTitle>
-              <ActivityIcon className="text-muted-foreground h-4 w-4" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">+573</div>
-              <p className="text-muted-foreground text-xs">
-                +201 since last hour
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
-          <div className="col-span-1 md:col-span-3"></div>
+    
 
           <div className="col-span-1 space-y-3">
             <h2 className="mb-3 text-xs font-bold uppercase text-zinc-500">
