@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
   if (!hostname.includes(`${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)) {
     hostname = `${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`
   }
-  console.log("HOSTNAME", hostname)
+
 
   const path = url.pathname
 
@@ -52,26 +52,6 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/login", request.url))
     } else if (session && path === "/login") {
       return NextResponse.redirect(new URL("/", request.url))
-    }
-
-    if (session) {
-      const { data: { user } } = await supabase.auth.getUser()
-
-      if (user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single()
-
-        if (profile?.role === "general" && !path.includes("/portal")) {
-          const redirectUrl = process.env.NODE_ENV === "production"
-            ? `https://app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}/portal`
-            : `http://localhost:3000/portal`
-
-          return NextResponse.redirect(redirectUrl)
-        }
-      }
     }
 
     return NextResponse.rewrite(new URL(`/app${path === "/" ? "" : path}`, request.url))

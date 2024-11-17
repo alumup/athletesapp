@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     // Get profile with account info
     const { data: profile, error } = await supabase
       .from("profiles")
-      .select("id, stripe_customer_id, email, accounts(stripe_id)")
+      .select("id, stripe_customer_id, email, account:accounts(stripe_id)")
       .eq("email", email.toLowerCase())
       .single();
 
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const connectedAccountId = profile.accounts?.stripe_id;
+    const connectedAccountId = profile.account[0]?.stripe_id;
     if (!connectedAccountId) {
       return NextResponse.json(
         { error: "No connected Stripe account found" },
