@@ -44,10 +44,11 @@ export async function middleware(request: NextRequest) {
   const path = url.pathname
 
   if (hostname.startsWith('www.')) {
-    return NextResponse.redirect(new URL(`https://${process.env.NEXT_PUBLIC_ROOT_DOMAIN}${path}`, request.url))
+    const newUrl = new URL(`https://${process.env.NEXT_PUBLIC_ROOT_DOMAIN}${path}`, request.url)
+    return NextResponse.redirect(newUrl, { status: 301 })
   }
 
-  if (hostname == `app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) {
+  if (hostname === `app.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) {
     const { data: { session } } = await supabase.auth.getSession()
 
     const noRedirectPaths = ["/login", "/forgot-password", "/update-password", "/public"]
@@ -62,8 +63,15 @@ export async function middleware(request: NextRequest) {
   }
 
   if (hostname === "localhost:3000" || hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN) {
-    return NextResponse.rewrite(new URL(`/home${path}`, request.url))
+    if (!path.startsWith('/home')) {
+      return NextResponse.rewrite(new URL(`/home${path}`, request.url))
+    }
+    return response
   }
 
-  return NextResponse.rewrite(new URL(`/${hostname}${path}`, request.url))
+  if (!path.startsWith(`/${hostname}`)) {
+    return NextResponse.rewrite(new URL(`/${hostname}${path}`, request.url))
+  }
+
+  return response
 }
