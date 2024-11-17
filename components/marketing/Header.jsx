@@ -6,7 +6,6 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { Button } from "@/components/marketing/Button";
 import { Container } from "@/components/marketing/Container";
-import { Logo } from "@/components/marketing/Logo";
 import { NavLinks } from "@/components/marketing/NavLinks";
 
 function MenuIcon(props) {
@@ -52,7 +51,7 @@ export function Header() {
         <Container className="relative z-50 flex justify-between py-8">
           <div className="relative z-10 flex items-center gap-16">
             <Link href="/" aria-label="Home">
-              <img src="/athletes.svg" className="w-36" />
+              <img src="/athletes-logo.svg" className="w-12" />
             </Link>
             <div className="hidden lg:flex lg:gap-10">
               <NavLinks />
@@ -122,12 +121,9 @@ export function Header() {
                 </>
               )}
             </Popover>
-            <Button href="/login" variant="outline" className="hidden lg:block">
-              Log in
-            </Button>
-            <Button href="#" className="hidden lg:block">
-              Download
-            </Button>
+          <Button href="/portal" variant="outline" className="hidden lg:block">
+            Billing Portal
+          </Button>
           </div>
         </Container>
       </nav>

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 export default function BillingPortalButton() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
+  const [isEmailSent, setIsEmailSent] = useState(false);
 
   const handleBillingPortal = async () => {
     if (!email) {
@@ -18,58 +19,67 @@ export default function BillingPortalButton() {
 
     try {
       setLoading(true);
-      console.log('Attempting to fetch:', '/api/customer-portal');
       const response = await fetch('/api/customer-portal', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email: email.toLowerCase() })
+        body: JSON.stringify({ 
+          email: email.toLowerCase(),
+          sendEmail: true
+        })
       });
-      
-      console.log('Response status:', response.status);
       
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Error response:', errorData);
-        throw new Error('Failed to access billing portal');
+        throw new Error('Failed to send billing portal link');
       }
       
-      const data = await response.json();
-      console.log('Success response:', data);
-      window.location.href = data.url;
+      toast.success('Billing portal link has been sent to your email');
+      setIsEmailSent(true);
+      setEmail('');
     } catch (error) {
       console.error('Error details:', error);
-      toast.error('Failed to access billing portal');
+      toast.error('Failed to send billing portal link');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex gap-2 items-center">
-      <Input
-        type="email"
-        placeholder="Enter your email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="max-w-xs"
-      />
-      <Button
-        variant="outline"
-        className="whitespace-nowrap bg-blue-50 hover:bg-blue-100"
-        onClick={handleBillingPortal}
-        disabled={loading}
-      >
-        {loading ? (
-          "Loading..."
-        ) : (
-          <>
-            <CreditCard className="mr-2 h-4 w-4" />
-            Billing Portal
-          </>
-        )}
-      </Button>
+    <div className="flex flex-col gap-4 w-full">
+      {isEmailSent && (
+        <div className="w-full bg-green-50 border border-green-200 rounded-lg p-4 text-sm text-green-800">
+          <p className="mb-1 text-base text-left font-bold font-mono">Your link has been sent!</p>
+          <p className="text-xs text-left">The email will come from <span className="font-medium">portal@email.athletes.app and will expire in 30 minutes for security purposes</span></p>
+        </div>
+      )}
+      
+      <div className="flex gap-2 items-center w-full">
+        <Input
+          type="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="max-w-xs"
+        />
+        <Button
+          variant="outline"
+          className="whitespace-nowrap bg-blue-50 hover:bg-blue-100"
+          onClick={handleBillingPortal}
+          disabled={loading}
+        >
+          {loading ? (
+            "Loading..."
+          ) : (
+            <>
+              <CreditCard className="mr-2 h-4 w-4" />
+              Billing Portal
+            </>
+          )}
+        </Button>
+      </div>
+      <span className="text-xs text-gray-500">Use the email associated with your Athlets Appaccount to access the billing portal.</span>
     </div>
   );
 }
