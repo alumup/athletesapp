@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/client"
 import Link from "next/link";
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { ChevronRight } from "lucide-react";
 
 const SelectPerson = ({ params, relationships }) => {

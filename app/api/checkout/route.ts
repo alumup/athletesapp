@@ -1,21 +1,15 @@
 import { NextResponse, NextRequest } from "next/server";
-// import { stripe } from "@/lib/stripe";
-import { cookies } from "next/headers";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import Stripe from "stripe";
+import { stripe } from "@/lib/stripe";
+import { createClient } from "@/lib/supabase/server";
+
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = createClient();
     const body = await req.json();
     const { roster, profile, person, fee } = body;
     console.log("PROFILE IN CHECKOUT", profile);
     let customer = null;
-
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: "2023-08-16",
-      stripeAccount: profile.accounts.stripe_id,
-    });
 
     // search for customer
     const { data: customerData } = await stripe.customers.list(

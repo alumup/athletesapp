@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import Shopify, { createShopify } from "../shopify";
 import { getDomainQuery } from "../utils";
 
 export async function getAccount() {
@@ -26,19 +25,6 @@ export async function getAccount() {
   }
 }
 
-export async function getShopifyToken(account_id: string) {
-  const supabase = createClient();
-
-  const { data, error } = await supabase
-    .from("accounts")
-    .select("shopify_storefront_access_token")
-    .eq("id", account_id)
-    .single();
-
-  if (error) throw error;
-
-  return data?.shopify_storefront_access_token;
-}
 
 export async function getSiteData(domain: string) {
   const supabase = createClient();
@@ -92,12 +78,6 @@ export async function getSiteTheme(domain: string) {
   }
 }
 
-export async function getAccountShopify(domain: string) {
-  const accountId = await getAccountId(domain);
-  const shopifyToken = await getShopifyToken(accountId);
-
-  return createShopify(shopifyToken) as Shopify;
-}
 
 export async function getPageDataBySiteAndSlug(site_id: string, slug: string) {
   const supabase = createClient();

@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/client";
 import { TeamTable } from "./table";
 
 import GenericButton from "@/components/modal-buttons/generic-button";
-import CreateEventModal from "@/components/modal/create-event-modal";
 import EditTeamModal from "@/components/modal/edit-team-modal";
 import { useEffect, useState } from "react";
 import { AddToStaffSheet } from "@/components/modal/add-to-staff-modal";
@@ -64,7 +63,7 @@ async function getPrimaryContacts(supabase: any, person: any) {
 export default function TeamPage({ params }: { params: { id: string } }) {
   // const supabase = createServerComponentClient({ cookies })
   const supabase = createClient();
-  const router = useRouter();
+
   const [account, setAccount] = useState<any>({});
   const [user, setUser] = useState<any>({});
   const [team, setTeam] = useState<any>({});
@@ -84,9 +83,12 @@ export default function TeamPage({ params }: { params: { id: string } }) {
     async function fetchTeam() {
       const { data: team, error } = await supabase
         .from("teams")
-        .select(
-          "*, events(*), rosters(*, people(*), fees(*, payments(*))), staff(*, people(*))",
-        )
+        .select(`
+          *,
+          accounts(id, stripe_id),
+          rosters(*, people(*), fees(*, payments(*))),
+          staff(*, people(*))
+        `)
         .eq("id", params.id)
         .single();
 
@@ -94,7 +96,6 @@ export default function TeamPage({ params }: { params: { id: string } }) {
         console.error(error);
         return;
       }
-      console.log("TEAM", team);
       setTeam(team);
     }
 
@@ -168,14 +169,6 @@ export default function TeamPage({ params }: { params: { id: string } }) {
             >
               <EditTeamModal team={team} />
             </GenericButton>
-            <GenericButton
-              cta="New Event"
-              size={undefined}
-              variant={undefined}
-              classNames=""
-            >
-              <CreateEventModal account={account} team={team} />
-            </GenericButton>
           </div>
         </div>
         <div className="mt-10">
@@ -199,53 +192,6 @@ export default function TeamPage({ params }: { params: { id: string } }) {
                 {staffMember.people.name}
               </div>
             ))}
-          </div>
-        </div>
-        <div className="mt-10">
-          <h2 className="mb-3 text-xs font-bold uppercase text-zinc-500">
-            Events
-          </h2>
-          <div className="flex overflow-x-auto">
-            {team?.events
-              ?.filter((tEvents: any) => !tEvents.parent_id)
-              .sort((a: any, b: any) => {
-                // Ensure both date and time are properly combined and parsed
-                const aDateTime = new Date(`${a.schedule.start_date}`);
-                const bDateTime = new Date(`${b.schedule.start_date}`);
-                return aDateTime.getTime() - bDateTime.getTime();
-              })
-              .map((teamEvents: any, index: number) => (
-                <Link
-                  href={`/events/${teamEvents.id}`}
-                  key={index}
-                  className="mr-2 flex min-w-60 items-center rounded-lg border p-3 text-sm text-gray-700"
-                >
-                  <Avatar className="mr-2">
-                    <AvatarImage
-                      src={
-                        teamEvents.cover_image ||
-                        "https://framerusercontent.com/images/fp8qgVgSUTyfGbKOjyVghWhknfw.jpg?scale-down-to=512"
-                      }
-                    />
-                    <AvatarFallback className="text-black">
-                      {getInitials(teamEvents.name, "")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h4 className="font-semibold">{teamEvents.name}</h4>
-                    {teamEvents?.schedule?.start_date && (
-                      <div className="mb-2 flex items-center space-x-2">
-                        <Calendar className="h-4 w-4" />
-                        <span className="text-sm">
-                          {new Date(
-                            teamEvents.schedule.start_date,
-                          ).toDateString()}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              ))}
           </div>
         </div>
         <div className="mt-10">

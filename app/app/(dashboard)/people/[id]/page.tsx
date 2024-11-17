@@ -29,6 +29,8 @@ export default function PersonPage({ params }: { params: { id: string } }) {
   const [emailIsSending, setEmailIsSending] = useState<any>(false);
   const [profile, setProfile] = useState<boolean>(true);
   const [roster, setRoster] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   // Added fetchRoster function
   async function fetchRoster() {
     const { data, error } = await supabase
@@ -46,33 +48,32 @@ export default function PersonPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     async function fetchData() {
-      const fetchedPerson = await fetchPerson();
-      // Fetch primary contact for the person
-      const primaryPeople = await getPrimaryContacts(fetchedPerson);
+      setIsLoading(true);
+      try {
+        const fetchedPerson = await fetchPerson();
+        const primaryPeople = await getPrimaryContacts(fetchedPerson);
+        const fetchedToRelationships = await fetchToRelationships();
+        const fetchedFromRelationships = await fetchFromRelationships();
+        const fetchedAccount = await getAccount();
+        await fetchRoster();
+        const p = await hasProfile({
+          ...fetchedPerson,
+          primary_contacts: primaryPeople,
+        });
 
-      setPerson({
-        ...fetchedPerson,
-        primary_contacts: primaryPeople,
-      });
-
-      const fetchedToRelationships = await fetchToRelationships();
-      setToRelationships(fetchedToRelationships);
-
-      const fetchedFromRelationships = await fetchFromRelationships();
-      setFromRelationships(fetchedFromRelationships);
-
-      const fetchedAccount = await getAccount();
-
-      const p = await hasProfile({
-        ...fetchedPerson,
-        primary_contacts: primaryPeople,
-      });
-
-      setAccount(fetchedAccount);
-      setProfile(p);
-
-      // Call fetchRoster to get the teams the person is on
-      fetchRoster();
+        setPerson({
+          ...fetchedPerson,
+          primary_contacts: primaryPeople,
+        });
+        setToRelationships(fetchedToRelationships || []);
+        setFromRelationships(fetchedFromRelationships || []);
+        setAccount(fetchedAccount);
+        setProfile(p);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
 
     fetchData();
@@ -214,7 +215,7 @@ export default function PersonPage({ params }: { params: { id: string } }) {
     return data;
   }
 
-  if (!person) {
+  if (isLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <LoadingCircle />
@@ -265,17 +266,9 @@ export default function PersonPage({ params }: { params: { id: string } }) {
               </Button>
             )}
 
-            <Button
-              variant="outline"
-              color="black"
-              className="text-md"
-            >
-              Message
-            </Button>
-
             <PersonSheet 
               person={person}
-              fromRelationships={fromRelationships}
+              fromRelationships={fromRelationships || []}
               mode="edit"
               cta={`Edit ${person?.first_name}`}
               title={`Edit ${person?.first_name}`}

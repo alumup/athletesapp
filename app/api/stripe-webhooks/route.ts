@@ -7,7 +7,6 @@ import { cookies } from "next/headers";
 export async function POST(req: any) {
   const supabase = createRouteHandlerClient({ cookies });
   const body = await buffer(req.body);
-  console.log("BODY", body);
   let event;
 
   try {
@@ -23,6 +22,11 @@ export async function POST(req: any) {
       case "payment_intent.processing":
       case "payment_intent.payment_failed":
       case "payment_intent.succeeded":
+      case "invoice.created":
+      case "invoice.finalized":
+      case "invoice.paid":
+      case "invoice.payment_failed":
+      case "invoice.payment_succeeded":
         await updateSupabase(event, supabase);
         break;
 
@@ -39,7 +43,6 @@ export async function POST(req: any) {
       { status: 200 },
     );
   } catch (err) {
-    console.log(err);
     console.error("Error processing event:", err);
     return NextResponse.json(
       { message: "Internal server error" },
@@ -50,6 +53,30 @@ export async function POST(req: any) {
 
 const updateSupabase = async (event: any, supabase: any) => {
   console.log("EVENT: ", event);
+  
+  // Handle invoice events
+  if (event.type.startsWith('invoice.')) {
+    const { error } = await supabase
+      .from("payments")
+      .update({
+        status: getStatusFromInvoiceEvent(event.type),
+        data: {
+          ...event.data.object,
+          invoice_id: event.data.object.id
+        },
+      })
+      .eq("fee_id", event.data.object.metadata.fee_id)
+      .eq("person_id", event.data.object.metadata.person_id)
+      .single();
+
+    if (error) {
+      console.log("Error updating payment status for invoice: ", error);
+      throw new Error(error);
+    }
+    return;
+  }
+
+  // Handle payment intent events
   const { error } = await supabase
     .from("payments")
     .update({
@@ -59,20 +86,13 @@ const updateSupabase = async (event: any, supabase: any) => {
     .eq("payment_intent_id", event.data.object.id)
     .single();
 
-  console.log(
-    "Payment updated successfully",
-    event.data.object.status,
-    event.data.object.id,
-  );
-
   if (error) {
-    console.log("Error on updating payment status: ", error);
+    console.log("Error updating payment status: ", error);
     throw new Error(error);
-    // return NextResponse.json({ message: error }, { status: 400 });
   }
 
+  // Handle metadata updates (existing code)
   const metadata = event.data.object.metadata;
-  console.log("Metadata: ", metadata);
   if (metadata && metadata.rsvp && event.data.object.status === "succeeded") {
     console.log("Updating rsvp for single entry", JSON.stringify(metadata));
     const { error: rsvpError } = await supabase
@@ -106,3 +126,20 @@ const updateSupabase = async (event: any, supabase: any) => {
     console.log("Multi RSVP Updated successfully", JSON.stringify(metadata));
   }
 };
+
+// Helper function to map invoice events to payment statuses
+function getStatusFromInvoiceEvent(eventType: string): string {
+  switch (eventType) {
+    case 'invoice.created':
+      return 'invoiced';
+    case 'invoice.finalized':
+      return 'invoiced';
+    case 'invoice.paid':
+    case 'invoice.payment_succeeded':
+      return 'succeeded';
+    case 'invoice.payment_failed':
+      return 'failed';
+    default:
+      return 'pending';
+  }
+}

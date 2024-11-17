@@ -152,10 +152,17 @@ export default function EditPerson({
 
       if (relationshipErrors) {
         console.log("RELATIONSHIP ERRORS", relationshipErrors);
+        return;
       }
 
       if (relationships) {
-        setRelationships(relationships);
+        // Map relationships to match form structure
+        const mappedRelationships = relationships.map(rel => ({
+          id: rel.to?.id || rel.relation_id,
+          name: rel.relationship_type || rel.name || "",
+          primary: rel.is_primary || rel.primary || false
+        }));
+        setRelationships(mappedRelationships);
       }
     };
 

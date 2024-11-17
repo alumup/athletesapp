@@ -9,6 +9,21 @@ import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
 import { fullName } from "@/lib/utils";
 
+interface FormValues {
+  first_name: string
+  last_name: string
+  email: string
+  phone: string
+  birthdate: string
+  grade: string
+  aau_number: string
+  relationships: {
+    id: string
+    name: string
+    primary: boolean
+  }[]
+}
+
 const formatDate = (dateString: any) => {
   const date = new Date(dateString);
   const year = date.getFullYear();
@@ -28,9 +43,75 @@ export default function EditPersonModal({
   const modal = useModal();
   const supabase = createClient();
 
+  const [isLoading, setIsLoading] = useState(true);
   const [tags, setTags] = useState<any>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [relationships, setRelationships] = useState<any>();
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset
+  } = useForm<FormValues>({
+    defaultValues: {
+      first_name: person?.first_name || "",
+      last_name: person?.last_name || "",
+      email: person?.email || "",
+      phone: person?.phone || "",
+      birthdate: person?.birthdate ? formatDate(person.birthdate) : "",
+      grade: person?.grade || "",
+      aau_number: person?.aau_number || "",
+      relationships: person?.relationships || []
+    }
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "relationships"
+  });
+
+  useEffect(() => {
+    const getTags = async () => {
+      const { data, error } = await supabase
+        .from("tags")
+        .select("name")
+        .eq("account_id", account.id);
+
+      if (error) {
+        console.log("getTags", error);
+      }
+
+      if (data) {
+        console.log(data);
+        setTags(data);
+      }
+    };
+
+    getTags();
+  }, [account.id, supabase]);
+
+  useEffect(() => {
+    const getSelectedTags = async () => {
+      const { data } = await supabase
+        .from("people")
+        .select("tags")
+        .eq("id", person.id);
+
+      if (data) {
+        console.log("TAGZZZZ", data[0].tags);
+        const tagNames = data[0].tags || [];
+        setSelectedTags(tagNames);
+      }
+    };
+
+    getSelectedTags();
+  }, [person.id, supabase]);
+
+
+  if (isLoading) {
+    return <div className="p-6">Loading...</div>;
+  }
 
   const handleTagSelect = (event: any) => {
     const selectedTag = event.target.value;
@@ -43,17 +124,6 @@ export default function EditPersonModal({
       prevTags.filter((tag) => tag !== tagToDelete),
     );
   };
-
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-  const { fields, append } = useFieldArray({
-    control,
-    name: "relationships",
-  });
 
   const removeRelationship = async (relationshipId: string) => {
     const { error } = await supabase
@@ -111,60 +181,6 @@ export default function EditPersonModal({
     modal?.hide();
     refresh();
   };
-
-  useEffect(() => {
-    const getTags = async () => {
-      const { data, error } = await supabase
-        .from("tags")
-        .select("name")
-        .eq("account_id", account.id);
-
-      if (error) {
-        console.log("getTags", error);
-      }
-
-      if (data) {
-        console.log(data);
-        setTags(data);
-      }
-    };
-
-    const getRelationships = async () => {
-      const { data: relationships, error: relationshipErrors } = await supabase
-        .from("relationships")
-        .select("*,from:person_id(*),to:relation_id(*)")
-        .eq("person_id", person.id);
-
-      if (relationshipErrors) {
-        console.log("RELATIONSHIP ERRORS", relationshipErrors);
-      }
-
-      if (relationships) {
-        console.log("RRR", relationships);
-        setRelationships(relationships);
-      }
-    };
-
-    getTags();
-    getRelationships();
-  }, [account.id, person.id, supabase]);
-
-  useEffect(() => {
-    const getSelectedTags = async () => {
-      const { data } = await supabase
-        .from("people")
-        .select("tags")
-        .eq("id", person.id);
-
-      if (data) {
-        console.log("TAGZZZZ", data[0].tags);
-        const tagNames = data[0].tags || [];
-        setSelectedTags(tagNames);
-      }
-    };
-
-    getSelectedTags();
-  }, [person.id, supabase]);
 
   return (
     <form
@@ -370,62 +386,35 @@ export default function EditPersonModal({
               Relationships
             </label>
 
-            {relationships?.map((relationship: any, i: any) => (
+            {fields.map((field, index) => (
               <div
-                key={i}
+                key={field.id}
                 className="rounded border border-stone-200 px-3 py-2 text-sm"
               >
                 <div className="flex w-full items-center justify-between">
                   <div className="flex items-center space-x-1">
-                    <span className="">{relationship.to?.first_name}</span>
-                    <span className="">{relationship.to?.last_name}</span>
+                    <input
+                      {...register(`relationships.${index}.name`)}
+                      className="border-none bg-transparent"
+                    />
                   </div>
-                  <div>
-                    <button onClick={() => removeRelationship(relationship.id)}>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      {...register(`relationships.${index}.primary`)}
+                    />
+                    <button type="button" onClick={() => remove(index)}>
                       X
                     </button>
                   </div>
                 </div>
               </div>
             ))}
-            {fields.map((field, index) => (
-              <div key={field.id} className="mt-2 flex w-full flex-col">
-                <label
-                  htmlFor={`relationship-name-${index}`}
-                  className="text-sm font-medium text-gray-700 dark:text-stone-300"
-                >
-                  Relationship Type
-                </label>
-                <select
-                  id={`relationship-name-${index}`}
-                  className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-                  {...register(`relationships.${index}.name`, {
-                    required: true,
-                  })}
-                >
-                  <option value="Parent">Parent</option>
-                  <option value="Guardian">Guardian</option>
-                </select>
-                <input
-                  placeholder="Relationship ID"
-                  {...register(`relationships.${index}.id`, { required: true })}
-                  className="mt-2 rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-                  defaultValue={field.id}
-                />
-                <label className="mt-2 flex items-center">
-                  <input
-                    type="checkbox"
-                    {...register(`relationships.${index}.primary`)}
-                    className="mr-2"
-                  />
-                  Primary Contact
-                </label>
-              </div>
-            ))}
+            
             <button
               type="button"
               className="inline-flex rounded border border-zinc-900 px-2 py-2 text-xs"
-              onClick={() => append({ id: "" })}
+              onClick={() => append({ id: "", name: "", primary: false })}
             >
               Add New Relationship
             </button>

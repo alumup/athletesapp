@@ -74,6 +74,7 @@ const formSchema = z.object({
   grade: z.string().min(1, "Grade is required"),
   tags: z.array(z.string()).default([]),
   relationships: z.array(z.object({
+    relationshipId: z.string().optional(),
     id: z.string().min(1, "Person ID is required"),
     name: z.string().min(1, "Relationship type is required"),
     primary: z.boolean().default(false)
@@ -109,6 +110,26 @@ const RELATIONSHIP_TYPES = [
   { id: "other", label: "Other" },
 ] as const
 
+// Helper function to deduplicate relationships by person_id
+const deduplicateRelationships = (relationships: any[]) => {
+  const seen = new Map();
+  return relationships.filter(rel => {
+    const key = rel.person_id;
+    if (seen.has(key)) {
+      // If we've seen this person_id before, keep the most recent one
+      const existing = seen.get(key);
+      if (new Date(rel.created_at) > new Date(existing.created_at)) {
+        seen.set(key, rel);
+        return true;
+      }
+      return false;
+    } else {
+      seen.set(key, rel);
+      return true;
+    }
+  });
+};
+
 export default function PersonSheet({
   cta,
   title,
@@ -140,7 +161,13 @@ export default function PersonSheet({
       birthdate: person?.birthdate ? new Date(person.birthdate) : undefined,
       grade: person?.grade || "",
       tags: person?.tags || [],
-      relationships: person?.relationships || []
+      // Deduplicate and map relationships
+      relationships: deduplicateRelationships(fromRelationships || []).map((rel) => ({
+        relationshipId: rel.id,
+        id: rel.from?.id,
+        name: rel.name.toLowerCase(),
+        primary: rel.primary
+      })) || []
     },
     mode: "onChange"
   })
@@ -150,33 +177,47 @@ export default function PersonSheet({
     name: "relationships",
   });
 
-  // Tag handlers
-  const handleTagSelect = (event: any) => {
-    const selectedTag = event.target.value;
-    setSelectedTags((prevTags) => [...prevTags, selectedTag]);
-  };
+  // Add this useEffect to debug the mapping
+  useEffect(() => {
+    console.log('Mapped relationships:', fromRelationships?.map((rel) => ({
+      relationshipId: rel.id,
+      id: rel.from?.id,
+      name: rel.name.toLowerCase(),
+      primary: rel.primary
+    })));
+  }, [fromRelationships]);
 
-  const handleTagDelete = (tagToDelete: string) => {
-    setSelectedTags((prevTags) =>
-      prevTags.filter((tag) => tag !== tagToDelete),
-    );
-  };
+  // Tag handlers
+  // const handleTagSelect = (event: any) => {
+  //   const selectedTag = event.target.value;
+  //   setSelectedTags((prevTags) => [...prevTags, selectedTag]);
+  // };
+  // const handleTagDelete = (tagToDelete: string) => {
+  //   setSelectedTags((prevTags) =>
+  //     prevTags.filter((tag) => tag !== tagToDelete),
+  //   );
+  // };
+
+
 
   // Fetch tags on mount
-  useEffect(() => {
-    const getTags = async () => {
-      const { data, error } = await supabase
-        .from("tags")
-        .select("name")
-        .eq("account_id", account?.id);
+  // useEffect(() => {
+  //   const getTags = async () => {
+  //     const { data, error } = await supabase
+  //       .from("tags")
+  //       .select("name")
+  //       .eq("account_id", account?.id);
 
-      if (error) console.log("getTags", error);
-      if (data) setTags(data);
-    };
+  //     if (error) console.log("getTags", error);
+  //     if (data) setTags(data);
+  //   };
 
-    getTags();
-  }, [account?.id, supabase]);
+  //   getTags();
+  // }, [account?.id, supabase]);
 
+  console.log("FROM RELATIONSHIPS", fromRelationships)
+
+  // Fetch people on mount
   useEffect(() => {
     const fetchPeople = async () => {
       const { data } = await supabase
@@ -202,11 +243,10 @@ export default function PersonSheet({
 
 
   const handleSubmit = async (values: FormValues) => {
-    console.log('handleSubmit called with values:', values)
-    setIsSubmitting(true)
-    setError(null)
-
     try {
+      setIsSubmitting(true);
+      setError(null);
+
       // Prepare person data
       const personData = {
         account_id: account?.id,
@@ -219,85 +259,57 @@ export default function PersonSheet({
         grade: values.grade,
         tags: values.tags,
         dependent: values.dependent,
-      }
+      };
 
-      console.log('Submitting person data:', personData)
-
-      // Insert/Update person first
       const { data: newPerson, error: personError } = await supabase
         .from("people")
         .upsert([
           person?.id 
-            ? { ...personData, id: person.id }  // Update existing person
-            : personData  // Create new person
+            ? { ...personData, id: person.id }
+            : personData
         ])
         .select()
-        .single()
+        .single();
 
-      if (personError) {
-        console.error('Person save error:', personError)
-        throw personError
-      }
-
-      console.log('Person saved successfully:', newPerson)
+      if (personError) throw personError;
 
       // Handle relationships if person is dependent
-      if (values.dependent && values.relationships?.length) {
-        console.log('Processing relationships:', values.relationships)
+      if (values.dependent) {
+        // First, delete ALL existing relationships
+        const { error: deleteError } = await supabase
+          .from("relationships")
+          .delete()
+          .eq('relation_id', person.id);
 
-        // First, delete existing relationships if updating
-        if (newPerson.id) {
-          const { error: deleteError } = await supabase
-            .from("relationships")
-            .delete()
-            .eq('person_id', newPerson.id)
+        if (deleteError) throw deleteError;
 
-          if (deleteError) {
-            console.error('Delete relationships error:', deleteError)
-            throw deleteError
-          }
-        }
-
-        // Then insert new relationships
-        const relationshipPromises = values.relationships.map(async (rel) => {
-          if (!rel.id || !newPerson.id) {
-            console.error('Missing required IDs:', { relationId: rel.id, personId: newPerson.id })
-            return
-          }
-
-          const relationshipData = {
+        // Then insert only the relationships that remain in the form
+        if (values.relationships?.length) {
+          const relationshipData = values.relationships.map(rel => ({
             person_id: rel.id,
-            relation_id: newPerson.id,
+            relation_id: person.id,
             name: rel.name,
             primary: rel.primary || false,
-          }
+          }));
 
-          console.log('Inserting relationship:', relationshipData)
-
-          const { error: relationshipError } = await supabase
+          const { error: insertError } = await supabase
             .from("relationships")
-            .insert([relationshipData])
+            .insert(relationshipData);
 
-          if (relationshipError) {
-            console.error('Relationship insert error:', relationshipError)
-            throw relationshipError
-          }
-        })
-
-        await Promise.all(relationshipPromises)
+          if (insertError) throw insertError;
+        }
       }
 
-      toast.success(person ? "Person updated successfully" : "Person created successfully")
-      router.refresh()
+      toast.success("Person updated successfully");
+      router.refresh();
 
-    } catch (error: any) {
-      console.error('Submission error:', error)
-      setError(error.message || "Failed to save person")
-      toast.error(error.message || "Failed to save person")
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   console.log('Form state:', {
     isDirty: form.formState.isDirty,
@@ -305,6 +317,30 @@ export default function PersonSheet({
     isValid: form.formState.isValid,
     errors: form.formState.errors
   })
+
+  // Optional: Clean up duplicate relationships
+  const cleanupDuplicates = async () => {
+    // Get all relationships for this person
+    const { data: relationships } = await supabase
+      .from("relationships")
+      .select("*")
+      .eq("relation_id", person.id);
+
+    if (relationships) {
+      const dedupedIds = deduplicateRelationships(relationships).map(rel => rel.id);
+      
+      // Delete all relationships that aren't in the deduped list
+      const { error } = await supabase
+        .from("relationships")
+        .delete()
+        .eq("relation_id", person.id)
+        .not("id", "in", dedupedIds);
+
+      if (error) {
+        console.error("Failed to cleanup duplicates:", error);
+      }
+    }
+  };
 
   return (
     <Sheet>
@@ -537,10 +573,7 @@ export default function PersonSheet({
                   />
 
                   {form.watch("dependent") && (
-
-                    
                     <div className="space-y-4">
-
                       <div className="flex flex-col space-y-2">
                         <FormLabel>Relationships</FormLabel>
                         <FormDescription>
@@ -553,8 +586,11 @@ export default function PersonSheet({
                           {form.formState.errors.relationships.message}
                         </p>
                       )}
+                      
+                      {/* Show existing relationships as editable fields */}
                       {fields.map((field, index) => (
-                        <div key={field.id} className="space-y-4">
+                        <div key={field.id} className="space-y-4 p-4 border rounded-md">
+                          {/* Relationship Type */}
                           <FormField
                             control={form.control}
                             name={`relationships.${index}.name`}
@@ -566,7 +602,9 @@ export default function PersonSheet({
                                   onValueChange={field.onChange}
                                 >
                                   <SelectTrigger>
-                                    <SelectValue placeholder="Select type" />
+                                    <SelectValue placeholder="Select type">
+                                      {field.value ? RELATIONSHIP_TYPES.find(type => type.id === field.value)?.label : "Select type"}
+                                    </SelectValue>
                                   </SelectTrigger>
                                   <SelectContent>
                                     {RELATIONSHIP_TYPES.map((type) => (
@@ -581,57 +619,65 @@ export default function PersonSheet({
                             )}
                           />
 
-                          <div className="flex flex-col space-y-2">
-                            <FormLabel>Search Person</FormLabel>
-                            <Popover open={open} onOpenChange={setOpen}>
-                              <PopoverTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  role="combobox"
-                                  aria-expanded={open}
-                                  className="w-full justify-between text-sm"
-                                >
-                                  {searchValue
-                                    ? people.find((person) => person.name === searchValue)?.name
-                                    : "Search by name..."}
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-[250px] md:w-[400px] p-0">
-                                <Command>
-                                  <CommandInput placeholder="Search name..." />
-                                  <CommandList>
-                                    <CommandEmpty>No person found.</CommandEmpty>
-                                    <CommandGroup>
-                                      {people.map((person) => (
-                                        <CommandItem
-                                          key={person.id}
-                                          value={person.name || `${person.first_name} ${person.last_name}`}
-                                          className="mt-1 cursor-pointer pointer-events-auto opacity-100 data-[disabled]:!cursor-pointer data-[disabled]:!pointer-events-auto data-[disabled]:!opacity-100"
-                                          onSelect={(currentValue) => {
-                                            if (person.id) {
-                                              form.setValue(`relationships.${index}.id`, person.id);
-                                            }
-                                            setSearchValue(currentValue === searchValue ? "" : currentValue)
-                                            setOpen(false)
-                                          }}
-                                        >
-                                          <Check
-                                            className={cn(
-                                              "mr-2 h-4 w-4",
-                                              searchValue === person.first_name ? "opacity-100" : "opacity-0"
-                                            )}
-                                          />
-                                          {person.name || `${person.first_name} ${person.last_name}`}
-                                        </CommandItem>
-                                      ))}
-                                    </CommandGroup>
-                                  </CommandList>
-                                </Command>
-                              </PopoverContent>
-                            </Popover>
-                          </div>
+                          {/* Person Selection */}
+                          <FormField
+                            control={form.control}
+                            name={`relationships.${index}.id`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Select Person</FormLabel>
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <FormControl>
+                                      <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        className={cn(
+                                          "w-full justify-between",
+                                          !field.value && "text-muted-foreground"
+                                        )}
+                                      >
+                                        {field.value
+                                          ? people.find((person) => person.id === field.value)?.name
+                                          : "Search by name..."}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                      </Button>
+                                    </FormControl>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-[400px] p-0">
+                                    <Command>
+                                      <CommandInput placeholder="Search person..." />
+                                      <CommandList>
+                                        <CommandEmpty>No person found.</CommandEmpty>
+                                        <CommandGroup>
+                                          {people.map((person) => (
+                                            <CommandItem
+                                              value={person.name}
+                                              key={person.id}
+                                              onSelect={() => {
+                                                field.onChange(person.id);
+                                              }}
+                                            >
+                                              <Check
+                                                className={cn(
+                                                  "mr-2 h-4 w-4",
+                                                  field.value === person.id ? "opacity-100" : "opacity-0"
+                                                )}
+                                              />
+                                              {person.name}
+                                            </CommandItem>
+                                          ))}
+                                        </CommandGroup>
+                                      </CommandList>
+                                    </Command>
+                                  </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
 
+                          {/* Primary Contact Switch */}
                           <FormField
                             control={form.control}
                             name={`relationships.${index}.primary`}
@@ -647,29 +693,19 @@ export default function PersonSheet({
                               </FormItem>
                             )}
                           />
+                          
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => remove(index)}
+                            className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
+                          >
+                            <XIcon className="h-4 w-4 mr-2" />
+                            Remove
+                          </Button>
                         </div>
                       ))}
-
-                  
-                      {fromRelationships?.length > 0 && (
-                        <div className="mb-4 space-y-2">
-                          <div className="space-y-2">
-                            {fromRelationships.map((rel: any, index: number) => (
-                              <div key={rel.id} className="flex items-center justify-between rounded-md border p-2">
-                                <div className="flex flex-col">
-                                  <span className="text-sm font-medium">{rel.from?.name || `${rel.from?.first_name} ${rel.from?.last_name}`}</span>
-                                  <span className="text-xs text-gray-500">{rel.name}</span>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  {rel.primary && (
-                                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Primary</span>
-                                  )}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
 
                       <Button
                         type="button"

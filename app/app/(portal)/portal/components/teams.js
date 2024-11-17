@@ -30,24 +30,22 @@ const Teams = ({ rosters, person }) => {
                   </div>
                 </div>
                 <div>
-                  {/* {hasPaidFee(person, roster) ? (
+                  {hasPaidFee(person, roster) ? (
                     <CheckCircleIcon className="h-5 w-5 text-green-500" />
                   ) : (
                     <GenericButton
                       size="sm"
                       variant="default"
                       classNames=""
-                      cta={`Pay $${roster.fees?.amount}`}
+                      cta={`View Invoice $${roster.fees?.amount}`}
                     >
-                      <CreatePaymentModal
-                        account={account}
-                        profile={profile}
-                        roster={roster}
-                        fee={1200}
-                        person={person}
-                      />
+                      <Link
+                        href={`/api/stripe/customer-portal?roster_id=${roster.id}&athlete_name=${person.first_name} ${person.last_name}&team_name=${roster.teams?.name}`}
+                      >
+                        View Invoice
+                      </Link>
                     </GenericButton>
-                  )} */}
+                  )}
                   <ChevronRight className="h-5 w-5 text-black" />
                 </div>
               </div>

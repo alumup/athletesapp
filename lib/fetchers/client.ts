@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/client"
 import { getDomainQuery } from "../utils";
-import Shopify, { createShopify } from "../shopify";
+
 
 export async function getAccountWithDomain(domain: string) {
   const supabase = createClient();
@@ -96,26 +96,7 @@ export async function getSiteData(domain: any) {
   return data;
 }
 
-export async function getShopifyToken(account_id: string) {
-  const supabase = createClient();
 
-  const { data, error } = await supabase
-    .from("accounts")
-    .select("shopify_storefront_access_token")
-    .eq("id", account_id)
-    .single();
-
-  if (error) throw error;
-
-  return data?.shopify_storefront_access_token;
-}
-
-export async function getAccountShopify(domain: string) {
-  const account = await getAccountWithDomain(domain);
-  const shopifyToken = await getShopifyToken(account.id);
-
-  return createShopify(shopifyToken) as Shopify;
-}
 
 export async function getPrimaryContact(person: any) {
   const supabase = createClient(); // replace with your Supabase client

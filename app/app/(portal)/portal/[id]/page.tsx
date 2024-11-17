@@ -1,14 +1,11 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import { Calendar, ChevronLeft, Component, Loader, Trophy } from "lucide-react";
+import { ChevronLeft, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import TeamEvents from "@/components/events/team-events";
 import Teams from "../components/teams";
-import AccountPublicEvents from "@/components/events/public-events";
-
 import SheetModal from "@/components/modal/sheet";
 import EditPerson from "./edit";
 
@@ -21,26 +18,38 @@ const PersonPage = ({ params }: { params: Params }) => {
   const [account, setAccount] = useState<any>();
   const [user, setUser] = useState<any>();
   const [profile, setProfile] = useState<any>();
-  const [independents, setIndependents] = useState<any>(null);
-  const [toRelationships, setToRelationships] = useState<any>(null);
   const [rosters, setRosters] = useState<any>(null);
-
   const [person, setPerson] = useState<any>(null);
+  const [dependents, setDependents] = useState<any[]>([]);
 
   useEffect(() => {
     const getPerson = async () => {
       const { data, error } = await supabase
         .from("people")
-        .select("*, accounts(*)")
+        .select(`
+          *,
+          accounts(*),
+          dependents:relationships!relation_id(
+            *,
+            dependent:person_id(*)
+          )
+        `)
         .eq("id", params.id)
         .single();
 
-      if (error) toast("Error fetching person.");
-      else setPerson(data);
+      if (error) {
+        toast("Error fetching person.");
+      } else {
+        setPerson(data);
+        if (data.dependents) {
+          const deps = data.dependents.map((rel: any) => rel.dependent);
+          setDependents(deps);
+        }
+      }
     };
 
     getPerson();
-  }, []);
+  }, [params.id]);
 
   useEffect(() => {
     const getAccount = async () => {
@@ -51,14 +60,12 @@ const PersonPage = ({ params }: { params: Params }) => {
 
       if (error) console.log("Error fetching user: ", error.message);
 
-      // Convert email to lowercase
       const emailLowercase = user?.email?.toLowerCase();
-
       setUser({ ...user, email: emailLowercase });
 
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("*, accounts(*, senders(*)), people(*)")
+        .select("*, accounts(*), people(*)")
         .eq("id", user?.id)
         .single();
 
@@ -80,7 +87,7 @@ const PersonPage = ({ params }: { params: Params }) => {
         .from("rosters")
         .select("*, teams!inner(*), fees(*, payments(*))")
         .eq("person_id", personId)
-        .eq("teams.is_active", true)  // Filter by active teams
+        .eq("teams.is_active", true)
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -93,13 +100,13 @@ const PersonPage = ({ params }: { params: Params }) => {
         .from("staff")
         .select("*, people(*), teams!inner(*)")
         .eq("person_id", personId)
-        .eq("teams.is_active", true);  // Filter by active teams for staff
+        .eq("teams.is_active", true);
 
       if (staffError) {
         console.error("Error fetching staff status:", staffError);
         return;
       }
-      // Merge staff data into roster if they are on staff
+
       if (staffData.length > 0) {
         const mergedRosters = [...roster, ...staffData];
         setRosters(mergedRosters);
@@ -110,51 +117,6 @@ const PersonPage = ({ params }: { params: Params }) => {
 
     fetchRosters();
   }, [person, profile]);
-
-  useEffect(() => {
-    const getIndependents = async () => {
-      const { data: independents, error: independentsError } = await supabase
-        .from("people")
-        .select("*, accounts(*)")
-        .eq("dependent", false)
-        .eq("email", user?.email);
-
-      if (independentsError)
-        console.log(
-          "Error fetching people with same email: ",
-          independentsError.message,
-        );
-
-      setIndependents(independents);
-    };
-
-    if (user !== null) getIndependents();
-  }, [user]);
-
-  useEffect(() => {
-    const fetchToRelationships = async () => {
-      let independentIds =
-        independents?.map((independent: any) => independent.id) || [];
-
-      const { data, error } = await supabase
-        .from("relationships")
-        .select("*, from:person_id(*),to:relation_id(*, accounts(*))")
-        .in("person_id", independentIds);
-
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      if (data) {
-        console.log("Relationships", data);
-      }
-
-      setToRelationships(data);
-    };
-
-    if (independents && independents.length > 0) fetchToRelationships();
-  }, [independents]);
 
   return (
     <div>
@@ -167,14 +129,6 @@ const PersonPage = ({ params }: { params: Params }) => {
 
         <div className="mt-5">
           <div className="flex items-end justify-between">
-            {/* <Avatar className="mr-2">
-              <AvatarFallback className="text-black">
-                {getInitials(
-                  person?.first_name,
-                  person?.last_name,
-                )}
-              </AvatarFallback>
-            </Avatar> */}
             <div>
               <h1 className="text-3xl font-light">{person?.first_name}</h1>
               <h1 className="text-4xl font-bold">{person?.last_name}</h1>
@@ -191,57 +145,31 @@ const PersonPage = ({ params }: { params: Params }) => {
           </div>
         </div>
       </div>
-      <div className="p-5">
-        {person?.accounts && (
-          <>
-            <div className="flex items-center">
-              <Component className="mr-1 h-4 w-4" />
-              <h2 className="text-md font-bold">Program Events</h2>
-            </div>
-            <AccountPublicEvents
-              account={person?.accounts}
-              profile={profile}
-              selectedDependent={person}
-            />
-          </>
-        )}
-      </div>
 
-      <div className="mb-5 mt-5 border-y border-gray-300 bg-gray-50 p-5">
-        <div className="flex items-center">
-          <Calendar className="mr-1 h-4 w-4" />
-          <h2 className="text-md font-bold">Team Events</h2>
-        </div>
-        <div className="h-full min-h-52 w-full">
-          {rosters ? (
-            <>
-              {rosters.some((roster: any) => roster.teams?.events?.length > 0) ? (
-                <TeamEvents
-                  dependent={person || profile?.people}
-                  rosters={rosters}
-                  profile={profile}
-                />
-              ) : (
-                <div className="flex h-full min-h-48 w-full flex-col items-center justify-center">
-                  <p>
-                    {person?.first_name} doesn't have any upcoming team events.
-                  </p>
+      {dependents.length > 0 && (
+        <div className="px-5 mt-5">
+          <h2 className="text-xl font-semibold mb-4">Dependents</h2>
+          <div className="space-y-3">
+            {dependents.map((dependent) => (
+              <Link
+                key={dependent.id}
+                href={`/portal/${dependent.id}`}
+                className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50"
+              >
+                <div>
+                  <p className="font-medium">{`${dependent.first_name} ${dependent.last_name}`}</p>
                 </div>
-              )}
-            </>
-          ) : (
-            <div className="flex h-full min-h-48 flex-col items-center justify-center">
-              <Loader className="h-5 w-5 animate-spin" />
-              <span>Looking for team events...</span>
-            </div>
-          )}
+                <ChevronRight className="h-5 w-5" />
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="px-5">
-        <div className="mt-5 flex items-center">
+      <div className="px-5 mt-5">
+        <div className="flex items-center">
           <Trophy className="mr-1 h-4 w-4" />
-          <h2 className="text-md font-bold">Teams</h2>
+          <h2 className="text-md font-bold">Teams & Fees</h2>
         </div>
 
         <Teams 

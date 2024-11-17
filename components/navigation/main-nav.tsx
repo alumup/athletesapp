@@ -32,12 +32,6 @@ export function MainNav({
       >
         Teams
       </Link>
-      <Link
-        href="/events"
-        className="text-muted-foreground text-sm font-medium transition-colors hover:text-zinc-900"
-      >
-        Events
-      </Link>
     </nav>
   );
 }

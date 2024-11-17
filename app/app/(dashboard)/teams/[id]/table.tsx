@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import {
   TrashIcon,
   MixerHorizontalIcon,
-  ArrowRightIcon,
+  EnterIcon
 } from "@radix-ui/react-icons";
 
 import {
@@ -43,32 +43,46 @@ import SendEmailModal from "@/components/modal/send-email-modal";
 import SendButton from "@/components/modal-buttons/send-button";
 import { useRouter } from "next/navigation";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
+import { CreateRosterInvoiceButton } from "@/components/create-roster-invoice-button";
+import { EnvelopeIcon } from "@heroicons/react/24/outline";
 
-function paymentStatus(person: any, fees: any) {
-  // Check if there is a payment for the fee by the person
-  const paymentsForPerson = fees.payments.filter(
-    (payment: { person_id: any }) => payment.person_id === person.id,
-  );
+function paymentStatus(person: Person, fees: any) {
+  if (!fees?.payments?.length) {
+    return "unpaid";
+  }
 
-  // Sort the payments by date, most recent first
-  paymentsForPerson.sort(
-    (a: { date: string }, b: { date: string }) =>
-      new Date(b.date).getTime() - new Date(a.date).getTime(),
-  );
+  // Sort payments by date, most recent first
+  const paymentsForPerson = fees.payments
+    .filter((payment: { 
+      person_id: string, 
+      fee_id: string,
+      status: string 
+    }) => (
+      payment.person_id === person.id && 
+      payment.fee_id === fees.id
+    ))
+    .sort((a: { created_at: string }, b: { created_at: string }) => 
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
 
-  // Check if any of the payments status are 'succeeded'
-  const succeededPayment = paymentsForPerson.find(
-    (payment: { status: string }) => payment.status === "succeeded",
-  );
+  if (!paymentsForPerson.length) {
+    return "unpaid";
+  }
 
-  // If there is a 'succeeded' payment, return 'succeeded'
-  if (succeededPayment) {
+  const latestPayment = paymentsForPerson[0];
+
+  // Check payment status
+  if (latestPayment.status === "succeeded") {
     return "succeeded";
   }
 
-  // If there is no 'succeeded' payment, return the status of the most recent payment
-  // If there is no 'succeeded' payment, return the status of the most recent payment and the count of payments
-  return paymentsForPerson[0]?.status;
+  // If there's an invoice but no successful payment
+  if (latestPayment.status === "invoiced") {
+    return "invoiced";
+  }
+
+  // For any other status (pending, failed, etc)
+  return latestPayment.status || "unpaid";
 }
 
 function renderStatusSpan(status: string) {
@@ -81,11 +95,13 @@ function renderStatusSpan(status: string) {
       statusColor = "text-yellow-900 bg-yellow-100 border border-yellow-200";
       break;
     case "pending":
-      statusColor = "text-gray-900 bg-text-100 border border-text-200";
-      status;
+      statusColor = "text-blue-900 bg-blue-100 border border-blue-200";
       break;
     case "failed":
       statusColor = "text-red-900 bg-red-100 border border-red-200";
+      break;
+    case "invoiced":
+      statusColor = "text-purple-900 bg-purple-100 border border-purple-200";
       break;
     default:
       statusColor = "text-gray-900 bg-gray-100 border border-gray-200";
@@ -93,9 +109,7 @@ function renderStatusSpan(status: string) {
       break;
   }
   return (
-    <span
-      className={`rounded-md px-2 py-1 text-[10px] ${statusColor} uppercase`}
-    >
+    <span className={`rounded-md px-2 py-1 text-[10px] ${statusColor} uppercase`}>
       {status}
     </span>
   );
@@ -103,19 +117,25 @@ function renderStatusSpan(status: string) {
 
 export type Person = {
   id: string;
-  fees: any;
+  fees: {
+    id: string;
+    amount: number;
+    payments: Array<{
+      id: string;
+      person_id: string;
+      status: string;
+      date: string;
+      invoice_id?: string;  // Track Stripe invoice ID
+      payment_intent_id?: string;  // Track Stripe payment intent
+    }>;
+  };
   first_name: string;
   last_name: string;
   name: string;
-  tags: any;
-  email: string;
-  grade: string;
-  birthdate: string;
-  phone: string;
   primary_contacts: any;
 };
 
-const columns: ColumnDef<Person>[] = [
+const createColumns = (team: any): ColumnDef<Person>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -134,6 +154,22 @@ const columns: ColumnDef<Person>[] = [
     ),
     enableSorting: true,
     enableHiding: false,
+  },
+  {
+    accessorKey: "actions",
+    header: "",
+    cell: ({ row }) => (
+      <>
+        <Link
+          href={`/people/${row.original.id}`}
+          className="cursor rounded hover:bg-gray-100"
+        >
+          <span className="flex items-center space-x-2 text-sm text-gray-700">
+            <EnterIcon className="h-5 w-5 text-gray-500" />
+          </span>
+        </Link>
+      </>
+    ),
   },
   {
     accessorKey: "fees",
@@ -191,26 +227,52 @@ const columns: ColumnDef<Person>[] = [
     ),
   },
   {
-    accessorKey: "phone",
-    header: "Phone",
-    cell: ({ row }) => <div>{row.getValue("phone")}</div>,
-  },
-  {
-    accessorKey: "actions",
-    header: "",
-    cell: ({ row }) => (
-      <>
-        <Link
-          href={`/people/${row.original.id}`}
-          className="cursor rounded hover:bg-gray-100"
-        >
-          <span className="flex items-center space-x-2 text-sm text-gray-700">
-            <ArrowRightIcon className="h-5 w-5" />
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => {
+      const person = row.original;
+      const status = paymentStatus(person, person.fees);
+      
+      if (status === "succeeded") {
+        return (
+          <span className="flex items-center">
+            <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />
+            Paid
           </span>
-        </Link>
-      </>
-    ),
-  },
+        );
+      }
+      
+      if (status === "invoiced") {
+        return (
+          <Button 
+            variant="outline"
+            onClick={() => {
+              // TODO: Implement send reminder logic
+              toast.success('Payment reminder sent');
+            }}
+            className="text-purple-600 hover:text-purple-700 w-full"
+          >
+            <EnvelopeIcon className="h-4 w-4 mr-2" />
+            Send Reminder
+          </Button>
+        );
+      }
+
+      // Default case: show create invoice button
+      const props = {
+        rosterId: person.fees?.id,
+        athleteName: `${person.first_name} ${person.last_name}`,
+        teamName: team?.name,
+        amount: person.fees?.amount,
+        guardianEmail: person.primary_contacts?.[0]?.email,
+        accountId: team.account_id,
+        stripeAccountId: team.accounts?.stripe_id,
+        person_id: person.id
+      };
+
+      return <CreateRosterInvoiceButton {...props} />;
+    }
+  }
 ];
 
 export function TeamTable({
@@ -233,7 +295,7 @@ export function TeamTable({
 
   const table = useReactTable({
     data,
-    columns,
+    columns: createColumns(team),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -251,9 +313,20 @@ export function TeamTable({
   });
 
   useEffect(() => {
+    console.log('Table Data:', data);
+    data.forEach(person => {
+      console.log('Person:', {
+        name: person.name,
+        fees: person.fees,
+        paymentStatus: paymentStatus(person, person.fees)
+      });
+    });
+  }, [data]);
+
+  useEffect(() => {
     // Set the initial page size
     table.setPageSize(30);
-  }, []); //
+  }, [table]); //
 
   // const handleDeleteSelected = () => {
   //   const people = selectedRows.map((row) => row.original);
@@ -391,10 +464,13 @@ export function TeamTable({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={table.getAllColumns().length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  <div className="mt-2 flex flex-col items-center justify-center">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"></div>
+                    <span className="ml-2">Fetching team...</span>
+                  </div>
                 </TableCell>
               </TableRow>
             )}
