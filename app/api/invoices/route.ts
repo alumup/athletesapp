@@ -21,41 +21,50 @@ export async function POST(req: Request) {
     });
     const supabase = createClient();
 
-    // Create invoice item
-    const invoiceItem = await stripe.invoiceItems.create({
-      customer: customerId,
-      amount: amount * 100,
-      currency: 'usd',
-      description: `Team Roster Fee - ${athleteName} - ${teamName}`,
-      metadata: {
-        roster_id: rosterId,
-        athlete_name: athleteName,
-        team_name: teamName
-      }
-    });
+    // Calculate the 3% platform fee
+    const applicationFeeAmount = Math.round(amount * 100 * 0.03); // Convert to cents and calculate 3%
 
-    // Create the invoice and include the pending items
+    // Create the invoice with application fee
     const invoice = await stripe.invoices.create({
       customer: customerId,
       collection_method: 'send_invoice',
       days_until_due: 30,
       pending_invoice_items_behavior: 'include',
+      application_fee_amount: applicationFeeAmount,
       metadata: {
         roster_id: rosterId,
         athlete_name: athleteName,
-        team_name: teamName
+        team_name: teamName,
+        fee_id: rosterId,
+        person_id: person_id
       },
       description: `Team Roster Fee - ${athleteName} - ${teamName}`,
       auto_advance: false
+    }, {
+      stripeAccount: stripeAccountId,
     });
 
-    // Finalize the invoice to include the items
+    // Create invoice item for the base amount
+    await stripe.invoiceItems.create({
+      customer: customerId,
+      amount: amount * 100, // Convert to cents
+      currency: 'usd',
+      invoice: invoice.id,
+      description: `Team Roster Fee - ${athleteName} - ${teamName}`,
+    }, {
+      stripeAccount: stripeAccountId,
+    });
+
+    // Finalize and send the invoice
     const finalizedInvoice = await stripe.invoices.finalizeInvoice(invoice.id, {
       auto_advance: false
+    }, {
+      stripeAccount: stripeAccountId,
     });
 
-    // Send the invoice
-    const sentInvoice = await stripe.invoices.sendInvoice(finalizedInvoice.id);
+    const sentInvoice = await stripe.invoices.sendInvoice(finalizedInvoice.id, {
+      stripeAccount: stripeAccountId,
+    });
 
     // Create payment record in Supabase
     const { data: payment, error: paymentError } = await supabase
@@ -69,7 +78,8 @@ export async function POST(req: Request) {
         data: {
           invoice_id: sentInvoice.id,
           customer_id: customerId,
-          stripe_account_id: stripeAccountId
+          stripe_account_id: stripeAccountId,
+          application_fee_amount: applicationFeeAmount / 100 // Store in dollars
         }
       }])
       .select()
