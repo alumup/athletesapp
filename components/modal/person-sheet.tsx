@@ -179,7 +179,7 @@ export default function PersonSheet({
 
   // Add this useEffect to debug the mapping
   useEffect(() => {
-    console.log('Mapped relationships:', fromRelationships?.map((rel) => ({
+    console.log('Mapped relationships:', fromRelationships?.map((rel: any) => ({
       relationshipId: rel.id,
       id: rel.from?.id,
       name: rel.name.toLowerCase(),
