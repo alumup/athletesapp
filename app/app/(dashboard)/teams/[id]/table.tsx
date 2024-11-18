@@ -39,13 +39,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import SendEmailModal from "@/components/modal/send-email-modal";
+import SendEmailModal from "@/components/modal/send-email-sheet";
 import SendButton from "@/components/modal-buttons/send-button";
 import { useRouter } from "next/navigation";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import { CreateRosterInvoiceButton } from "@/components/create-roster-invoice-button";
 import { EnvelopeIcon } from "@heroicons/react/24/outline";
 import { DocumentIcon } from "@heroicons/react/24/outline";
+import SendEmailSheet from "@/components/modal/send-email-sheet";
 
 function paymentStatus(person: Person, fees: any, team: any) {
   // First check for successful payments
@@ -419,13 +420,12 @@ export function TeamTable({
       {isAnyRowSelected && (
         <div className="mb-2 flex justify-between space-x-4 py-2">
           <div className="flex items-center space-x-2">
-            <SendButton channel="email" cta="Send Email">
-              <SendEmailModal
-                people={people}
-                account={account}
-                onClose={() => table.toggleAllPageRowsSelected(false)}
-              />
-            </SendButton>
+            <SendEmailSheet
+              people={people}
+              account={account}
+              cta="Send Email"
+              onClose={() => table.toggleAllRowsSelected(false)}
+            />  
           </div>
           <Button
             onClick={handleRemoveSelected}

@@ -45,7 +45,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import SendEmailModal from "@/components/modal/send-email-modal";
+import SendEmailModal from "@/components/modal/send-email-sheet";
 import AddToTeamModal from "@/components/modal/add-to-team-modal";
 import SendButton from "@/components/modal-buttons/send-button";
 import IconButton from "@/components/modal-buttons/icon-button";

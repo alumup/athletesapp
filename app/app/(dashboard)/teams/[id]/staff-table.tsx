@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import SendEmailModal from "@/components/modal/send-email-modal";
+import SendEmailModal from "@/components/modal/send-email-sheet";
 import SendButton from "@/components/modal-buttons/send-button";
 import { useRouter } from "next/navigation";
 

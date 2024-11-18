@@ -79,7 +79,7 @@ export default function BillingPortalButton() {
           )}
         </Button>
       </div>
-      <span className="text-xs text-gray-500">Use the email associated with your Athlets Appaccount to access the billing portal.</span>
+      <span className="text-xs text-gray-500">Use the email associated with your Athlets App account to access the billing portal.</span>
     </div>
   );
 }

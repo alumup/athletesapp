@@ -40,8 +40,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getPrimaryContact } from "@/lib/fetchers/client";
-import SendEmailModal from "@/components/modal/send-email-modal";
-import SendButton from "@/components/modal-buttons/send-button";
+import SendEmailSheet from "@/components/modal/send-email-sheet"
 
 import { useRouter } from "next/navigation";
 
@@ -172,7 +171,6 @@ export function TeamTable({ data, account }: { data: Person[]; account: any }) {
         };
       });
       const primaryContacts = await Promise.all(primaryContactsPromises);
-      console.log("PRIMARY CONTACTS --------------->", primaryContacts);
       setPrimaryContacts(primaryContacts);
     };
     fetchPrimaryContacts();
@@ -225,13 +223,12 @@ export function TeamTable({ data, account }: { data: Person[]; account: any }) {
       {isAnyRowSelected && (
         <div className="mb-2 flex justify-between space-x-4 py-2">
           <div className="flex items-center space-x-2">
-            <SendButton channel="email" cta="Send Email">
-              <SendEmailModal
-                people={primaryContacts}
-                account={account}
-                onClose={() => table.toggleAllPageRowsSelected(false)}
-              />
-            </SendButton>
+            <SendEmailSheet
+              people={primaryContacts}
+              account={account}
+              cta="Send Email"
+              onClose={() => table.toggleAllRowsSelected(false)}
+            />
           </div>
           <Button
             onClick={handleDeleteSelected}

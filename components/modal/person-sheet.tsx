@@ -68,9 +68,7 @@ const formSchema = z.object({
   phone: z.string().optional(),
   email: z.string().optional(),
   dependent: z.boolean().default(false),
-  birthdate: z.date({
-    required_error: "Birthdate is required",
-  }),
+  birthdate: z.date().optional(),
   grade: z.string().min(1, "Grade is required"),
   tags: z.array(z.string()).default([]),
   relationships: z.array(z.object({
@@ -349,13 +347,13 @@ export default function PersonSheet({
             className="flex flex-col h-full"
           >
             <div className="flex h-full flex-col">
-              <SheetHeader className="p-6">
+              <SheetHeader className="p-3">
                 <SheetTitle>{title}</SheetTitle>
                 <SheetDescription>{description}</SheetDescription>
               </SheetHeader>
 
-              <ScrollArea className="flex-1 p-6">
-                <div className="space-y-6">
+              <ScrollArea className="flex-1">
+                <div className="space-y-6 p-3">
                   {form.formState.errors.root && (
                     <div className="rounded-md bg-red-50 p-4 text-sm text-red-500">
                       {form.formState.errors.root.message}
@@ -478,7 +476,7 @@ export default function PersonSheet({
 
                       return (
                         <FormItem className="flex flex-col">
-                          <FormLabel>Date of birth</FormLabel>
+                          <FormLabel>Date of birth (optional)</FormLabel>
                           <Popover>
                             <PopoverTrigger asChild>
                               <FormControl>
@@ -535,7 +533,7 @@ export default function PersonSheet({
                             </PopoverContent>
                           </Popover>
                           <FormDescription>
-                            Select your date of birth
+                            Select a date of birth if known
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -651,6 +649,7 @@ export default function PersonSheet({
                                             <CommandItem
                                               value={person.name}
                                               key={person.id}
+                                              className="mt-1 cursor-pointer pointer-events-auto opacity-100 data-[disabled]:!cursor-pointer data-[disabled]:!pointer-events-auto data-[disabled]:!opacity-100 aria-[disabled]:!cursor-pointer aria-[disabled]:!pointer-events-auto aria-[disabled]:!opacity-100"
                                               onSelect={() => {
                                                 field.onChange(person.id);
                                               }}

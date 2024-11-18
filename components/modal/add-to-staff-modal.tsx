@@ -108,7 +108,7 @@ export function AddToStaffSheet({
     <Sheet>
       <SheetTrigger asChild>
         <Button
-          variant="default"
+          variant="outline"
           color="primary"
         >
           Add Staff
