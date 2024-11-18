@@ -86,7 +86,14 @@ export default function TeamPage({ params }: { params: { id: string } }) {
         .select(`
           *,
           accounts(id, stripe_id),
-          rosters(*, people(*), fees(*, payments(*))),
+          rosters(
+            *, 
+            people(
+              *,
+              invoices(*)
+            ), 
+            fees(*, payments(*))
+          ),
           staff(*, people(*))
         `)
         .eq("id", params.id)

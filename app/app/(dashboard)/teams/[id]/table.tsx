@@ -45,44 +45,34 @@ import { useRouter } from "next/navigation";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import { CreateRosterInvoiceButton } from "@/components/create-roster-invoice-button";
 import { EnvelopeIcon } from "@heroicons/react/24/outline";
+import { DocumentIcon } from "@heroicons/react/24/outline";
 
-function paymentStatus(person: Person, fees: any) {
-  if (!fees?.payments?.length) {
-    return "unpaid";
-  }
-
-  // Sort payments by date, most recent first
-  const paymentsForPerson = fees.payments
-    .filter((payment: { 
-      person_id: string, 
-      fee_id: string,
-      status: string 
-    }) => (
-      payment.person_id === person.id && 
-      payment.fee_id === fees.id
-    ))
-    .sort((a: { created_at: string }, b: { created_at: string }) => 
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+function paymentStatus(person: Person, fees: any, team: any) {
+  // First check for successful payments
+  if (fees?.payments?.length) {
+    const successfulPayment = fees.payments.find(
+      (payment: { person_id: string; fee_id: string; status: string }) =>
+        payment.person_id === person.id &&
+        payment.fee_id === fees.id &&
+        payment.status === "succeeded"
     );
-
-  if (!paymentsForPerson.length) {
-    return "unpaid";
+    
+    if (successfulPayment) {
+      return "succeeded";
+    }
   }
 
-  const latestPayment = paymentsForPerson[0];
+  // Then check for existing invoices
+  const rosterId = team.rosters?.find((r: any) => r.person_id === person.id)?.id;
+  const hasInvoice = person.invoices?.some(
+    invoice => invoice.roster_id === rosterId && invoice.status === "draft"
+  );
 
-  // Check payment status
-  if (latestPayment.status === "succeeded") {
-    return "succeeded";
-  }
-
-  // If there's an invoice but no successful payment
-  if (latestPayment.status === "invoiced") {
+  if (hasInvoice) {
     return "invoiced";
   }
 
-  // For any other status (pending, failed, etc)
-  return latestPayment.status || "unpaid";
+  return "unpaid";
 }
 
 function renderStatusSpan(status: string) {
@@ -125,10 +115,15 @@ export type Person = {
       person_id: string;
       status: string;
       date: string;
-      invoice_id?: string;  // Track Stripe invoice ID
-      payment_intent_id?: string;  // Track Stripe payment intent
+      invoice_id?: string;
+      payment_intent_id?: string;
     }>;
   };
+  invoices?: Array<{
+    id: string;
+    status: string;
+    roster_id: string;
+  }>;
   first_name: string;
   last_name: string;
   name: string;
@@ -189,7 +184,7 @@ const createColumns = (team: any): ColumnDef<Person>[] => [
     header: "Fee Status",
     cell: ({ row }: { row: any }) => {
       const person = row.original;
-      const status = paymentStatus(person, person.fees);
+      const status = paymentStatus(person, person.fees, team);
       const statusBadge = renderStatusSpan(status);
       return statusBadge;
     },
@@ -231,9 +226,12 @@ const createColumns = (team: any): ColumnDef<Person>[] => [
     header: "Actions",
     cell: ({ row }) => {
       const person = row.original;
-      const status = paymentStatus(person, person.fees);
+      const roster = team.rosters?.find((r: any) => r.person_id === person.id);
       
-      if (status === "succeeded") {
+      // Find invoice for this roster
+      const invoice = person.invoices?.find(inv => inv.roster_id === roster?.id);
+
+      if (invoice?.status === "paid") {
         return (
           <span className="flex items-center">
             <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />
@@ -242,7 +240,7 @@ const createColumns = (team: any): ColumnDef<Person>[] => [
         );
       }
       
-      if (status === "invoiced") {
+      if (invoice?.status === "sent") {
         return (
           <Button 
             variant="outline"
@@ -253,21 +251,35 @@ const createColumns = (team: any): ColumnDef<Person>[] => [
             className="text-purple-600 hover:text-purple-700 w-full"
           >
             <EnvelopeIcon className="h-4 w-4 mr-2" />
-            Send Reminder
+            Invoice Sent
           </Button>
         );
       }
 
-      // Default case: show create invoice button
+      if (invoice?.status === "draft") {
+        return (
+          <Button 
+            variant="outline"
+            disabled
+            className="text-gray-500 w-full"
+          >
+            <DocumentIcon className="h-4 w-4 mr-2" />
+            Invoice Created
+          </Button>
+        );
+      }
+
+      // Default case: show create invoice button when no invoice exists
       const props = {
-        rosterId: person.fees?.id,
+        rosterId: roster?.id,
         athleteName: `${person.first_name} ${person.last_name}`,
         teamName: team?.name,
-        amount: person.fees?.amount,
+        amount: roster?.fees?.amount,
         guardianEmail: person.primary_contacts?.[0]?.email,
         accountId: team.account_id,
         stripeAccountId: team.accounts?.stripe_id,
-        person_id: person.id
+        person_id: person.id,
+        onSuccess: () => router.refresh()
       };
 
       return <CreateRosterInvoiceButton {...props} />;
@@ -284,7 +296,8 @@ export function TeamTable({
   team: any;
   account: any;
 }) {
-  const { refresh } = useRouter();
+  const router = useRouter();
+  const { refresh } = router;
   const supabase = createClient();
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -318,7 +331,7 @@ export function TeamTable({
       console.log('Person:', {
         name: person.name,
         fees: person.fees,
-        paymentStatus: paymentStatus(person, person.fees)
+        paymentStatus: paymentStatus(person, person.fees, team)
       });
     });
   }, [data]);

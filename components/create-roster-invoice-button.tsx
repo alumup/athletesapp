@@ -32,8 +32,38 @@ export function CreateRosterInvoiceButton({
     try {
       setLoading(true);
       
-      // First, ensure we have a customer ID for the guardian
-      console.log('Fetching customer ID...');
+      // Enhanced validation with specific error messages
+      if (!rosterId) {
+        throw new Error('Invalid roster ID');
+      }
+      if (!guardianEmail) {
+        throw new Error('Guardian email is required');
+      }
+      if (!accountId) {
+        throw new Error('Account ID is required');
+      }
+      if (!stripeAccountId) {
+        throw new Error('Stripe account ID is required');
+      }
+      if (!person_id) {
+        throw new Error('Person ID is required');
+      }
+      if (!amount || amount <= 0) {
+        throw new Error('Invalid amount');
+      }
+
+      // Log the data we're about to send
+      console.log('Creating invoice with data:', {
+        rosterId,
+        athleteName,
+        teamName,
+        amount,
+        guardianEmail,
+        accountId,
+        stripeAccountId,
+        person_id
+      });
+
       const customerResponse = await fetch('/api/stripe-customers', {
         method: 'POST',
         headers: {
@@ -58,7 +88,19 @@ export function CreateRosterInvoiceButton({
         throw new Error(customerError || 'No customer ID returned');
       }
 
-      // Create invoice using single endpoint
+      // Log invoice creation data
+      console.log('Creating invoice with:', {
+        customerId,
+        rosterId,
+        athleteName,
+        teamName,
+        amount,
+        accountId,
+        stripeAccountId,
+        person_id,
+        isCustomInvoice: false
+      });
+
       const invoiceResponse = await fetch('/api/invoices', {
         method: 'POST',
         headers: {
@@ -72,22 +114,21 @@ export function CreateRosterInvoiceButton({
           amount,
           accountId,
           stripeAccountId,
-          person_id
+          person_id,
+          isCustomInvoice: false
         })
       });
 
-      const invoiceData = await invoiceResponse.json();
-      
       if (!invoiceResponse.ok) {
-        throw new Error(invoiceData.error || 'Failed to create invoice');
+        const errorData = await invoiceResponse.json();
+        throw new Error(errorData.error || 'Failed to create invoice');
       }
 
       toast.success('Invoice created successfully');
-      refresh();
-
-    } catch (error) {
+      
+    } catch (error: any) {
       console.error('Error creating invoice:', error);
-      toast.error('Failed to create invoice');
+      toast.error(error.message || 'Failed to create invoice');
     } finally {
       setLoading(false);
     }

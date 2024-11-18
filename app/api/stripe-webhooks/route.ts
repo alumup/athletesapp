@@ -56,39 +56,80 @@ const updateSupabase = async (event: any, supabase: any) => {
   
   // Handle invoice events
   if (event.type.startsWith('invoice.')) {
-    const { error } = await supabase
-      .from("payments")
+    const stripeInvoice = event.data.object;
+    const status = getStatusFromInvoiceEvent(event.type);
+    
+    // First update the invoice record
+    const { error: invoiceError } = await supabase
+      .from("invoices")
       .update({
-        status: getStatusFromInvoiceEvent(event.type),
-        data: {
-          ...event.data.object,
-          invoice_id: event.data.object.id
-        },
+        status: status === 'succeeded' ? 'paid' : status,
+        metadata: {
+          ...stripeInvoice,
+          last_event: event.type
+        }
       })
-      .eq("fee_id", event.data.object.metadata.fee_id)
-      .eq("person_id", event.data.object.metadata.person_id)
+      .eq("id", stripeInvoice.metadata.invoice_id)
       .single();
 
-    if (error) {
-      console.log("Error updating payment status for invoice: ", error);
-      throw new Error(error);
+    if (invoiceError) {
+      console.log("Error updating invoice status:", invoiceError);
+      throw new Error(invoiceError);
     }
+
+    // If payment was successful, create a payment record
+    if (status === 'succeeded') {
+      const { error: paymentError } = await supabase
+        .from("payments")
+        .insert({
+          invoice_id: stripeInvoice.metadata.invoice_id,
+          person_id: stripeInvoice.metadata.person_id,
+          account_id: stripeInvoice.metadata.account_id,
+          amount: stripeInvoice.amount_paid / 100, // Convert from cents
+          status: 'succeeded',
+          payment_method: 'stripe',
+          metadata: {
+            stripe_invoice_id: stripeInvoice.id,
+            stripe_payment_intent_id: stripeInvoice.payment_intent,
+            payment_method_details: stripeInvoice.payment_method_details
+          }
+        });
+
+      if (paymentError) {
+        console.log("Error creating payment record:", paymentError);
+        throw new Error(paymentError);
+      }
+    }
+
     return;
   }
 
-  // Handle payment intent events
-  const { error } = await supabase
-    .from("payments")
-    .update({
-      status: event.data.object.status,
-      data: event.data.object,
-    })
-    .eq("payment_intent_id", event.data.object.id)
-    .single();
+  // Handle payment intent events (for non-invoice payments)
+  if (event.type.startsWith('payment_intent.')) {
+    const paymentIntent = event.data.object;
+    
+    // Only create/update payment record if we have an invoice_id in metadata
+    if (paymentIntent.metadata.invoice_id) {
+      const { error: paymentError } = await supabase
+        .from("payments")
+        .upsert({
+          invoice_id: paymentIntent.metadata.invoice_id,
+          person_id: paymentIntent.metadata.person_id,
+          account_id: paymentIntent.metadata.account_id,
+          amount: paymentIntent.amount / 100,
+          status: paymentIntent.status,
+          payment_method: 'stripe',
+          metadata: {
+            stripe_payment_intent_id: paymentIntent.id,
+            payment_method_details: paymentIntent.payment_method_details
+          }
+        });
 
-  if (error) {
-    console.log("Error updating payment status: ", error);
-    throw new Error(error);
+      if (paymentError) {
+        console.log("Error updating payment record:", paymentError);
+        throw new Error(paymentError);
+      }
+    }
   }
 
   // Handle metadata updates (existing code)
@@ -127,13 +168,13 @@ const updateSupabase = async (event: any, supabase: any) => {
   }
 };
 
-// Helper function to map invoice events to payment statuses
+// Update status mapping function
 function getStatusFromInvoiceEvent(eventType: string): string {
   switch (eventType) {
     case 'invoice.created':
-      return 'invoiced';
+      return 'draft';
     case 'invoice.finalized':
-      return 'invoiced';
+      return 'sent';
     case 'invoice.paid':
     case 'invoice.payment_succeeded':
       return 'succeeded';

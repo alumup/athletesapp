@@ -337,8 +337,10 @@ export default function PersonSheet({
 
   return (
     <Sheet>
-      <SheetTrigger className="rounded border border-black px-3 py-2 text-sm text-black">
-        {cta}
+      <SheetTrigger asChild>
+        <Button variant="outline" size="sm">
+          {cta}
+        </Button>
       </SheetTrigger>
       <SheetContent side="right" className="flex h-full w-full flex-col p-2 sm:max-w-md bg-white">
         <Form {...form}>

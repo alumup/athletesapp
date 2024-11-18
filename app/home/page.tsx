@@ -3,11 +3,11 @@ import Link from "next/link"
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <div className="py-20 flex flex-col justify-center bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl md:text-5xl mb-4">
-            Team Management for Teams and Clubs.
+            Roster Management for Teams and Clubs.
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto font-light font-sans">
             Athletes App is the easiest way to manage your athletes and teams.
@@ -37,45 +37,20 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h3 className="text-lg font-semibold mb-2">Roster Management</h3>
-            <p className="text-gray-600">Keep track of all your athletes in one place with detailed profiles and stats</p>
+            <p className="text-gray-600">Keep track of all your athletes and their relationships in one place with detailed profiles.</p>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h3 className="text-lg font-semibold mb-2">Invoicing and Payments</h3>
-            <p className="text-gray-600">Automated payment processing and tracking for team fees and equipment costs</p>
+            <p className="text-gray-600">Automated payment processing and tracking for team fees and equipment costs.</p>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h3 className="text-lg font-semibold mb-2">Email Communication</h3>
-            <p className="text-gray-600">Stay connected with instant updates and announcements to parents and team members</p>
+            <p className="text-gray-600">Stay connected with instant updates and announcements to parents and team members via email.</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Ready to get started?</h2>
-              <p className="text-gray-600 mb-6">Join thousands of teams already using our platform to manage their athletes</p>
-              <div className="space-x-4">
-                <a href="/signup" className="inline-flex items-center justify-center rounded-md text-sm font-medium bg-blue-600 text-white h-10 px-4 py-2 hover:bg-blue-700">
-                  Get Started
-                </a>
-                <a href="/demo" className="inline-flex items-center justify-center rounded-md text-sm font-medium border border-gray-200 bg-white h-10 px-4 py-2 hover:bg-gray-100">
-                  Request Demo
-                </a>
-              </div>
-            </div>
-            <div className="flex-1">
-              <img 
-                src="/dashboard-preview.png" 
-                alt="Dashboard Preview" 
-                className="rounded-lg shadow-md"
-                width={500}
-                height={300}
-              />
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

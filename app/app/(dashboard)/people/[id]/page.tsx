@@ -11,32 +11,132 @@ import {
 } from "@/components/ui/card";
 import { fullName } from "@/lib/utils";
 import { toast } from "sonner";
-import LoadingDots from "@/components/icons/loading-dots";
 import { CheckBadgeIcon } from "@heroicons/react/24/outline";
 import LoadingCircle from "@/components/icons/loading-circle";
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 
-import { encryptId } from "@/app/utils/ecryption";
 import { Button } from "@/components/marketing/Button";
 import PersonSheet from "@/components/modal/person-sheet";
+import CreateInvoiceModal from "@/components/modal/create-invoice-modal"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { formatCurrency } from "@/lib/utils"
 
-export default function PersonPage({ params }: { params: { id: string } }) {
+interface PersonPageProps {
+  params: { id: string }
+}
+
+// Add this interface for better type safety
+interface Team {
+  id: string
+  name: string
+  is_active: boolean
+  created_at: string
+}
+
+interface Payment {
+  id: string;
+  created_at: string;
+  amount: bigint;
+  status: 'pending' | 'succeeded' | 'failed' | 'refunded';
+  payment_method: 'stripe' | 'cash' | 'check' | 'other';
+  invoice: {
+    id: string;
+    invoice_number: string;
+    description: string;
+    status: 'draft' | 'sent' | 'paid' | 'void' | 'overdue';
+    due_date: string;
+  };
+}
+
+// Add these interfaces
+interface Invoice {
+  id: string
+  created_at: string
+  amount: number
+  status: string
+  due_date: string | null
+  invoice_number: string | null
+  description: string | null
+  payments?: Payment[]
+}
+
+// Add to your existing interfaces
+interface Relationship {
+  id: string
+  person_id: string
+  related_person_id: string
+  relationship_type: string
+}
+
+// Add this helper function at the top
+function groupInvoicesByPerson(invoices: any[], relationships: any[]) {
+  const grouped: Record<string, any[]> = {};
+  
+  // First add primary person's invoices
+  invoices.forEach(invoice => {
+    if (!grouped[invoice.person_id]) {
+      grouped[invoice.person_id] = [];
+    }
+    grouped[invoice.person_id].push(invoice);
+  });
+
+  // Add dependent's invoices under their primary contact
+  relationships.forEach(rel => {
+    if (rel.primary && grouped[rel.relation_id]) {
+      if (!grouped[rel.person_id]) {
+        grouped[rel.person_id] = [];
+      }
+      grouped[rel.person_id].push(...grouped[rel.relation_id]);
+      delete grouped[rel.relation_id];
+    }
+  });
+
+  return grouped;
+}
+
+// Add this helper function at the top of your file
+function groupBy<T>(array: T[], key: keyof T): Record<string, T[]> {
+  return array.reduce((acc, item) => {
+    const groupKey = String(item[key]);
+    if (!acc[groupKey]) {
+      acc[groupKey] = [];
+    }
+    acc[groupKey].push(item);
+    return acc;
+  }, {} as Record<string, T[]>);
+}
+
+export default function PersonPage({ params }: PersonPageProps) {
   const supabase = createClient();
 
   const [person, setPerson] = useState<any>(null);
   const [toRelationships, setToRelationships] = useState<any>(null);
   const [fromRelationships, setFromRelationships] = useState<any>(null);
   const [account, setAccount] = useState<any>(null);
-  const [emailIsSending, setEmailIsSending] = useState<any>(false);
   const [profile, setProfile] = useState<boolean>(true);
   const [roster, setRoster] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false)
+  const [payments, setPayments] = useState<any[]>([])
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [isLoadingInvoices, setIsLoadingInvoices] = useState(true);
 
   // Added fetchRoster function
   async function fetchRoster() {
     const { data, error } = await supabase
       .from("rosters")
-      .select("*, teams(*)")
-      .eq("person_id", params.id);
+      .select(`
+        *,
+        teams (
+          id,
+          name,
+          is_active,
+          created_at
+        )
+      `)
+      .eq("person_id", params.id)
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error(error);
@@ -46,108 +146,136 @@ export default function PersonPage({ params }: { params: { id: string } }) {
     setRoster(data.map((entry) => entry.teams));
   }
 
-  useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
-      try {
-        const fetchedPerson = await fetchPerson();
-        const primaryPeople = await getPrimaryContacts(fetchedPerson);
-        const fetchedToRelationships = await fetchToRelationships();
-        const fetchedFromRelationships = await fetchFromRelationships();
-        const fetchedAccount = await getAccount();
-        await fetchRoster();
-        const p = await hasProfile({
-          ...fetchedPerson,
-          primary_contacts: primaryPeople,
-        });
+  // Add this new function to fetch payments
+  async function fetchPayments() {
+    const { data, error } = await supabase
+      .from('payments')
+      .select(`
+        *,
+        invoices (
+          id,
+          invoice_number,
+          description,
+          status,
+          due_date
+        )
+      `)
+      .eq('person_id', params.id)
+      .order('created_at', { ascending: false });
 
-        setPerson({
-          ...fetchedPerson,
-          primary_contacts: primaryPeople,
-        });
-        setToRelationships(fetchedToRelationships || []);
-        setFromRelationships(fetchedFromRelationships || []);
-        setAccount(fetchedAccount);
-        setProfile(p);
+    if (error) {
+      console.error('Error fetching payments:', error);
+      return [];
+    }
+
+    return data;
+  }
+
+  // Update the fetch function
+  useEffect(() => {
+    async function fetchAllInvoicesAndPayments() {
+      setIsLoadingInvoices(true);
+      try {
+        // First get all relationships
+        const { data: relationships, error: relationshipsError } = await supabase
+          .from('relationships')
+          .select(`
+            *,
+            from:person_id(*),
+            to:relation_id(*)
+          `)
+          .or(`person_id.eq.${params.id},relation_id.eq.${params.id}`);
+
+        if (relationshipsError) {
+          console.error('Error fetching relationships:', relationshipsError);
+          return;
+        }
+
+        // Get all related person IDs
+        const relatedIds = relationships
+          ? relationships.map(rel => 
+              rel.person_id === params.id ? rel.relation_id : rel.person_id
+            )
+          : [];
+
+        // Fetch invoices and payments for all related people
+        const { data: invoicesData, error: invoicesError } = await supabase
+          .from('invoices')
+          .select(`
+            *,
+            payments (*),
+            person:people (
+              id,
+              first_name,
+              last_name,
+              dependent
+            )
+          `)
+          .in('person_id', [params.id, ...relatedIds])
+          .order('created_at', { ascending: false });
+
+        if (invoicesError) {
+          console.error('Error fetching invoices and payments:', invoicesError);
+          toast.error('Failed to load payment history');
+          return;
+        }
+
+        setInvoices(invoicesData || []);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error:', error);
+        toast.error('Failed to load payment history');
       } finally {
-        setIsLoading(false);
+        setIsLoadingInvoices(false);
       }
     }
 
-    fetchData();
+    if (params.id) {
+      fetchAllInvoicesAndPayments();
+    }
   }, [params.id]);
 
-  const invitePerson = async ({
-    person,
-    account,
-  }: {
-    person: any;
-    account: any;
-  }) => {
-    setEmailIsSending(true);
-    let email = person.primary_contacts[0].email;
-    let encryptedEmail = encryptId(person.primary_contacts[0].email);
-    if (person.email !== "") {
-      encryptedEmail = encryptId(person.email);
-      email = person.email;
-    }
-    const response = await fetch("/api/invite-person", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: email,
-        encryptedEmail: encryptedEmail,
-        person: person,
-        account: account,
-        subject: `You've Been Invited to Athletes App!`,
-      }),
-    });
-
-    if (!response.ok) {
-      setEmailIsSending(false);
-      toast.error(`${response.statusText}`);
-    }
-
-    if (response.ok) {
-      setEmailIsSending(false);
-      toast.success(`${person.first_name} has been invited!`);
-    }
-  };
+  // Add this console.log to debug
+  console.log('Invoices:', invoices);
 
   useEffect(() => {
     async function fetchData() {
-      const fetchedPerson = await fetchPerson();
-      // Fetch primary contact for the person
-      const primaryPeople = await getPrimaryContacts(fetchedPerson);
+      setIsLoading(true)
+      try {
+        const [
+          fetchedPerson,
+          fetchedToRelationships,
+          fetchedFromRelationships,
+          fetchedAccount
+        ] = await Promise.all([
+          fetchPerson(),
+          fetchToRelationships(),
+          fetchFromRelationships(),
+          getAccount(),
+          fetchRoster(),
+          fetchPayments()
+        ])
 
-      setPerson({
-        ...fetchedPerson,
-        primary_contacts: primaryPeople,
-      });
+        const primaryPeople = await getPrimaryContacts(fetchedPerson)
+        const p = await hasProfile({
+          ...fetchedPerson,
+          primary_contacts: primaryPeople,
+        })
 
-      const fetchedToRelationships = await fetchToRelationships();
-      setToRelationships(fetchedToRelationships);
-
-      const fetchedFromRelationships = await fetchFromRelationships();
-      setFromRelationships(fetchedFromRelationships);
-
-      const fetchedAccount = await getAccount();
-
-      const p = await hasProfile({
-        ...fetchedPerson,
-        primary_contacts: primaryPeople,
-      });
-
-      setAccount(fetchedAccount);
-      setProfile(p);
+        setPerson({ ...fetchedPerson, primary_contacts: primaryPeople })
+        setToRelationships(fetchedToRelationships || [])
+        setFromRelationships(fetchedFromRelationships || [])
+        setAccount(fetchedAccount)
+        setProfile(p)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+        toast.error('Failed to load person data')
+      } finally {
+        setIsLoading(false)
+      }
     }
 
-    fetchData();
-  }, []);
+    fetchData()
+  }, [params.id])
 
   async function hasProfile(person: any) {
     let email = "";
@@ -224,184 +352,315 @@ export default function PersonPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="flex flex-col space-y-12">
-      <div className="flex flex-col space-y-6">
-        <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
-          <div className="flex flex-col space-y-0.5">
-            <h1 className="font-cal truncate text-base font-bold dark:text-white sm:w-auto sm:text-3xl md:text-xl">
-              {person?.name || fullName(person)}
-            </h1>
-            <p className="text-stone-500 dark:text-stone-400">
-              {person?.email}
-            </p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <PersonSheet 
-              person={person}
-              fromRelationships={fromRelationships || []}
-              mode="edit"
-              cta={`Edit ${person?.first_name}`}
-              title={`Edit ${person?.first_name}`}
-              description="Edit this person"
-              account={account}
-            />
-          </div>
+    <div className="flex flex-col space-y-6">
+      {/* Header Section */}
+      <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
+        <div className="flex flex-col space-y-0.5">
+          <h1 className="font-cal truncate text-base font-bold sm:text-3xl md:text-xl">
+            {person?.name || fullName(person)}
+          </h1>
+          <p className="text-stone-500">{person?.email}</p>
         </div>
-
-
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
-    
-
-          <div className="col-span-1 space-y-3">
-            <h2 className="mb-3 text-xs font-bold uppercase text-zinc-500">
-              Relationships
-            </h2>
-            {toRelationships?.map(
-              (relation: any, i: Key | null | undefined) => (
-                <div key={i}>
-                  <div className="flex items-center space-x-1 rounded border border-stone-200 px-3 py-2">
-                    <div className="flex flex-col">
-                      <span>{relation.name} of</span>
-                      <Link
-                        href={`/people/${relation.to.id}`}
-                        className="text-sm font-bold"
-                      >
-                        {relation.to.name || fullName(relation.to)}
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ),
-            )}
-
-            {fromRelationships?.map(
-              (relation: any, i: Key | null | undefined) => (
-                <div key={i} className="mb-10">
-                  <div className="flex items-center space-x-1 rounded border border-stone-200 px-3 py-2">
-                    <div className="flex w-full items-center justify-between">
-                      <div className="flex flex-col">
-                        <span>{relation.name} is</span>
-                        <Link
-                          href={`/people/${relation.from.id}`}
-                          className="text-sm font-bold"
-                        >
-                          {relation.from.name || fullName(relation.to)}
-                        </Link>
-                      </div>
-                      <div>
-                        {relation.primary ? (
-                          <CheckBadgeIcon className="h-8 w-8 text-lime-500" />
-                        ) : (
-                          ""
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ),
-            )}
-            <h2 className="mb-3 pt-10 text-xs font-bold uppercase text-zinc-500">
-              All Teams
-            </h2>
-            {roster.length > 0 ? (
-              <ul className="space-y-3">
-                {roster.map((team, index) => (
-                  <Link
-                    key={index}
-                    href={`/teams/${team.id}`}
-                    className="flex items-center space-x-1 rounded border border-stone-200 px-3 py-2"
-                  >
-                    {team.name}
-                  </Link>
-                ))}
-              </ul>
-            ) : (
-              <p>No teams found for this person.</p>
-            )}
-          </div>
+        <div className="flex items-center space-x-2">
+          <PersonSheet 
+            person={person}
+            fromRelationships={fromRelationships || []}
+            mode="edit"
+            cta={`Edit ${person?.first_name}`}
+            title={`Edit ${person?.first_name}`}
+            description="Edit this person"
+            account={account}
+          />
+          <Button 
+            onClick={() => setInvoiceModalOpen(true)}
+            variant="outline"
+            color="primary"
+            className="w-full"
+          >
+            Create Invoice
+          </Button>
         </div>
       </div>
+
+      {/* Updated Tabs Section with new styling */}
+      <Tabs defaultValue="teams" className="w-full">
+        <TabsList className="flex h-10 items-center gap-2 border-b w-full justify-start">
+          <TabsTrigger 
+            value="teams"
+            className={cn(
+              "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-none",
+              "data-[state=inactive]:border data-[state=inactive]:border-input data-[state=inactive]:bg-background data-[state=inactive]:hover:bg-accent hover:text-accent-foreground"
+            )}
+          >
+            Teams
+          </TabsTrigger>
+          <TabsTrigger 
+            value="payments"
+            className={cn(
+              "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-none",
+              "data-[state=inactive]:border data-[state=inactive]:border-input data-[state=inactive]:bg-background data-[state=inactive]:hover:bg-accent hover:text-accent-foreground"
+            )}
+          >
+            Payments
+          </TabsTrigger>
+          <TabsTrigger 
+            value="relationships"
+            className={cn(
+              "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-none",
+              "data-[state=inactive]:border data-[state=inactive]:border-input data-[state=inactive]:bg-background data-[state=inactive]:hover:bg-accent hover:text-accent-foreground"
+            )}
+          >
+            Relationships
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="teams" className="mt-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Teams</CardTitle>
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <div className="flex items-center">
+                  <div className="h-2 w-2 rounded-full bg-emerald-500 mr-1" />
+                  Active
+                </div>
+                <div className="flex items-center">
+                  <div className="h-2 w-2 rounded-full bg-gray-300 mr-1" />
+                  Inactive
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {roster.length > 0 ? (
+                <div className="space-y-3">
+                  {roster.map((team: Team) => (
+                    <Link
+                      key={team.id}
+                      href={`/teams/${team.id}`}
+                      className={cn(
+                        "flex items-center justify-between p-3 rounded-lg border transition-colors",
+                        "hover:bg-muted/50 hover:border-muted-foreground/25",
+                        "group relative"
+                      )}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div 
+                          className={cn(
+                            "h-2 w-2 rounded-full",
+                            team.is_active ? "bg-emerald-500" : "bg-gray-300"
+                          )} 
+                        />
+                        <span className="font-medium">{team.name}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant={team.is_active ? "default" : "secondary"}>
+                          {team.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <path d="M5 12h14" />
+                          <path d="m12 5 7 7-7 7" />
+                        </svg>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <p className="text-sm text-muted-foreground">No teams found</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="payments">
+          <Card>
+            <CardHeader>
+              <CardTitle>Invoices & Payments</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoadingInvoices ? (
+                <div className="flex justify-center py-8">
+                  <LoadingCircle />
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  {Object.entries(groupBy(invoices, 'person_id')).map(([personId, personInvoices]) => {
+                    const person = personInvoices[0]?.person;
+                    return (
+                      <div key={personId} className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-semibold">
+                            {person?.first_name} {person?.last_name}
+                            {personId === params.id && " (Primary)"}
+                          </h3>
+                          <Badge variant="outline">
+                            Total: {formatCurrency(
+                              personInvoices.reduce((sum, inv) => sum + (inv.amount || 0), 0)
+                            )}
+                          </Badge>
+                        </div>
+                        
+                        {personInvoices.map((invoice: Invoice) => (
+                          <div key={invoice.id} className="border rounded-lg p-4">
+                            {/* Invoice Header */}
+                            <div className="flex items-center justify-between mb-4">
+                              <div>
+                                <h4 className="font-medium">
+                                  {invoice.description || `Invoice #${invoice.invoice_number}`}
+                                </h4>
+                                <p className="text-sm text-muted-foreground">
+                                  Created {new Date(invoice.created_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <Badge 
+                                  variant={
+                                    invoice.status === 'paid' 
+                                      ? 'success' 
+                                      : invoice.status === 'sent' 
+                                      ? 'warning' 
+                                      : 'secondary'
+                                  }
+                                >
+                                  {invoice.status}
+                                </Badge>
+                                <span className="font-medium">
+                                  {formatCurrency(invoice.amount)}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Payments Section */}
+                            {invoice.payments && invoice.payments.length > 0 && (
+                              <div className="mt-4 border-t pt-4">
+                                <h4 className="text-sm font-medium mb-2">Payments</h4>
+                                <div className="space-y-2">
+                                  {invoice.payments.map((payment: Payment) => (
+                                    <div 
+                                      key={payment.id} 
+                                      className="flex items-center justify-between text-sm"
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <Badge variant="outline">
+                                          {payment.payment_method}
+                                        </Badge>
+                                        <span className="text-muted-foreground">
+                                          {new Date(payment.created_at).toLocaleDateString()}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <Badge 
+                                          variant={
+                                            payment.status === 'succeeded' 
+                                              ? 'success' 
+                                              : payment.status === 'pending' 
+                                              ? 'warning' 
+                                              : 'destructive'
+                                          }
+                                        >
+                                          {payment.status}
+                                        </Badge>
+                                        <span className="font-medium">
+                                          {formatCurrency(payment.amount)}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+
+                        {invoices.length === 0 && (
+                          <div className="flex flex-col items-center justify-center py-8 text-center">
+                            <p className="text-sm text-muted-foreground">No invoices found</p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="relationships">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
+            <div className="col-span-1 space-y-3">
+              <h2 className="mb-3 text-xs font-bold uppercase text-zinc-500">
+                Relationships
+              </h2>
+              {toRelationships?.map(
+                (relation: any, i: Key | null | undefined) => (
+                  <div key={i}>
+                    <div className="flex items-center space-x-1 rounded border border-stone-200 px-3 py-2">
+                      <div className="flex flex-col">
+                        <span>{relation.name} of</span>
+                        <Link
+                          href={`/people/${relation.to.id}`}
+                          className="text-sm font-bold"
+                        >
+                          {relation.to.name || fullName(relation.to)}
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ),
+              )}
+
+              {fromRelationships?.map(
+                (relation: any, i: Key | null | undefined) => (
+                  <div key={i} className="mb-10">
+                    <div className="flex items-center space-x-1 rounded border border-stone-200 px-3 py-2">
+                      <div className="flex w-full items-center justify-between">
+                        <div className="flex flex-col">
+                          <span>{relation.name} is</span>
+                          <Link
+                            href={`/people/${relation.from.id}`}
+                            className="text-sm font-bold"
+                          >
+                            {relation.from.name || fullName(relation.to)}
+                          </Link>
+                        </div>
+                        <div>
+                          {relation.primary ? (
+                            <CheckBadgeIcon className="h-8 w-8 text-lime-500" />
+                          ) : (
+                            ""
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ),
+              )}
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      <CreateInvoiceModal
+        person={person}
+        account={account}
+        open={invoiceModalOpen}
+        onOpenChange={setInvoiceModalOpen}
+      />
     </div>
-  );
-}
-
-function ActivityIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-    </svg>
-  );
-}
-
-function CreditCardIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect width="20" height="14" x="2" y="5" rx="2" />
-      <line x1="2" x2="22" y1="10" y2="10" />
-    </svg>
-  );
-}
-
-function DollarSignIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <line x1="12" x2="12" y1="2" y2="22" />
-      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-    </svg>
-  );
-}
-
-function UsersIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
   );
 }

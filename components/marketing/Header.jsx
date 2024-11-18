@@ -46,9 +46,9 @@ function MobileNavLink(props) {
 
 export function Header() {
   return (
-    <header>
+    <header className="bg-white sticky top-0 z-50 border-b border-gray-200">
       <nav>
-        <Container className="relative z-50 flex justify-between py-8">
+        <Container className="relative z-50 flex justify-between py-4">
           <div className="relative z-10 flex items-center gap-16">
             <Link href="/" aria-label="Home">
               <img src="/athletes-logo.svg" className="w-12" />
