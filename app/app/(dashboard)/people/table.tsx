@@ -271,6 +271,7 @@ export function PeopleTable({
               <SendEmailModal
                 people={people}
                 account={account}
+                cta="Send Email"
                 onClose={() => table.toggleAllPageRowsSelected(false)}
               />
             </SendButton>
