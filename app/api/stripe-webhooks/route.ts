@@ -51,8 +51,6 @@ export async function POST(req: Request) {
       case "invoice.payment_succeeded":
         await updateSupabase(event, supabase);
         break;
-
-
       default:
         console.log(`Unhandled event type ${event.type}`);
         return NextResponse.json(
