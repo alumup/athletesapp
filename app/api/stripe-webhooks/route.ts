@@ -1,20 +1,45 @@
 import { stripe } from "@/lib/stripe";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import { buffer } from "node:stream/consumers";
-import { cookies } from "next/headers";
 
-export async function POST(req: any) {
-  const supabase = createRouteHandlerClient({ cookies });
-  const body = await buffer(req.body);
-  let event;
 
+// Disable body parsing, we need the raw body for Stripe signature verification
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+export async function POST(req: Request) {
+  const supabase = createClient();
+  
+  // Get the raw body
+  const rawBody = await req.text();
+  
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      req.headers.get("stripe-signature") as string,
-      process.env.STRIPE_WEBHOOK_SECRET_KEY as string,
+    // Get the Stripe-Account header to identify if this is from a connected account
+    const stripeAccount = req.headers.get("stripe-account");
+    
+    // Choose the appropriate webhook secret based on the source
+    const webhookSecret = stripeAccount 
+      ? process.env.STRIPE_CONNECT_WEBHOOK_SECRET_KEY 
+      : process.env.STRIPE_WEBHOOK_SECRET_KEY;
+
+    const signature = req.headers.get("stripe-signature");
+    
+    if (!signature) {
+      throw new Error("No stripe signature found");
+    }
+
+    const event = stripe.webhooks.constructEvent(
+      rawBody,
+      signature,
+      webhookSecret as string
     );
+
+    // Log the source of the webhook
+    console.log(`Webhook received from ${stripeAccount ? 'connected account: ' + stripeAccount : 'platform account'}`);
+    console.log('Event type:', event.type);
 
     switch (event.type) {
       case "payment_intent.created":
@@ -29,6 +54,7 @@ export async function POST(req: any) {
       case "invoice.payment_succeeded":
         await updateSupabase(event, supabase);
         break;
+
 
       default:
         console.log(`Unhandled event type ${event.type}`);
@@ -184,3 +210,4 @@ function getStatusFromInvoiceEvent(eventType: string): string {
       return 'pending';
   }
 }
+
