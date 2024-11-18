@@ -20,7 +20,11 @@ export default async function TeamsPage() {
 
   const { data: teams, error } = await supabase
     .from("teams")
-    .select("*, rosters(*, people(*)))")
+    .select(`
+      *,
+      rosters(*, people(*)),
+      staff(*, people(name))
+    `)
     .eq("is_active", true)
     .eq("account_id", account.id);
 

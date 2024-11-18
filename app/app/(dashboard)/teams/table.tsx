@@ -48,6 +48,11 @@ export type Person = {
   id: string;
   name: string;
   rosters: any;
+  staff: {
+    people: {
+      name: string;
+    };
+  }[];
 };
 
 const columns: ColumnDef<Person>[] = [
@@ -76,9 +81,15 @@ const columns: ColumnDef<Person>[] = [
     cell: ({ row }) => <div>{row.getValue("name")}</div>,
   },
   {
-    accessorKey: "coach",
-    header: "Coach",
-    cell: ({ row }) => <div>{row.getValue("coach")}</div>,
+    accessorKey: "staff",
+    header: "Staff",
+    cell: ({ row }) => {
+      const staff = row.original.staff;
+      if (staff && staff.length > 0 && staff[0].people) {
+        return <div>{staff[0].people.name}</div>;
+      }
+      return <div className="text-gray-400">No staff</div>;
+    },
   },
   {
     accessorKey: "actions",

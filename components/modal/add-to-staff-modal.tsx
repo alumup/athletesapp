@@ -114,7 +114,7 @@ export function AddToStaffSheet({
           Add Staff
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:w-[540px] bg-white flex flex-col px-5 py-8">
+      <SheetContent side="right" className="w-full sm:w-[540px] bg-white flex flex-col px-3 py-8">
         <SheetHeader>
           <SheetTitle>Add Staff Member</SheetTitle>
           <SheetDescription>
@@ -123,8 +123,8 @@ export function AddToStaffSheet({
         </SheetHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="h-full">
-            <div className="flex-1 flex flex-col space-y-4 p-5 md:p-10">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="h-full mt-6">
+            <div className="flex-1 flex flex-col space-y-4">
               <FormField
                 control={form.control}
                 name="person"

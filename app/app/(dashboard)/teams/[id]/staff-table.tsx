@@ -210,6 +210,7 @@ export function StaffTable({
             <SendButton channel="email" cta="Send Email">
               <SendEmailModal
                 people={people}
+                cta="Send Email"
                 account={account}
                 onClose={() => table.toggleAllPageRowsSelected(false)}
               />
