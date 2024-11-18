@@ -279,7 +279,6 @@ const createColumns = (team: any): ColumnDef<Person>[] => [
         accountId: team.account_id,
         stripeAccountId: team.accounts?.stripe_id,
         person_id: person.id,
-        onSuccess: () => router.refresh()
       };
 
       return <CreateRosterInvoiceButton {...props} />;

@@ -37,7 +37,7 @@ interface Team {
 interface Payment {
   id: string;
   created_at: string;
-  amount: bigint;
+  amount: number;
   status: 'pending' | 'succeeded' | 'failed' | 'refunded';
   payment_method: 'stripe' | 'cash' | 'check' | 'other';
   invoice: {
@@ -59,41 +59,14 @@ interface Invoice {
   invoice_number: string | null
   description: string | null
   payments?: Payment[]
+  person?: {
+    id: string
+    first_name: string
+    last_name: string
+    dependent: boolean
+  }
 }
 
-// Add to your existing interfaces
-interface Relationship {
-  id: string
-  person_id: string
-  related_person_id: string
-  relationship_type: string
-}
-
-// Add this helper function at the top
-function groupInvoicesByPerson(invoices: any[], relationships: any[]) {
-  const grouped: Record<string, any[]> = {};
-  
-  // First add primary person's invoices
-  invoices.forEach(invoice => {
-    if (!grouped[invoice.person_id]) {
-      grouped[invoice.person_id] = [];
-    }
-    grouped[invoice.person_id].push(invoice);
-  });
-
-  // Add dependent's invoices under their primary contact
-  relationships.forEach(rel => {
-    if (rel.primary && grouped[rel.relation_id]) {
-      if (!grouped[rel.person_id]) {
-        grouped[rel.person_id] = [];
-      }
-      grouped[rel.person_id].push(...grouped[rel.relation_id]);
-      delete grouped[rel.relation_id];
-    }
-  });
-
-  return grouped;
-}
 
 // Add this helper function at the top of your file
 function groupBy<T>(array: T[], key: keyof T): Record<string, T[]> {
@@ -498,7 +471,7 @@ export default function PersonPage({ params }: PersonPageProps) {
                 </div>
               ) : (
                 <div className="space-y-8">
-                  {Object.entries(groupBy(invoices, 'person_id')).map(([personId, personInvoices]) => {
+                  {Object.entries(groupBy(invoices, 'person_id' as keyof Invoice)).map(([personId, personInvoices]) => {
                     const person = personInvoices[0]?.person;
                     return (
                       <div key={personId} className="space-y-4">
@@ -530,9 +503,9 @@ export default function PersonPage({ params }: PersonPageProps) {
                                 <Badge 
                                   variant={
                                     invoice.status === 'paid' 
-                                      ? 'success' 
+                                      ? 'default' 
                                       : invoice.status === 'sent' 
-                                      ? 'warning' 
+                                      ? 'default' 
                                       : 'secondary'
                                   }
                                 >
@@ -566,9 +539,9 @@ export default function PersonPage({ params }: PersonPageProps) {
                                         <Badge 
                                           variant={
                                             payment.status === 'succeeded' 
-                                              ? 'success' 
+                                              ? 'default' 
                                               : payment.status === 'pending' 
-                                              ? 'warning' 
+                                              ? 'default' 
                                               : 'destructive'
                                           }
                                         >
