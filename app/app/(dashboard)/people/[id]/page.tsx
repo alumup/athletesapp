@@ -357,12 +357,12 @@ export default function PersonPage({ params }: PersonPageProps) {
 
       {/* Updated Tabs Section with new styling */}
       <Tabs defaultValue="teams" className="w-full">
-        <TabsList className="flex h-10 items-center gap-2 border-b w-full justify-start">
+        <TabsList className="flex h-10 items-center gap-2 w-full justify-start">
           <TabsTrigger 
             value="teams"
             className={cn(
               "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-none",
+              "data-[state=active]:bg-[#212121] data-[state=active]:text-[#fafafa] data-[state=active]:border-none",
               "data-[state=inactive]:border data-[state=inactive]:border-input data-[state=inactive]:bg-background data-[state=inactive]:hover:bg-accent hover:text-accent-foreground"
             )}
           >
@@ -372,17 +372,17 @@ export default function PersonPage({ params }: PersonPageProps) {
             value="payments"
             className={cn(
               "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-none",
+              "data-[state=active]:bg-[#212121] data-[state=active]:text-[#fafafa] data-[state=active]:border-none",
               "data-[state=inactive]:border data-[state=inactive]:border-input data-[state=inactive]:bg-background data-[state=inactive]:hover:bg-accent hover:text-accent-foreground"
             )}
           >
             Payments
           </TabsTrigger>
-          <TabsTrigger 
+            <TabsTrigger 
             value="relationships"
             className={cn(
               "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-              "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-none",
+              "data-[state=active]:bg-[#212121] data-[state=active]:text-[#fafafa] data-[state=active]:border-none",
               "data-[state=inactive]:border data-[state=inactive]:border-input data-[state=inactive]:bg-background data-[state=inactive]:hover:bg-accent hover:text-accent-foreground"
             )}
           >
@@ -392,7 +392,7 @@ export default function PersonPage({ params }: PersonPageProps) {
 
         <TabsContent value="teams" className="mt-6">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader>
               <CardTitle>Teams</CardTitle>
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                 <div className="flex items-center">
@@ -459,7 +459,7 @@ export default function PersonPage({ params }: PersonPageProps) {
           </Card>
         </TabsContent>
 
-        <TabsContent value="payments">
+        <TabsContent value="payments" className="mt-6">
           <Card>
             <CardHeader>
               <CardTitle>Invoices & Payments</CardTitle>
@@ -573,58 +573,62 @@ export default function PersonPage({ params }: PersonPageProps) {
           </Card>
         </TabsContent>
 
-        <TabsContent value="relationships">
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
-            <div className="col-span-1 space-y-3">
-              <h2 className="mb-3 text-xs font-bold uppercase text-zinc-500">
-                Relationships
-              </h2>
-              {toRelationships?.map(
-                (relation: any, i: Key | null | undefined) => (
-                  <div key={i}>
-                    <div className="flex items-center space-x-1 rounded border border-stone-200 px-3 py-2">
-                      <div className="flex flex-col">
-                        <span>{relation.name} of</span>
-                        <Link
-                          href={`/people/${relation.to.id}`}
-                          className="text-sm font-bold"
-                        >
-                          {relation.to.name || fullName(relation.to)}
-                        </Link>
+        <TabsContent value="relationships" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Relationships</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 gap-5">
+                <div className="col-span-1 space-y-3">
+                  {toRelationships?.map(
+                    (relation: any, i: Key | null | undefined) => (
+                      <div key={i}>
+                        <div className="flex items-center space-x-1 rounded border border-stone-200 px-3 py-2">
+                          <div className="flex flex-col">
+                            <span>{relation.name} of</span>
+                            <Link
+                              href={`/people/${relation.to.id}`}
+                              className="text-sm font-bold"
+                            >
+                              {relation.to.name || fullName(relation.to)}
+                            </Link>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                ),
-              )}
+                    ),
+                  )}
 
-              {fromRelationships?.map(
-                (relation: any, i: Key | null | undefined) => (
-                  <div key={i} className="mb-10">
-                    <div className="flex items-center space-x-1 rounded border border-stone-200 px-3 py-2">
-                      <div className="flex w-full items-center justify-between">
-                        <div className="flex flex-col">
-                          <span>{relation.name} is</span>
-                          <Link
-                            href={`/people/${relation.from.id}`}
-                            className="text-sm font-bold"
-                          >
-                            {relation.from.name || fullName(relation.to)}
-                          </Link>
-                        </div>
-                        <div>
-                          {relation.primary ? (
-                            <CheckBadgeIcon className="h-8 w-8 text-lime-500" />
-                          ) : (
-                            ""
-                          )}
+                  {fromRelationships?.map(
+                    (relation: any, i: Key | null | undefined) => (
+                      <div key={i} className="mb-10">
+                        <div className="flex items-center space-x-1 rounded border border-stone-200 px-3 py-2">
+                          <div className="flex w-full items-center justify-between">
+                            <div className="flex flex-col">
+                              <span>{relation.name} is</span>
+                              <Link
+                                href={`/people/${relation.from.id}`}
+                                className="text-sm font-bold"
+                              >
+                                {relation.from.name || fullName(relation.to)}
+                              </Link>
+                            </div>
+                            <div>
+                              {relation.primary ? (
+                               <Badge variant="default">Primary</Badge>
+                              ) : (
+                                ""
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                ),
-              )}
-            </div>
-          </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
