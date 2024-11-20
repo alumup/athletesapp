@@ -45,11 +45,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import SendEmailModal from "@/components/modal/send-email-sheet";
 import AddToTeamModal from "@/components/modal/add-to-team-modal";
-import SendButton from "@/components/modal-buttons/send-button";
 import IconButton from "@/components/modal-buttons/icon-button";
 import LoadingDots from "@/components/icons/loading-dots";
+import SendEmailSheet from "@/components/modal/send-email-sheet";
 
 export type Person = {
   id: string;
@@ -267,14 +266,12 @@ export function PeopleTable({
       {isAnyRowSelected && (
         <div className="mb-2 flex justify-between space-x-4 py-2">
           <div className="flex items-center space-x-2">
-            <SendButton channel="email" cta="Send Email">
-              <SendEmailModal
-                people={people}
-                account={account}
-                cta="Send Email"
-                onClose={() => table.toggleAllPageRowsSelected(false)}
-              />
-            </SendButton>
+            <SendEmailSheet
+              people={people}
+              account={account}
+              cta="Send Email"
+              onClose={() => table.toggleAllPageRowsSelected(false)}
+            />
             <IconButton
               icon={<ListBulletIcon className="mr-2" />}
               cta="Add to Team"
@@ -287,6 +284,7 @@ export function PeopleTable({
           </div>
           <Button
             onClick={handleDeleteSelected}
+            size="sm"
             variant="outline"
             className="text-red-500"
           >

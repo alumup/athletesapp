@@ -19,6 +19,7 @@ export default function IconButton({
   return (
     <Button
       className={className}
+      size="sm"
       variant="outline"
       onClick={() => modal?.show(children)}
     >
