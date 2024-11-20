@@ -276,7 +276,12 @@ export default function PersonSheet({
         dependent: values.dependent,
       };
 
-      const { data: newPerson, error: personError } = await supabase
+      if (!account?.id) {
+        throw new Error("Account ID is missing");
+      }
+
+      // Create or update person
+      const { data: savedPerson, error: personError } = await supabase
         .from("people")
         .upsert([
           person?.id 
@@ -286,23 +291,34 @@ export default function PersonSheet({
         .select()
         .single();
 
-      if (personError) throw personError;
+      if (personError) {
+        if (personError.code === '23505') {
+          throw new Error("A person with this email already exists");
+        }
+        throw new Error(`Failed to save person: ${personError.message}`);
+      }
+
+      if (!savedPerson) {
+        throw new Error("Failed to create/update person: No data returned");
+      }
 
       // Handle relationships if person is dependent
       if (values.dependent) {
-        // First, delete ALL existing relationships
+        // Use savedPerson.id instead of person?.id
         const { error: deleteError } = await supabase
           .from("relationships")
           .delete()
-          .eq('relation_id', person.id);
+          .eq('relation_id', savedPerson.id);
 
-        if (deleteError) throw deleteError;
+        if (deleteError) {
+          throw new Error(`Failed to update relationships: ${deleteError.message}`);
+        }
 
-        // Then insert only the relationships that remain in the form
+        // Insert new relationships
         if (values.relationships?.length) {
           const relationshipData = values.relationships.map(rel => ({
             person_id: rel.id,
-            relation_id: person.id,
+            relation_id: savedPerson.id, // Use savedPerson.id here
             name: rel.name,
             primary: rel.primary || false,
           }));
@@ -311,7 +327,9 @@ export default function PersonSheet({
             .from("relationships")
             .insert(relationshipData);
 
-          if (insertError) throw insertError;
+          if (insertError) {
+            throw new Error(`Failed to create relationships: ${insertError.message}`);
+          }
         }
       }
 
@@ -319,8 +337,9 @@ export default function PersonSheet({
       router.refresh();
 
     } catch (err) {
-      console.error(err);
-      setError("Something went wrong");
+      console.error('Submission error:', err);
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      toast.error(err instanceof Error ? err.message : "Failed to save changes");
     } finally {
       setIsSubmitting(false);
     }

@@ -8,6 +8,7 @@ import { useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
+import { toast } from 'sonner'
 
 interface Team {
   id: number;
@@ -87,25 +88,35 @@ export default function AddToTeamModal({
     });
   }, []);
 
-  const onSubmit = async (data: any) => {
-    // add every person to the list
-    people.forEach(async (person: any) => {
-      const { error } = await supabase.from("rosters").insert([
-        {
-          team_id: data.team,
-          person_id: person.id,
-          fee_id: data.fee,
-        },
-      ]);
-      if (error) {
-        console.log("FORM ERRORS: ", error);
-      } else {
-        modal?.hide();
-        onClose();
-        refresh();
-      }
-    });
-  };
+  const onSubmit = async (data: any) => {    
+    try {
+      const promises = people.map(async (person: any) => {
+        const { error } = await supabase.from("rosters").insert([
+          {
+            team_id: data.team,
+            person_id: person.id,
+            fee_id: data.fee,
+          },
+        ])
+        
+        if (error) throw error
+        return person
+      })
+
+      await Promise.all(promises)
+      
+      toast.success(
+        `Successfully added ${people.length} ${people.length === 1 ? 'person' : 'people'} to team`,
+      )
+
+      modal?.hide()
+      onClose()
+      refresh()
+    } catch (error: any) {
+      console.error("FORM ERRORS: ", error)
+      toast.error(error.message || 'Failed to add to team')
+    }
+  }
 
   return (
     <form
