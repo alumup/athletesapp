@@ -128,7 +128,7 @@ function LoginContent() {
   };
 
   return (
-    <div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
       <div className="flex items-center justify-center">
         <Image src="/athletes-logo.svg" width={75} height={75} alt="Athletes Logo" />
       </div>

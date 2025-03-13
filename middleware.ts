@@ -34,35 +34,30 @@ export async function middleware(request: NextRequest) {
       },
     }
   )
-  const url = request.nextUrl
-  let hostname = request.headers.get("host")!
-  if (!hostname.includes(`${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)) {
-    hostname = `${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`
-  }
 
+  const url = request.nextUrl
   const path = url.pathname
 
-  if (hostname.startsWith('www.')) {
+  // Handle www redirect
+  if (url.hostname.startsWith('www.')) {
     const newUrl = new URL(`https://${process.env.NEXT_PUBLIC_ROOT_DOMAIN}${path}`, request.url)
     return NextResponse.redirect(newUrl, { status: 301 })
   }
 
-  if (hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN) {
-    const { data: { session } } = await supabase.auth.getSession()
+  // Check authentication
+  const { data: { session } } = await supabase.auth.getSession()
 
-    const noRedirectPaths = ["/login", "/forgot-password", "/update-password", "/public"]
+  // Define public paths that don't require authentication
+  const publicPaths = ["/login", "/forgot-password", "/update-password", "/public"]
+  const isPublicPath = publicPaths.some(publicPath => path.startsWith(publicPath))
 
-    if (!session && !noRedirectPaths.includes(path) && !path.includes("/public/")) {
-      return NextResponse.redirect(new URL("/login", request.url))
-    } else if (session && path === "/login") {
-      return NextResponse.redirect(new URL("/", request.url))
-    }
-    
-    return response
-  }
-
-  if (!path.startsWith(`/${hostname}`)) {
-    return NextResponse.rewrite(new URL(`/${hostname}${path}`, request.url))
+  // Redirect logic
+  if (!session && !isPublicPath && !path.includes("/public/")) {
+    // Redirect to login if not authenticated and trying to access protected route
+    return NextResponse.redirect(new URL("/login", request.url))
+  } else if (session && path === "/login") {
+    // Redirect to home if authenticated and trying to access login page
+    return NextResponse.redirect(new URL("/", request.url))
   }
 
   return response
