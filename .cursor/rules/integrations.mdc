@@ -1,0 +1,308 @@
+---
+description: 
+globs: **/*.ts,**/**/*.ts,**/**/*.tsx
+alwaysApply: false
+---
+# Specify the following for Cursor rules
+description: Guidelines for creating and managing integrations with profile blocks
+globs: "**/*.ts, **/*.tsx"
+---
+
+# Integration Pattern Guidelines
+
+## Database Schema
+
+### Integration Types Table
+```sql
+create table public.integration_types (
+  id text not null,
+  name text not null,
+  description text null,
+  icon text null,
+  is_active boolean not null default true,
+  requires_auth boolean not null default false,
+  config_schema jsonb not null default '{}'::jsonb,
+  created_at timestamp with time zone not null default timezone('utc'::text, now()),
+  updated_at timestamp with time zone not null default timezone('utc'::text, now()),
+  constraint integration_types_pkey primary key (id)
+);
+```
+
+### Integrations Table
+```sql
+create table public.integrations (
+  id uuid not null default gen_random_uuid(),
+  profile_id uuid not null,
+  integration_type_id text not null,
+  auth_data jsonb null,
+  config jsonb not null default '{}'::jsonb,
+  is_active boolean not null default true,
+  last_sync_at timestamp with time zone null,
+  last_sync_status text null,
+  created_at timestamp with time zone not null default timezone('utc'::text, now()),
+  updated_at timestamp with time zone not null default timezone('utc'::text, now()),
+  constraint integrations_pkey primary key (id),
+  constraint integrations_profile_id_integration_type_id_key unique (profile_id, integration_type_id),
+  constraint integrations_integration_type_id_fkey foreign key (integration_type_id) references integration_types(id),
+  constraint integrations_profile_id_fkey foreign key (profile_id) references profiles(id) on delete cascade
+);
+```
+
+### Profile Blocks Table
+```sql
+create table public.profile_blocks (
+  id uuid not null default extensions.uuid_generate_v4(),
+  profile_id uuid null,
+  type text not null,
+  title text null,
+  content jsonb null,
+  position integer not null,
+  is_visible boolean null default true,
+  created_at timestamp with time zone not null default timezone('utc'::text, now()),
+  updated_at timestamp with time zone not null default timezone('utc'::text, now()),
+  integration_id uuid null,
+  constraint profile_blocks_pkey primary key (id),
+  constraint profile_blocks_integration_id_fkey foreign key (integration_id) references integrations(id) on delete set null,
+  constraint profile_blocks_profile_id_fkey foreign key (profile_id) references profiles(id) on delete cascade
+);
+```
+
+## Adding a New Integration
+
+1. Create Integration Type:
+```sql
+insert into integration_types (
+  id,
+  name,
+  description,
+  icon,
+  requires_auth,
+  config_schema
+) values (
+  'youtube',  -- Unique identifier
+  'YouTube',  -- Display name
+  'Connect your YouTube channel',  -- Description
+  'https://example.com/youtube-icon.png',  -- Icon URL
+  false,  -- Whether auth is required
+  '{
+    "type": "object",
+    "required": ["channel_id"],
+    "properties": {
+      "channel_id": {
+        "type": "string",
+        "title": "Channel ID",
+        "description": "Your YouTube channel ID"
+      }
+    }
+  }'
+);
+```
+
+2. Create TypeScript Interfaces:
+```typescript
+// types/blocks.ts
+export interface YouTubeBlockContent {
+  videoId: string;
+  title: string;
+  thumbnail?: string;
+  description?: string;
+  channelTitle?: string;
+  publishedAt?: string;
+  statistics?: {
+    viewCount: number;
+    likeCount: number;
+    commentCount: number;
+  };
+}
+
+// Add to BlockType
+export type BlockType = 
+  | 'youtube'
+  | // ... other types
+```
+
+3. Create Display Component:
+```typescript
+// components/blocks/YouTubeBlock.tsx
+export default function YouTubeBlock({ block }: { block: ProfileBlock }) {
+  const content = block.content as YouTubeBlockContent;
+  
+  return (
+    <div className="aspect-video">
+      <iframe
+        className="w-full h-full"
+        src={`https://www.youtube.com/embed/${content.videoId}`}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    </div>
+  );
+}
+```
+
+4. Create Editor Component:
+```typescript
+// components/blocks/YouTubeBlockEditor.tsx
+export default function YouTubeBlockEditor({ 
+  block, 
+  onSave 
+}: { 
+  block: ProfileBlock;
+  onSave: (updates: Partial<ProfileBlock>) => void;
+}) {
+  const [videoUrl, setVideoUrl] = useState('');
+  
+  const handleSubmit = async () => {
+    const videoId = extractVideoId(videoUrl);
+    if (!videoId) return;
+    
+    const videoData = await fetchVideoData(videoId);
+    onSave({
+      content: {
+        videoId,
+        title: videoData.title,
+        thumbnail: videoData.thumbnail,
+        description: videoData.description,
+        channelTitle: videoData.channelTitle,
+        publishedAt: videoData.publishedAt,
+        statistics: videoData.statistics
+      }
+    });
+  };
+  
+  return (
+    <div className="space-y-4">
+      <Input
+        value={videoUrl}
+        onChange={(e) => setVideoUrl(e.target.value)}
+        placeholder="Enter YouTube video URL"
+      />
+      <Button onClick={handleSubmit}>Save</Button>
+    </div>
+  );
+}
+```
+
+5. Create Sync API Route:
+```typescript
+// app/api/sync-youtube/route.ts
+export async function POST(req: Request) {
+  const { integration_id, block_id } = await request.json();
+  
+  const supabase = createClient();
+  
+  // Fetch integration config
+  const { data: integration } = await supabase
+    .from('integrations')
+    .select('*')
+    .eq('id', integration_id)
+    .single();
+    
+  // Fetch latest data from YouTube API
+  const newData = await fetchYouTubeData(integration.config.channel_id);
+  
+  // Update block content
+  await supabase
+    .from('profile_blocks')
+    .update({ content: newData })
+    .eq('id', block_id);
+    
+  return Response.json({ content: newData });
+}
+```
+
+## Best Practices
+
+1. Integration Type Configuration
+   - Use clear, descriptive IDs
+   - Include proper config_schema validation
+   - Add helpful descriptions and icons
+   - Consider auth requirements
+
+2. Block Content Structure
+   - Define clear TypeScript interfaces
+   - Include metadata (last_sync, etc.)
+   - Handle loading and error states
+   - Support responsive layouts
+
+3. Data Synchronization
+   - Implement proper error handling
+   - Add retry mechanisms
+   - Cache data when appropriate
+   - Update last_sync_at and last_sync_status
+
+4. Security Considerations
+   - Store sensitive data in auth_data
+   - Validate user permissions
+   - Handle API rate limits
+   - Secure API endpoints
+
+5. User Experience
+   - Show loading states
+   - Display error messages
+   - Add proper validation
+   - Include helpful tooltips
+
+## Common Block Patterns
+
+### RichText Block
+```typescript
+interface RichTextBlockContent {
+  html: string;
+  raw?: string;
+  last_edited?: string;
+}
+```
+
+### Image Block
+```typescript
+interface ImageBlockContent {
+  url: string;
+  alt?: string;
+  caption?: string;
+  width?: number;
+  height?: number;
+  metadata?: {
+    size?: number;
+    format?: string;
+    lastModified?: string;
+  };
+}
+```
+
+### YouTube Block
+```typescript
+interface YouTubeBlockContent {
+  videoId: string;
+  title: string;
+  thumbnail?: string;
+  description?: string;
+  channelTitle?: string;
+  publishedAt?: string;
+  statistics?: {
+    viewCount: number;
+    likeCount: number;
+    commentCount: number;
+  };
+}
+```
+
+## Testing Guidelines
+
+1. Integration Tests
+   - Test integration creation/deletion
+   - Verify config validation
+   - Check sync functionality
+   - Test error scenarios
+
+2. Block Tests
+   - Test block rendering
+   - Verify editor functionality
+   - Check content updates
+   - Test visibility toggle
+
+3. API Tests
+   - Test sync endpoints
+   - Verify error handling
+   - Check rate limiting
+   - Test auth requirements
