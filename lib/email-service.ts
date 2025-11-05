@@ -80,12 +80,12 @@ export async function sendEmails(options: EmailOptions): Promise<EmailResult> {
     if (template === "basic") {
       // Use React Email template
       emailHtml = await render(
-        <BasicTemplate
-          message={content}
-          account={account}
-          person={null}
-          preview={preview || subject}
-        />
+        React.createElement(BasicTemplate, {
+          message: content,
+          account: account,
+          person: null,
+          preview: preview || subject,
+        })
       )
       emailText = content
     } else if (template === "html") {
