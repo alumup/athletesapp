@@ -69,7 +69,7 @@ export function AddToStaffModal({
   const [people, setPeople] = useState<Person[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false)
   const [comboboxOpen, setComboboxOpen] = useState(false)
-  const [searchValue, setSearchValue] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
 
 
   const form = useForm<FormValues>({
@@ -86,6 +86,13 @@ export function AddToStaffModal({
     fetchPeople()
   }, [supabase])
 
+  const selectedPerson = people.find(p => p.id === form.watch("person"))
+  
+  const filteredPeople = people.filter((person) => {
+    const name = person.name || `${person.first_name} ${person.last_name}`
+    return name.toLowerCase().includes(searchQuery.toLowerCase())
+  })
+
   const onSubmit = async (data: FormValues) => {
     const { error } = await supabase.from("staff").insert([
       {
@@ -101,7 +108,6 @@ export function AddToStaffModal({
 
     setDialogOpen(false)
     form.reset()
-    setSearchValue("")
     toast.success("Staff member added to team")
     refresh()
   }
@@ -142,8 +148,8 @@ export function AddToStaffModal({
                         aria-expanded={comboboxOpen}
                         className="w-full justify-between text-sm"
                       >
-                        {searchValue
-                          ? people.find((person) => person.name === searchValue)?.name
+                        {selectedPerson
+                          ? (selectedPerson.name || `${selectedPerson.first_name} ${selectedPerson.last_name}`)
                           : "Search by name..."}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -154,34 +160,41 @@ export function AddToStaffModal({
                       align="start"
                       sideOffset={4}
                     >
-                      <Command>
-                        <CommandInput placeholder="Search name..." />
+                      <Command shouldFilter={false}>
+                        <CommandInput 
+                          placeholder="Search name..." 
+                          value={searchQuery}
+                          onValueChange={setSearchQuery}
+                        />
                         <CommandList>
                           <CommandEmpty>No person found.</CommandEmpty>
                           <CommandGroup>
-                            {people.map((person) => (
-                              <CommandItem
-                                key={person.id}
-                                value={person.name || `${person.first_name} ${person.last_name}`}
-                                onSelect={(currentValue) => {
-                                  form.setValue("person", person.id, {
-                                    shouldValidate: true,
-                                    shouldDirty: true,
-                                    shouldTouch: true
-                                  })
-                                  setSearchValue(currentValue === searchValue ? "" : currentValue)
-                                  setComboboxOpen(false)
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    searchValue === (person.name || `${person.first_name} ${person.last_name}`) ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                {person.name || `${person.first_name} ${person.last_name}`}
-                              </CommandItem>
-                            ))}
+                            {filteredPeople.map((person) => {
+                              const handleSelect = () => {
+                                form.setValue("person", person.id, {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                  shouldTouch: true
+                                })
+                                setComboboxOpen(false)
+                              }
+                              
+                              return (
+                                <div
+                                  key={person.id}
+                                  onClick={handleSelect}
+                                  className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      selectedPerson?.id === person.id ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {person.name || `${person.first_name} ${person.last_name}`}
+                                </div>
+                              )
+                            })}
                           </CommandGroup>
                         </CommandList>
                       </Command>

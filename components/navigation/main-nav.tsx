@@ -32,6 +32,12 @@ export function MainNav({
       >
         Teams
       </Link>
+      <Link
+        href="/settings"
+        className="text-muted-foreground text-sm font-medium transition-colors hover:text-zinc-900"
+      >
+        Settings
+      </Link>
     </nav>
   );
 }
