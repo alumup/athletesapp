@@ -5,8 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import {
   TrashIcon,
-  MixerHorizontalIcon,
-  EnterIcon
+  MixerHorizontalIcon
 } from "@radix-ui/react-icons";
 import EditRosterFeeModal from "@/components/modal/edit-roster-fee-modal";
 
@@ -149,22 +148,6 @@ const createColumns = (team: any, onEditFee: (rosterId: string, currentFeeId: st
     ),
     enableSorting: true,
     enableHiding: false,
-  },
-  {
-    accessorKey: "actions",
-    header: "",
-    cell: ({ row }) => (
-      <>
-        <Link
-          href={`/people/${row.original.id}`}
-          className="cursor rounded hover:bg-gray-100"
-        >
-          <span className="flex items-center space-x-2 text-sm text-gray-700">
-            <EnterIcon className="h-5 w-5 text-gray-500" />
-          </span>
-        </Link>
-      </>
-    ),
   },
   {
     accessorKey: "fees",

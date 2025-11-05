@@ -8,6 +8,7 @@ import GenericButton from "@/components/modal-buttons/generic-button";
 import EditTeamModal from "@/components/modal/edit-team-modal";
 import { useEffect, useState, use } from "react";
 import { AddToStaffModal } from "@/components/modal/add-to-staff-modal";
+import { AddToRosterModal } from "@/components/modal/add-to-roster-modal";
 import { useRouter } from "next/navigation";
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -73,6 +74,41 @@ export default function TeamPage({ params }: { params: Promise<{ id: string }> }
 
   const [peopleWithPrimaryEmail, setPeopleWithPrimaryEmail] = useState<any>([]);
 
+  // Fetch team data function (extracted so we can call it from callbacks)
+  const fetchTeam = async () => {
+    if (!id) return;
+    
+    const { data: team, error } = await supabase
+      .from("teams")
+      .select(`
+        *,
+        accounts(id, stripe_id),
+        rosters(
+          *, 
+          people(
+            *,
+            invoices(*)
+          ), 
+          fees(*, payments(*))
+        ),
+        staff(*, people(*))
+      `)
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching team:', error);
+      return;
+    }
+    console.log('Team data fetched:', {
+      name: team?.name,
+      rostersCount: team?.rosters?.length,
+      staffCount: team?.staff?.length,
+      rosters: team?.rosters
+    });
+    setTeam(team);
+  }
+
   useEffect(() => {
     if (!id) return; // Guard against undefined id
     
@@ -84,38 +120,6 @@ export default function TeamPage({ params }: { params: Promise<{ id: string }> }
       setUser(user);
     };
     fetchUser();
-
-    async function fetchTeam() {
-      const { data: team, error } = await supabase
-        .from("teams")
-        .select(`
-          *,
-          accounts(id, stripe_id),
-          rosters(
-            *, 
-            people(
-              *,
-              invoices(*)
-            ), 
-            fees(*, payments(*))
-          ),
-          staff(*, people(*))
-        `)
-        .eq("id", id)
-        .single();
-
-      if (error) {
-        console.error('Error fetching team:', error);
-        return;
-      }
-      console.log('Team data fetched:', {
-        name: team?.name,
-        rostersCount: team?.rosters?.length,
-        staffCount: team?.staff?.length,
-        rosters: team?.rosters
-      });
-      setTeam(team);
-    }
 
     fetchTeam();
   }, [id, supabase]);
@@ -190,7 +194,15 @@ export default function TeamPage({ params }: { params: Promise<{ id: string }> }
           <EditPersonModal person={person} account={account} />
         </GenericButton> */}
           <div className="flex items-center space-x-2">
-            <AddToStaffModal team={team} />
+            <AddToRosterModal 
+              team={team} 
+              accountId={account?.id}
+              onSuccess={fetchTeam}
+            />
+            <AddToStaffModal 
+              team={team} 
+              onSuccess={fetchTeam}
+            />
             <GenericButton
               cta="Edit Team"
               size={undefined}

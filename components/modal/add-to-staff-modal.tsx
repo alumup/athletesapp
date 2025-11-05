@@ -60,8 +60,10 @@ interface Person {
 
 export function AddToStaffModal({
   team,
+  onSuccess,
 }: {
   team: { id: string };
+  onSuccess?: () => void;
 }) {
   const { refresh } = useRouter();
   const modal = useModal();
@@ -109,7 +111,13 @@ export function AddToStaffModal({
     setDialogOpen(false)
     form.reset()
     toast.success("Staff member added to team")
-    refresh()
+    
+    // Call the success callback if provided, otherwise use router.refresh()
+    if (onSuccess) {
+      onSuccess()
+    } else {
+      refresh()
+    }
   }
 
  
