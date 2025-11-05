@@ -184,7 +184,7 @@ export async function sendEmails(options: EmailOptions): Promise<EmailResult> {
                 status: "sent",
                 sent_at: new Date().toISOString(),
                 resend_id: resendData?.id || null,
-                batch_id: data.id || null,
+                batch_id: null, // Resend batch API doesn't return a batch ID
                 email_type: type,
                 template_name: template,
                 broadcast_id: metadata.broadcast_id || null,
