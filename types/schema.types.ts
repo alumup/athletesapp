@@ -1,13 +1,15 @@
-interface Accounts {
+// This file is auto-generated. Do not edit manually.
+
+export interface Accounts {
   id: string /* primary key */;
   created_at?: string;
   name?: string;
   logo?: string;
   stripe_id?: string;
-  application_fee?: any; // type unknown;
+  application_fee?: number;
 }
 
-interface People {
+export interface People {
   id: string /* primary key */;
   account_id?: string /* foreign key to accounts.id */;
   first_name?: string;
@@ -18,158 +20,108 @@ interface People {
   address?: any; // type unknown;
   birthdate?: string;
   grade?: string;
-  tags?: any; // type unknown;
+  tags?: string[];
   gender?: string;
   name?: string;
   dependent?: boolean;
   aau_number?: string;
+  stripe_customer_id?: string;
   accounts?: Accounts;
 }
 
-interface Senders {
+export interface Lists {
   id: string /* primary key */;
   created_at: string;
   account_id?: string /* foreign key to accounts.id */;
-  name?: string;
-  email?: string;
-  accounts?: Accounts;
-}
-
-interface Teams {
-  id: string /* primary key */;
-  created_at: string;
-  account_id?: string /* foreign key to accounts.id */;
-  name?: string;
-  coach?: string;
-  accounts?: Accounts;
-}
-
-interface Sites {
-  id: string /* primary key */;
-  created_at: string;
-  name?: string;
-  subdomain?: string;
-  domain?: string;
-  description?: string;
-  account_id?: string /* foreign key to accounts.id */;
-  theme?: any; // type unknown;
-  logo?: string;
-  accounts?: Accounts;
-}
-
-interface Posts {
-  id: string /* primary key */;
-  site_id: string /* foreign key to sites.id */;
-  created_at: string;
-  published?: boolean;
-  title?: string;
-  slug?: string;
-  description?: string;
-  sites?: Sites;
-}
-
-interface Profiles {
-  id: string /* primary key */;
-  created_at: string;
-  username?: string;
-  first_name?: string;
-  last_name?: string;
-  account_id?: string /* foreign key to accounts.id */;
-  role?: string;
-  people_id?: string /* foreign key to people.id */;
-  email?: string;
-  accounts?: Accounts;
-  people?: People;
-}
-
-interface Tags {
-  id: string /* primary key */;
-  account_id: string /* foreign key to accounts.id */;
-  created_at: string;
   name: string;
   description?: string;
+  resend_segment_id?: string;
   accounts?: Accounts;
 }
 
-interface Relationships {
+export interface ListPeople {
   id: string /* primary key */;
   created_at: string;
+  list_id: string /* foreign key to lists.id */;
   person_id: string /* foreign key to people.id */;
-  relation_id: string /* foreign key to people.id */;
-  name?: string;
-  primary?: boolean;
+  resend_contact_id?: string;
+  lists?: Lists;
   people?: People;
 }
 
-interface Fees {
+export interface Broadcasts {
   id: string /* primary key */;
   created_at: string;
+  updated_at: string;
   account_id?: string /* foreign key to accounts.id */;
-  name?: string;
-  description?: string;
-  amount?: number;
-  type?: string;
+  list_id?: string /* foreign key to lists.id */;
+  resend_broadcast_id?: string;
+  resend_segment_id?: string;
+  name: string;
+  subject: string;
+  content: string;
+  sender: string;
+  status: string;
+  scheduled_at?: string;
+  sent_at?: string;
+  total_recipients?: number;
+  total_sent?: number;
+  total_delivered?: number;
+  total_opened?: number;
+  total_clicked?: number;
+  metadata?: any; // type unknown;
   accounts?: Accounts;
+  list?: Lists;
 }
 
-interface Rosters {
-  id: string /* primary key */;
-  created_at: string;
-  team_id?: string /* foreign key to teams.id */;
-  person_id?: string /* foreign key to people.id */;
-  fee_id?: string /* foreign key to fees.id */;
-  teams?: Teams;
-  people?: People;
-  fees?: Fees;
-}
-
-interface Payments {
+export interface Emails {
   id: string /* primary key */;
   created_at: string;
   account_id?: string /* foreign key to accounts.id */;
-  profile_id?: string /* foreign key to profiles.id */;
-  person_id?: string /* foreign key to people.id */;
-  payment_intent_id?: string;
+  sender?: string;
+  recipient_id?: string /* foreign key to people.id */;
+  subject?: string;
+  content?: string;
   status?: string;
-  fee_id?: string /* foreign key to fees.id */;
-  amount?: number;
-  data?: any; // type unknown;
-  roster_id?: string /* foreign key to rosters.id */;
+  sent_at?: string;
+  delivered_at?: string;
+  opened_at?: string;
+  clicked_at?: string;
+  bounced_at?: string;
+  complained_at?: string;
+  click_count?: number;
+  resend_id?: string;
+  broadcast_id?: string /* foreign key to broadcasts.id */;
+  email_type?: string; // 'one-off' | 'batch' | 'broadcast' | 'transactional'
+  template_name?: string;
+  batch_id?: string;
+  updated_at?: string;
+  metadata?: any; // type unknown;
   accounts?: Accounts;
-  profiles?: Profiles;
-  people?: People;
-  fees?: Fees;
-  rosters?: Rosters;
+  recipient?: People;
+  broadcast?: Broadcasts;
 }
 
-interface Events {
+export interface SenderDomains {
   id: string /* primary key */;
   created_at: string;
+  updated_at: string;
+  account_id: string /* foreign key to accounts.id */;
+  domain: string;
+  verified_at?: string;
+  verification_status: string; // 'pending' | 'verified' | 'failed'
+  dns_records?: any; // type unknown;
+  resend_domain_id?: string;
+  accounts?: Accounts;
+}
+
+export interface Senders {
+  id: string /* primary key */;
+  created_at?: string;
   account_id?: string /* foreign key to accounts.id */;
   name?: string;
-  description?: string;
-  location?: any; // type unknown;
-  schedule?: any; // type unknown;
-  visibility?: string;
+  email?: string;
+  verified?: boolean;
+  resend_domain_id?: string;
   accounts?: Accounts;
-  fees?: Fees;
-}
-
-interface Participants {
-  id: string /* primary key */;
-  created_at: string;
-  person_id?: string /* foreign key to people.id */;
-  event_id?: string /* foreign key to events.id */;
-  people?: People;
-  events?: Events;
-}
-
-interface Pages {
-  id: string /* primary key */;
-  site_id: string /* foreign key to sites.id */;
-  created_at: string;
-  data: any; // type unknown;
-  name?: string;
-  slug: string;
-  sites?: Sites;
 }

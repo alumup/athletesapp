@@ -1,16 +1,18 @@
-import { BasicTemplate } from "@/components/emails/basic-template";
 import { NextResponse } from "next/server";
-import resend from "@/lib/resend";
-import { createClient } from '@supabase/supabase-js';
+import { sendEmails } from "@/lib/email-service";
+import { revalidatePath } from "next/cache";
 
-export const maxDuration = 60; // This function can run for a maximum of 5 seconds
+export const maxDuration = 60;
 
-// Initialize Supabase client
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-
+/**
+ * Legacy send-emails endpoint
+ * Migrated to use unified email service
+ * 
+ * @deprecated Use /api/email/send instead
+ */
 export async function POST(req) {
   try {
-    // get body data
+    // Get body data
     const data = await req.json();
     const account = data?.account;
     const people = data?.people;
@@ -19,83 +21,101 @@ export async function POST(req) {
     const message = data?.message;
     const preview = data?.preview;
 
-    console.log("SENDER", sender);
+    if (!account?.id) {
+      return NextResponse.json(
+        { error: "Account ID is required" },
+        { status: 400 }
+      );
+    }
 
-    // Extract all primary contacts and people with emails into a single array, removing duplicates
+    if (!sender) {
+      return NextResponse.json(
+        { error: "Sender is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!people || people.length === 0) {
+      return NextResponse.json(
+        { error: "People array is required" },
+        { status: 400 }
+      );
+    }
+
+    // Extract all primary contacts and people with emails, removing duplicates
     const allRecipients = people.flatMap((person) => {
       const recipients = new Set();
       
       // Add primary contacts
       (person.primary_contacts || []).forEach(contact => {
-        recipients.add(JSON.stringify(contact));
+        if (contact.email) {
+          recipients.add(JSON.stringify({
+            email: contact.email,
+            person_id: contact.id,
+            first_name: contact.first_name,
+            last_name: contact.last_name,
+            name: contact.name,
+          }));
+        }
       });
 
       // Add person if they have an email and it's not already included
       if (person.email && ![...recipients].some(r => JSON.parse(r).email === person.email)) {
-        recipients.add(JSON.stringify(person));
+        recipients.add(JSON.stringify({
+          email: person.email,
+          person_id: person.id,
+          first_name: person.first_name,
+          last_name: person.last_name,
+          name: person.name,
+        }));
       }
 
       return Array.from(recipients).map(r => JSON.parse(r));
     });
 
-    // Then use the same logic to send emails
-    const emailPromises = allRecipients.map((contact, index) => {
-      return new Promise((resolve, reject) => {
-        setTimeout(async () => {
-          try {
-            const emailResponse = await resend.emails.send({
-              from: sender,
-              to: contact.email,
-              subject: subject,
-              react: BasicTemplate({
-                message: message,
-                account: account,
-                person: contact,
-                preview,
-              }),
-            });
+    if (allRecipients.length === 0) {
+      return NextResponse.json(
+        { error: "No valid email recipients found" },
+        { status: 400 }
+      );
+    }
 
-            console.log(`Email sent to ${contact.email}:`, emailResponse);
-
-            // Log the email in the database
-            const { data: emailLog, error: logError } = await supabase
-              .from('emails')
-              .insert({
-                account_id: account.id,
-                sender: sender,
-                recipient_id: contact.id,
-                subject: subject,
-                content: message,
-                status: 'sent',
-                sent_at: new Date().toISOString(),
-                resend_id: emailResponse.id
-              });
-
-            if (logError) {
-              console.error('Error logging email:', logError);
-            } else {
-              console.log('Email logged successfully:', emailLog);
-            }
-
-            resolve(emailResponse);
-          } catch (error) {
-            console.error(`Error sending email to ${contact.email}:`, error);
-            reject(error);
-          }
-        }, index * 100); // delay of 100ms
-      });
+    // Use unified email service
+    const result = await sendEmails({
+      type: allRecipients.length === 1 ? "one-off" : "batch",
+      sender,
+      recipients: allRecipients,
+      subject,
+      content: message,
+      preview,
+      template: "basic",
+      account_id: account.id,
+      account,
     });
 
-    // Wait for all emails to be sent
-    const emailResponses = await Promise.all(emailPromises);
-    console.log("EMAIL DATA", JSON.stringify(emailResponses, null, 2));
+    if (!result.success) {
+      return NextResponse.json(
+        { 
+          error: "Failed to send emails",
+          details: result.error,
+          sent_count: result.sent_count || 0,
+          failed_count: result.failed_count || 0,
+        },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json({ success: true, data: emailResponses });
+    // Revalidate the emails page to show the newly sent emails
+    revalidatePath("/emails");
+
+    return NextResponse.json({ 
+      success: true, 
+      data: result.email_ids,
+      sent_count: result.sent_count,
+      failed_count: result.failed_count,
+    });
   } catch (error) {
     console.error("send-emails error", error);
-    return NextResponse.json(
-      { success: false, error: error.message || 'An unknown error occurred' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -38,11 +38,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 import SendEmailModal from "@/components/modal/send-email-sheet";
 import SendButton from "@/components/modal-buttons/send-button";
 import { useRouter } from "next/navigation";
-import { CheckCircle, Mail, FileText, DollarSign, ExternalLink } from "lucide-react";
+import { CheckCircle, Mail, FileText, DollarSign, ExternalLink, AlertCircle } from "lucide-react";
+import { PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import { CreateRosterInvoiceButton } from "@/components/create-roster-invoice-button";
 import SendEmailSheet from "@/components/modal/send-email-sheet";
 
@@ -57,51 +59,33 @@ function paymentStatus(person: Person, fees: any, team: any) {
     );
     
     if (successfulPayment) {
-      return "succeeded";
+      return "paid";
     }
   }
 
   // Then check for existing invoices
   const rosterId = team.rosters?.find((r: any) => r.person_id === person.id)?.id;
-  const hasInvoice = person.invoices?.some(
-    invoice => invoice.roster_id === rosterId && invoice.status === "draft"
-  );
-
-  if (hasInvoice) {
-    return "invoiced";
+  const invoice = person.invoices?.find(inv => inv.roster_id === rosterId);
+  
+  if (invoice) {
+    if (invoice.status === "sent") {
+      return "sent";
+    }
+    if (invoice.status === "draft") {
+      return "draft";
+    }
   }
 
   return "unpaid";
 }
 
-function renderStatusSpan(status: string) {
-  let statusColor: string;
-  switch (status) {
-    case "succeeded":
-      statusColor = "text-green-900 bg-green-100 border border-green-200";
-      break;
-    case "incomplete":
-      statusColor = "text-yellow-900 bg-yellow-100 border border-yellow-200";
-      break;
-    case "pending":
-      statusColor = "text-blue-900 bg-blue-100 border border-blue-200";
-      break;
-    case "failed":
-      statusColor = "text-red-900 bg-red-100 border border-red-200";
-      break;
-    case "invoiced":
-      statusColor = "text-purple-900 bg-purple-100 border border-purple-200";
-      break;
-    default:
-      statusColor = "text-gray-900 bg-gray-100 border border-gray-200";
-      status = "unpaid";
-      break;
-  }
-  return (
-    <span className={`rounded-md px-2 py-1 text-[10px] ${statusColor} uppercase`}>
-      {status}
-    </span>
-  );
+function getInvoiceForRoster(person: Person, rosterId: string) {
+  return person.invoices?.find(inv => inv.roster_id === rosterId);
+}
+
+function isInvoiceOverdue(invoice: any) {
+  if (!invoice?.due_date || invoice.status !== "sent") return false;
+  return new Date(invoice.due_date) < new Date();
 }
 
 export type Person = {
@@ -122,6 +106,9 @@ export type Person = {
     id: string;
     status: string;
     roster_id: string;
+    due_date?: string;
+    invoice_number?: string;
+    metadata?: any;
   }>;
   first_name: string;
   last_name: string;
@@ -129,7 +116,12 @@ export type Person = {
   primary_contacts: any;
 };
 
-const createColumns = (team: any, onEditFee: (rosterId: string, currentFeeId: string | null, personName: string) => void): ColumnDef<Person>[] => [
+const createColumns = (
+  team: any, 
+  onEditFee: (rosterId: string, currentFeeId: string | null, personName: string) => void,
+  onResendInvoice: (invoiceId: string) => void,
+  resendingInvoiceId: string | null
+): ColumnDef<Person>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -150,62 +142,113 @@ const createColumns = (team: any, onEditFee: (rosterId: string, currentFeeId: st
     enableHiding: false,
   },
   {
+    accessorKey: "name",
+    header: "Name",
+    cell: ({ row }) => (
+      <div className="font-medium">{row.getValue("name")}</div>
+    ),
+  },
+  {
+    accessorKey: "grade",
+    header: "Grade",
+    cell: ({ row }) => <div>{row.getValue("grade") || "—"}</div>,
+  },
+  {
     accessorKey: "fees",
-    header: "Fee",
+    header: "Fee Amount",
     cell: ({ row }: { row: any }) => {
       const fees = row.getValue("fees") as { amount: number; id: string } | undefined;
       const amount = fees?.amount;
       
+      if (!amount) {
+        return (
+          <Badge variant="outline" className="bg-gray-50 text-gray-600">
+            No Fee
+          </Badge>
+        );
+      }
+      
       return (
-        <span className={`rounded px-2 py-1 text-sm ${amount ? 'bg-gray-50 text-gray-700' : 'bg-yellow-50 text-yellow-700 border border-yellow-200'}`}>
-          {amount ? `$${amount}` : "No Fee"}
+        <span className="font-medium">
+          ${amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
         </span>
       );
     },
   },
   {
-    accessorKey: "fees",
-    header: "Fee Status",
+    id: "invoice_status",
+    header: "Invoice Status",
     cell: ({ row }: { row: any }) => {
       const person = row.original;
+      const roster = team.rosters?.find((r: any) => r.person_id === person.id);
+      const invoice = getInvoiceForRoster(person, roster?.id);
+      
       // If no fee is assigned, show N/A
       if (!person.fees || !person.fees.amount) {
         return (
-          <span className="rounded-md px-2 py-1 text-[10px] text-gray-900 bg-gray-100 border border-gray-200 uppercase">
-            N/A
-          </span>
+          <Badge variant="outline" className="bg-gray-50 text-gray-600">
+            No Fee
+          </Badge>
         );
       }
+      
       const status = paymentStatus(person, person.fees, team);
-      const statusBadge = renderStatusSpan(status);
-      return statusBadge;
+      
+      if (status === "paid") {
+        return (
+          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+            <CheckCircle className="mr-1 h-3 w-3" />
+            Paid
+          </Badge>
+        );
+      }
+      
+      if (status === "sent") {
+        const overdue = isInvoiceOverdue(invoice);
+        return (
+          <div className="flex flex-col gap-1">
+            <Badge className={`${
+              overdue 
+                ? "bg-red-100 text-red-800 hover:bg-red-100" 
+                : "bg-blue-100 text-blue-800 hover:bg-blue-100"
+            }`}>
+              <Mail className="mr-1 h-3 w-3" />
+              Sent
+            </Badge>
+            {overdue && (
+              <span className="text-xs text-red-600 font-medium">Overdue</span>
+            )}
+          </div>
+        );
+      }
+      
+      if (status === "draft") {
+        return (
+          <Badge variant="outline" className="bg-purple-50 text-purple-700">
+            <FileText className="mr-1 h-3 w-3" />
+            Draft
+          </Badge>
+        );
+      }
+      
+      return (
+        <Badge variant="outline" className="bg-yellow-50 text-yellow-700">
+          <AlertCircle className="mr-1 h-3 w-3" />
+          Unpaid
+        </Badge>
+      );
     },
-  },
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => <div>{row.getValue("name")}</div>,
-  },
-  {
-    accessorKey: "grade",
-    header: "Grade",
-    cell: ({ row }) => <div>{row.getValue("grade")}</div>,
-  },
-  {
-    accessorKey: "birthdate",
-    header: "Birthdate",
-    cell: ({ row }) => <div>{row.getValue("birthdate")}</div>,
   },
   {
     accessorKey: "primary_contacts",
     header: "Email",
     cell: ({ row }) => (
-      <div className="space-x-2">
+      <div className="flex flex-wrap gap-1">
         {row.original.primary_contacts.map((contact: any, index: any) => (
           <Link
             key={index}
             href={`/people/${contact?.id}`}
-            className="cursor-pointer rounded-full border border-gray-200 bg-gray-100 px-2 py-1 text-sm lowercase text-gray-900"
+            className="cursor-pointer rounded-full border border-gray-200 bg-gray-100 px-2 py-0.5 text-xs lowercase text-gray-900 hover:bg-gray-200 transition-colors"
           >
             {contact?.email}
           </Link>
@@ -220,9 +263,9 @@ const createColumns = (team: any, onEditFee: (rosterId: string, currentFeeId: st
       const person = row.original;
       const roster = team.rosters?.find((r: any) => r.person_id === person.id);
       const fees = roster?.fees;
-      
-      // Find invoice for this roster
-      const invoice = person.invoices?.find(inv => inv.roster_id === roster?.id);
+      const invoice = getInvoiceForRoster(person, roster?.id);
+      const status = paymentStatus(person, person.fees, team);
+      const isOverdue = isInvoiceOverdue(invoice);
 
       return (
         <div className="flex items-center gap-2">
@@ -252,34 +295,32 @@ const createColumns = (team: any, onEditFee: (rosterId: string, currentFeeId: st
           </Button>
 
           {/* Invoice/Payment Status Actions */}
-          {invoice?.status === "paid" ? (
-            <span className="flex items-center text-sm">
-              <CheckCircle className="h-4 w-4 text-green-500 mr-1" />
-              <span className="text-green-700">Paid</span>
-            </span>
-          ) : invoice?.status === "sent" ? (
+          {status === "paid" ? (
+            <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
+              <CheckCircle className="h-3.5 w-3.5 mr-1" />
+              Paid
+            </Badge>
+          ) : status === "sent" ? (
             <Button 
-              variant="outline"
+              variant="ghost"
               size="sm"
-              onClick={() => {
-                // TODO: Implement send reminder logic
-                toast.success('Payment reminder sent');
-              }}
-              className="h-8 px-3 text-xs text-purple-600 hover:text-purple-700"
+              onClick={() => invoice && onResendInvoice(invoice.id)}
+              disabled={resendingInvoiceId === invoice?.id}
+              className={`h-8 px-3 text-xs ${
+                isOverdue 
+                  ? "text-red-600 hover:text-red-700 hover:bg-red-50" 
+                  : "text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+              }`}
+              title={isOverdue ? "Resend overdue invoice" : "Resend invoice"}
             >
-              <Mail className="h-3.5 w-3.5 mr-1" />
-              Sent
+              <PaperAirplaneIcon className="h-3.5 w-3.5 mr-1" />
+              {resendingInvoiceId === invoice?.id ? "Sending..." : "Resend"}
             </Button>
-          ) : invoice?.status === "draft" ? (
-            <Button 
-              variant="outline"
-              size="sm"
-              disabled
-              className="h-8 px-3 text-xs text-gray-500"
-            >
+          ) : status === "draft" ? (
+            <Badge variant="outline" className="bg-gray-100 text-gray-600">
               <FileText className="h-3.5 w-3.5 mr-1" />
               Draft
-            </Button>
+            </Badge>
           ) : fees?.amount ? (
             // Show create invoice button only if fee is assigned
             <CreateRosterInvoiceButton 
@@ -299,15 +340,19 @@ const createColumns = (team: any, onEditFee: (rosterId: string, currentFeeId: st
   }
 ];
 
+interface TeamTableProps {
+  data: Person[];
+  team: any;
+  account: any;
+  onRefresh?: () => void | Promise<void>;
+}
+
 export function TeamTable({
   data,
   team,
   account,
-}: {
-  data: Person[];
-  team: any;
-  account: any;
-}) {
+  onRefresh,
+}: TeamTableProps) {
   const router = useRouter();
   const { refresh } = router;
   const supabase = createClient();
@@ -316,6 +361,7 @@ export function TeamTable({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+  const [resendingInvoiceId, setResendingInvoiceId] = useState<string | null>(null);
   
   // State for edit fee modal
   const [editFeeModalOpen, setEditFeeModalOpen] = useState(false);
@@ -330,9 +376,43 @@ export function TeamTable({
     setEditFeeModalOpen(true);
   };
 
+  const handleResendInvoice = async (invoiceId: string) => {
+    setResendingInvoiceId(invoiceId);
+    
+    try {
+      const response = await fetch("/api/invoices/resend", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ invoiceId }),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(responseData.error || "Failed to resend invoice");
+      }
+
+      toast.success("Invoice email resent successfully!");
+      
+      // Refresh the team data to update UI
+      if (onRefresh) {
+        onRefresh();
+      } else {
+        refresh();
+      }
+    } catch (error: any) {
+      console.error("Error resending invoice:", error);
+      toast.error(error.message || "Failed to resend invoice");
+    } finally {
+      setResendingInvoiceId(null);
+    }
+  };
+
   const table = useReactTable({
     data,
-    columns: createColumns(team, handleEditFee),
+    columns: createColumns(team, handleEditFee, handleResendInvoice, resendingInvoiceId),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -350,25 +430,9 @@ export function TeamTable({
   });
 
   useEffect(() => {
-    console.log('Table Data:', data);
-    data.forEach(person => {
-      console.log('Person:', {
-        name: person.name,
-        fees: person.fees,
-        paymentStatus: paymentStatus(person, person.fees, team)
-      });
-    });
-  }, [data]);
-
-  useEffect(() => {
     // Set the initial page size
     table.setPageSize(30);
-  }, [table]); //
-
-  // const handleDeleteSelected = () => {
-  //   const people = selectedRows.map((row) => row.original);
-  //   // Logic to delete selected rows
-  // };
+  }, [table]);
 
   const handleRemoveSelected = async () => {
     const people = selectedRows.map((row) => row.original);
@@ -385,9 +449,11 @@ export function TeamTable({
       }
     });
 
-    // Show a toast notification
-
-    refresh();
+    if (onRefresh) {
+      onRefresh();
+    } else {
+      refresh();
+    }
     table.toggleAllPageRowsSelected(false);
     toast.success("Selected players have been removed successfully.");
   };
@@ -408,144 +474,150 @@ export function TeamTable({
         currentFeeId={editingFeeId}
         personName={editingPersonName}
       />
-      <div className="w-full">
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Search by name..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="ml-auto flex items-center justify-between"
-            >
-              <MixerHorizontalIcon className="mr-2 h-4 w-4" /> View
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id + Math.random()}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      {isAnyRowSelected && (
-        <div className="mb-2 flex justify-between space-x-4 py-2">
-          <div className="flex items-center space-x-2">
-            <SendEmailSheet
-              people={people}
-              account={account}
-              cta="Send Email"
-              onClose={() => table.toggleAllRowsSelected(false)}
-            />  
-          </div>
-          <Button
-            onClick={handleRemoveSelected}
-            variant="outline"
-            className="text-red-500"
-          >
-            <TrashIcon className="mr-2 h-4 w-4" /> Remove
-          </Button>
-        </div>
-      )}
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id + Math.random()}>
-                {headerGroup.headers.map((header) => {
+      <div className="w-full space-y-4">
+        <div className="flex items-center gap-4">
+          <Input
+            placeholder="Search by name..."
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("name")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="ml-auto flex items-center justify-between"
+              >
+                <MixerHorizontalIcon className="mr-2 h-4 w-4" /> View
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
                   return (
-                    <TableHead key={header.id + Math.random()}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
+                    <DropdownMenuCheckboxItem
+                      key={column.id + Math.random()}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
                   );
                 })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id + Math.random()}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id + Math.random()}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {isAnyRowSelected && (
+          <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
+            <div className="flex items-center gap-2">
+              <SendEmailSheet
+                people={people}
+                account={account}
+                cta="Send Email"
+                onClose={() => table.toggleAllRowsSelected(false)}
+                context={{
+                  type: 'team',
+                  name: team?.name
+                }}
+              />  
+            </div>
+            <Button
+              onClick={handleRemoveSelected}
+              variant="outline"
+              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+            >
+              <TrashIcon className="mr-2 h-4 w-4" /> Remove Selected
+            </Button>
+          </div>
+        )}
+
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id + Math.random()}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id + Math.random()}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={table.getAllColumns().length}
-                  className="h-24 text-center"
-                >
-                  <div className="mt-2 flex flex-col items-center justify-center">
-                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"></div>
-                    <span className="ml-2">Fetching team...</span>
-                  </div>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="text-muted-foreground flex-1 text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id + Math.random()}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id + Math.random()}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={table.getAllColumns().length}
+                    className="h-24 text-center"
+                  >
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"></div>
+                      <span className="text-sm text-muted-foreground">Loading roster...</span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
+
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-muted-foreground">
+            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {table.getFilteredRowModel().rows.length} row(s) selected
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 }

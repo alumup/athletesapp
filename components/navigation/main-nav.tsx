@@ -33,6 +33,18 @@ export function MainNav({
         Teams
       </Link>
       <Link
+        href="/invoices"
+        className="text-muted-foreground text-sm font-medium transition-colors hover:text-zinc-900"
+      >
+        Invoices
+      </Link>
+      <Link
+        href="/emails"
+        className="text-muted-foreground text-sm font-medium transition-colors hover:text-zinc-900"
+      >
+        Emails
+      </Link>
+      <Link
         href="/settings"
         className="text-muted-foreground text-sm font-medium transition-colors hover:text-zinc-900"
       >

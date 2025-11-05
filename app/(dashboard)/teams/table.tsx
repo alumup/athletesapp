@@ -343,6 +343,10 @@ export function TeamTable({ data, account }: { data: Team[]; account: any }) {
               account={account}
               cta="Send Email"
               onClose={() => table.toggleAllRowsSelected(false)}
+              context={{
+                type: 'team',
+                name: 'Selected Teams'
+              }}
             />
             <Button
               onClick={handleActivateSelected}

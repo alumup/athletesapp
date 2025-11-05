@@ -16,77 +16,108 @@ export default async function Dashboard() {
 
   const account = await getAccount();
 
-  // Fetch teams with roster counts server-side
-  const { data: teamStats } = await supabase
+  // Fetch teams with roster counts
+  const { data: teams } = await supabase
     .from("teams")
     .select(
       `
         id,
         name,
         created_at,
+        is_active,
         rosters (
           id,
-          people (
-            first_name,
-            last_name
+          fees (
+            amount,
+            payments (
+              status,
+              amount
+            )
           )
         ),
         staff (
-          id,
-          people (
-            first_name,
-            last_name
-          )
+          id
         )
       `,
     )
-    .eq("account_id", account.id)
-    .eq("is_active", true);
+    .eq("account_id", account.id);
 
-  // Fetch recent emails server-side
+  // Fetch people
+  const { data: people } = await supabase
+    .from("people")
+    .select("id, dependent")
+    .eq("account_id", account.id);
+
+  // Fetch invoices
+  const { data: invoices } = await supabase
+    .from("invoices")
+    .select("id, amount, status, created_at")
+    .eq("account_id", account.id);
+
+  // Fetch recent emails
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const { data: emailStats } = await supabase
+  const { data: emails } = await supabase
     .from("emails")
     .select("id, subject, created_at")
     .eq("account_id", account.id)
     .gte("created_at", thirtyDaysAgo)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  // Calculate statistics
+  const totalTeams = teams?.length || 0;
+  const activeTeams = teams?.filter(t => t.is_active).length || 0;
+  const totalPeople = people?.length || 0;
+  const totalDependents = people?.filter(p => p.dependent).length || 0;
+  const totalPrimaryContacts = totalPeople - totalDependents;
+  
+  const totalRosterSpots = teams?.reduce((acc, team) => acc + (team.rosters?.length || 0), 0) || 0;
+  const totalStaff = teams?.reduce((acc, team) => acc + (team.staff?.length || 0), 0) || 0;
+  
+  const totalInvoices = invoices?.length || 0;
+  const totalInvoiceAmount = invoices?.reduce((sum, inv) => sum + (inv.amount || 0), 0) || 0;
+  const paidInvoices = invoices?.filter(inv => inv.status === 'paid').length || 0;
+  const paidAmount = invoices
+    ?.filter(inv => inv.status === 'paid')
+    .reduce((sum, inv) => sum + (inv.amount || 0), 0) || 0;
+  const pendingAmount = totalInvoiceAmount - paidAmount;
+
+  const totalEmailsSent = emails?.length || 0;
 
   // Get recent activity
   const recentActivity = [
-    ...(teamStats?.map((team) => ({
+    ...(teams?.slice(0, 3).map((team) => ({
       id: team.id,
-      type: "team_stats",
-      description: `Team "${team.name}" has ${team.rosters?.length || 0} players and ${team.staff?.length || 0} staff members`,
+      type: "team",
+      title: team.name,
+      description: `${team.rosters?.length || 0} players, ${team.staff?.length || 0} staff`,
       timestamp: team.created_at,
-      teamName: team.name,
+      link: `/teams/${team.id}`,
     })) || []),
-    ...(emailStats
-      ?.slice(0, 5)
-      .map((email) => ({
-        id: email.id,
-        type: "email_sent",
-        description: `Email sent: ${email.subject}`,
-        timestamp: email.created_at,
-      })) || []),
+    ...(emails?.slice(0, 5).map((email) => ({
+      id: email.id,
+      type: "email",
+      title: email.subject || "Email sent",
+      description: new Date(email.created_at).toLocaleDateString(),
+      timestamp: email.created_at,
+    })) || []),
   ]
-    .sort(
-      (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-    )
-    .slice(0, 5);
-
-  // Calculate totals
-  const totalTeams = teamStats?.length || 0;
-  const totalRosterSpots =
-    teamStats?.reduce((acc, team) => acc + (team.rosters?.length || 0), 0) || 0;
-  const totalStaff =
-    teamStats?.reduce((acc, team) => acc + (team.staff?.length || 0), 0) || 0;
-  const totalEmailsSent = emailStats?.length || 0;
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    .slice(0, 8);
 
   const stats = {
     totalTeams,
-    totalPeople: totalRosterSpots + totalStaff,
+    activeTeams,
+    totalPeople,
+    totalDependents,
+    totalPrimaryContacts,
+    totalRosterSpots,
+    totalStaff,
+    totalInvoices,
+    totalInvoiceAmount,
+    paidInvoices,
+    paidAmount,
+    pendingAmount,
     totalEmailsSent,
     recentActivity,
   };
@@ -96,5 +127,5 @@ export default async function Dashboard() {
     email: user.email,
   };
 
-  return <DashboardClient profile={profile} stats={stats} />;
+  return <DashboardClient profile={profile} stats={stats} account={account} />;
 }

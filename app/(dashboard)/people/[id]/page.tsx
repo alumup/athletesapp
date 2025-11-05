@@ -8,15 +8,16 @@ import {
   CardHeader,
   CardContent,
   Card,
+  CardDescription,
 } from "@/components/ui/card";
 import { fullName } from "@/lib/utils";
 import { toast } from "sonner";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, Users, Receipt, UserPlus } from "lucide-react";
 import LoadingCircle from "@/components/icons/loading-circle";
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
-import { Button } from "@/components/marketing/Button";
+import { Button } from "@/components/ui/button";
 import PersonSheet from "@/components/modal/person-sheet";
 import CreateInvoiceModal from "@/components/modal/create-invoice-modal"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -210,9 +211,6 @@ export default function PersonPage({ params }: PersonPageProps) {
     }
   }, [id]);
 
-  // Add this console.log to debug
-  console.log('Invoices:', invoices);
-
   useEffect(() => {
     if (!id) return; // Guard against undefined id
     
@@ -316,10 +314,23 @@ export default function PersonPage({ params }: PersonPageProps) {
       return;
     }
 
-    console.log('fetchFromRelationships', data)
-
     return data;
   }
+
+  // Calculate statistics
+  const stats = {
+    totalTeams: roster.length,
+    activeTeams: roster.filter(t => t.is_active).length,
+    totalInvoices: invoices.length,
+    totalAmount: invoices.reduce((sum, inv) => sum + (inv.amount || 0), 0),
+    paidAmount: invoices
+      .filter(inv => inv.status === 'paid')
+      .reduce((sum, inv) => sum + (inv.amount || 0), 0),
+    pendingAmount: invoices
+      .filter(inv => inv.status === 'sent')
+      .reduce((sum, inv) => sum + (inv.amount || 0), 0),
+    relationships: (toRelationships?.length || 0) + (fromRelationships?.length || 0),
+  };
 
   if (isLoading) {
     return (
@@ -330,67 +341,106 @@ export default function PersonPage({ params }: PersonPageProps) {
   }
 
   return (
-    <div className="flex flex-col space-y-6">
+    <div className="flex flex-col gap-6 p-6">
       {/* Header Section */}
-      <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
-        <div className="flex flex-col space-y-0.5">
-          <h1 className="font-cal truncate text-base font-bold sm:text-3xl md:text-xl">
-            {person?.name || fullName(person)}
-          </h1>
-          <p className="text-stone-500">{person?.email}</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <PersonSheet 
-            person={person}
-            fromRelationships={fromRelationships || []}
-            mode="edit"
-            cta={`Edit ${person?.first_name}`}
-            title={`Edit ${person?.first_name}`}
-            description="Edit this person"
-            account={account}
-          />
-          <Button 
-            onClick={() => setInvoiceModalOpen(true)}
-            variant="outline"
-            color="primary"
-            className="w-full"
-          >
-            Create Invoice
-          </Button>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {person?.name || fullName(person)}
+            </h1>
+            <p className="text-muted-foreground">{person?.email || "No email on file"}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <PersonSheet 
+              person={person}
+              fromRelationships={fromRelationships || []}
+              mode="edit"
+              cta={`Edit ${person?.first_name}`}
+              title={`Edit ${person?.first_name}`}
+              description="Edit this person"
+              account={account}
+            />
+            <Button 
+              onClick={() => setInvoiceModalOpen(true)}
+              variant="default"
+            >
+              <Receipt className="h-4 w-4 mr-2" />
+              Create Invoice
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Updated Tabs Section with new styling */}
+      {/* Statistics Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Teams</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalTeams}</div>
+            <p className="text-xs text-muted-foreground">
+              {stats.activeTeams} active
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Invoices</CardTitle>
+            <Receipt className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {formatCurrency(stats.totalAmount)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {stats.totalInvoices} invoices
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Paid</CardTitle>
+            <BadgeCheck className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {formatCurrency(stats.paidAmount)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Payments received
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Relationships</CardTitle>
+            <UserPlus className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.relationships}</div>
+            <p className="text-xs text-muted-foreground">
+              Connected people
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Tabs Section */}
       <Tabs defaultValue="teams" className="w-full">
-        <TabsList className="flex h-10 items-center gap-2 w-full justify-start">
-          <TabsTrigger 
-            value="teams"
-            className={cn(
-              "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-              "data-[state=active]:bg-[#212121] data-[state=active]:text-[#fafafa] data-[state=active]:border-none",
-              "data-[state=inactive]:border data-[state=inactive]:border-input data-[state=inactive]:bg-background data-[state=inactive]:hover:bg-accent hover:text-accent-foreground"
-            )}
-          >
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="teams">
             Teams
           </TabsTrigger>
-          <TabsTrigger 
-            value="payments"
-            className={cn(
-              "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-              "data-[state=active]:bg-[#212121] data-[state=active]:text-[#fafafa] data-[state=active]:border-none",
-              "data-[state=inactive]:border data-[state=inactive]:border-input data-[state=inactive]:bg-background data-[state=inactive]:hover:bg-accent hover:text-accent-foreground"
-            )}
-          >
-            Payments
+          <TabsTrigger value="payments">
+            Invoices & Payments
           </TabsTrigger>
-            <TabsTrigger 
-            value="relationships"
-            className={cn(
-              "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-              "data-[state=active]:bg-[#212121] data-[state=active]:text-[#fafafa] data-[state=active]:border-none",
-              "data-[state=inactive]:border data-[state=inactive]:border-input data-[state=inactive]:bg-background data-[state=inactive]:hover:bg-accent hover:text-accent-foreground"
-            )}
-          >
+          <TabsTrigger value="relationships">
             Relationships
           </TabsTrigger>
         </TabsList>
@@ -398,17 +448,10 @@ export default function PersonPage({ params }: PersonPageProps) {
         <TabsContent value="teams" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Teams</CardTitle>
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <div className="flex items-center">
-                  <div className="h-2 w-2 rounded-full bg-emerald-500 mr-1" />
-                  Active
-                </div>
-                <div className="flex items-center">
-                  <div className="h-2 w-2 rounded-full bg-gray-300 mr-1" />
-                  Inactive
-                </div>
-              </div>
+              <CardTitle>Teams ({stats.totalTeams})</CardTitle>
+              <CardDescription>
+                All teams this person is associated with
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {roster.length > 0 ? (
@@ -418,46 +461,38 @@ export default function PersonPage({ params }: PersonPageProps) {
                       key={team.id}
                       href={`/teams/${team.id}`}
                       className={cn(
-                        "flex items-center justify-between p-3 rounded-lg border transition-colors",
+                        "flex items-center justify-between p-4 rounded-lg border transition-colors",
                         "hover:bg-muted/50 hover:border-muted-foreground/25",
-                        "group relative"
+                        "group"
                       )}
                     >
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-center gap-3">
                         <div 
                           className={cn(
-                            "h-2 w-2 rounded-full",
-                            team.is_active ? "bg-emerald-500" : "bg-gray-300"
+                            "h-2.5 w-2.5 rounded-full",
+                            team.is_active ? "bg-green-500" : "bg-gray-300"
                           )} 
                         />
-                        <span className="font-medium">{team.name}</span>
+                        <div>
+                          <div className="font-medium">{team.name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {team.is_active ? "Active" : "Inactive"}
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant={team.is_active ? "default" : "secondary"}>
-                          {team.is_active ? "Active" : "Inactive"}
-                        </Badge>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <path d="M5 12h14" />
-                          <path d="m12 5 7 7-7 7" />
-                        </svg>
-                      </div>
+                      <Badge variant={team.is_active ? "default" : "secondary"}>
+                        {team.is_active ? "Active" : "Inactive"}
+                      </Badge>
                     </Link>
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Users className="h-12 w-12 text-muted-foreground/50 mb-4" />
                   <p className="text-sm text-muted-foreground">No teams found</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    This person is not on any teams yet
+                  </p>
                 </div>
               )}
             </CardContent>
@@ -468,55 +503,62 @@ export default function PersonPage({ params }: PersonPageProps) {
           <Card>
             <CardHeader>
               <CardTitle>Invoices & Payments</CardTitle>
+              <CardDescription>
+                All invoices and payment history
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {isLoadingInvoices ? (
-                <div className="flex justify-center py-8">
+                <div className="flex justify-center py-12">
                   <LoadingCircle />
                 </div>
-              ) : (
+              ) : invoices.length > 0 ? (
                 <div className="space-y-8">
                   {Object.entries(groupBy(invoices, 'person_id' as keyof Invoice)).map(([personId, personInvoices]) => {
-                    const person = personInvoices[0]?.person;
+                    const invoicePerson = personInvoices[0]?.person;
                     return (
                       <div key={personId} className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-lg font-semibold">
-                            {person?.first_name} {person?.last_name}
-                            {personId === id && " (Primary)"}
+                        <div className="flex items-center justify-between pb-3 border-b">
+                          <h3 className="text-base font-semibold">
+                            {invoicePerson?.first_name} {invoicePerson?.last_name}
+                            {personId === id && (
+                              <Badge variant="outline" className="ml-2">Primary</Badge>
+                            )}
                           </h3>
-                          <Badge variant="outline">
+                          <div className="text-sm font-medium">
                             Total: {formatCurrency(
                               personInvoices.reduce((sum, inv) => sum + (inv.amount || 0), 0)
                             )}
-                          </Badge>
+                          </div>
                         </div>
                         
                         {personInvoices.map((invoice: Invoice) => (
-                          <div key={invoice.id} className="border rounded-lg p-4">
+                          <div key={invoice.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
                             {/* Invoice Header */}
-                            <div className="flex items-center justify-between mb-4">
-                              <div>
-                                <h4 className="font-medium">
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex-1">
+                                <div className="font-medium">
                                   {invoice.description || `Invoice #${invoice.invoice_number}`}
-                                </h4>
-                                <p className="text-sm text-muted-foreground">
-                                  Created {new Date(invoice.created_at).toLocaleDateString()}
-                                </p>
+                                </div>
+                                <div className="text-sm text-muted-foreground mt-1">
+                                  {new Date(invoice.created_at).toLocaleDateString('en-US', {
+                                    month: 'long',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                  })}
+                                </div>
                               </div>
                               <div className="flex items-center gap-3">
                                 <Badge 
-                                  variant={
-                                    invoice.status === 'paid' 
-                                      ? 'default' 
-                                      : invoice.status === 'sent' 
-                                      ? 'default' 
-                                      : 'secondary'
-                                  }
+                                  className={cn(
+                                    invoice.status === 'paid' && 'bg-green-100 text-green-800 hover:bg-green-100',
+                                    invoice.status === 'sent' && 'bg-blue-100 text-blue-800 hover:bg-blue-100',
+                                    invoice.status === 'draft' && 'bg-gray-100 text-gray-800 hover:bg-gray-100'
+                                  )}
                                 >
                                   {invoice.status}
                                 </Badge>
-                                <span className="font-medium">
+                                <span className="font-semibold">
                                   {formatCurrency(invoice.amount)}
                                 </span>
                               </div>
@@ -524,54 +566,54 @@ export default function PersonPage({ params }: PersonPageProps) {
 
                             {/* Payments Section */}
                             {invoice.payments && invoice.payments.length > 0 && (
-                              <div className="mt-4 border-t pt-4">
-                                <h4 className="text-sm font-medium mb-2">Payments</h4>
-                                <div className="space-y-2">
-                                  {invoice.payments.map((payment: Payment) => (
-                                    <div 
-                                      key={payment.id} 
-                                      className="flex items-center justify-between text-sm"
-                                    >
-                                      <div className="flex items-center gap-2">
-                                        <Badge variant="outline">
-                                          {payment.payment_method}
-                                        </Badge>
-                                        <span className="text-muted-foreground">
-                                          {new Date(payment.created_at).toLocaleDateString()}
-                                        </span>
-                                      </div>
-                                      <div className="flex items-center gap-2">
-                                        <Badge 
-                                          variant={
-                                            payment.status === 'succeeded' 
-                                              ? 'default' 
-                                              : payment.status === 'pending' 
-                                              ? 'default' 
-                                              : 'destructive'
-                                          }
-                                        >
-                                          {payment.status}
-                                        </Badge>
-                                        <span className="font-medium">
-                                          {formatCurrency(payment.amount)}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  ))}
+                              <div className="mt-3 pt-3 border-t space-y-2">
+                                <div className="text-sm font-medium text-muted-foreground mb-2">
+                                  Payments
                                 </div>
+                                {invoice.payments.map((payment: Payment) => (
+                                  <div 
+                                    key={payment.id} 
+                                    className="flex items-center justify-between text-sm bg-muted/50 rounded-md p-2"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <Badge variant="outline" className="text-xs">
+                                        {payment.payment_method}
+                                      </Badge>
+                                      <span className="text-muted-foreground">
+                                        {new Date(payment.created_at).toLocaleDateString()}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Badge 
+                                        className={cn(
+                                          payment.status === 'succeeded' && 'bg-green-100 text-green-800 hover:bg-green-100',
+                                          payment.status === 'pending' && 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100',
+                                          payment.status === 'failed' && 'bg-red-100 text-red-800 hover:bg-red-100'
+                                        )}
+                                      >
+                                        {payment.status}
+                                      </Badge>
+                                      <span className="font-medium">
+                                        {formatCurrency(payment.amount)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
                             )}
                           </div>
                         ))}
-
-                        {invoices.length === 0 && (
-                          <div className="flex flex-col items-center justify-center py-8 text-center">
-                            <p className="text-sm text-muted-foreground">No invoices found</p>
-                          </div>
-                        )}
                       </div>
                     );
                   })}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Receipt className="h-12 w-12 text-muted-foreground/50 mb-4" />
+                  <p className="text-sm text-muted-foreground">No invoices found</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Create an invoice to get started
+                  </p>
                 </div>
               )}
             </CardContent>
@@ -581,57 +623,63 @@ export default function PersonPage({ params }: PersonPageProps) {
         <TabsContent value="relationships" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Relationships</CardTitle>
+              <CardTitle>Relationships ({stats.relationships})</CardTitle>
+              <CardDescription>
+                Family members and related contacts
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 gap-5">
-                <div className="col-span-1 space-y-3">
+              {(toRelationships?.length > 0 || fromRelationships?.length > 0) ? (
+                <div className="space-y-3">
                   {toRelationships?.map(
                     (relation: any, i: Key | null | undefined) => (
-                      <div key={i}>
-                        <div className="flex items-center space-x-1 rounded border border-stone-200 px-3 py-2">
-                          <div className="flex flex-col">
-                            <span>{relation.name} of</span>
-                            <Link
-                              href={`/people/${relation.to.id}`}
-                              className="text-sm font-bold"
-                            >
-                              {relation.to.name || fullName(relation.to)}
-                            </Link>
-                          </div>
+                      <Link
+                        key={i}
+                        href={`/people/${relation.to.id}`}
+                        className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 hover:border-muted-foreground/25 transition-colors"
+                      >
+                        <div className="flex flex-col">
+                          <span className="text-sm text-muted-foreground">{relation.name} of</span>
+                          <span className="font-medium">
+                            {relation.to.name || fullName(relation.to)}
+                          </span>
                         </div>
-                      </div>
+                        {relation.primary && (
+                          <Badge variant="default">Primary</Badge>
+                        )}
+                      </Link>
                     ),
                   )}
 
                   {fromRelationships?.map(
                     (relation: any, i: Key | null | undefined) => (
-                      <div key={i} className="mb-10">
-                        <div className="flex items-center space-x-1 rounded border border-stone-200 px-3 py-2">
-                          <div className="flex w-full items-center justify-between">
-                            <div className="flex flex-col">
-                              <span>{relation.name} is</span>
-                              <Link
-                                href={`/people/${relation.from.id}`}
-                                className="text-sm font-bold"
-                              >
-                                {relation.from.name || fullName(relation.to)}
-                              </Link>
-                            </div>
-                            <div>
-                              {relation.primary ? (
-                               <Badge variant="default">Primary</Badge>
-                              ) : (
-                                ""
-                              )}
-                            </div>
-                          </div>
+                      <Link
+                        key={i}
+                        href={`/people/${relation.from.id}`}
+                        className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 hover:border-muted-foreground/25 transition-colors"
+                      >
+                        <div className="flex flex-col">
+                          <span className="text-sm text-muted-foreground">{relation.name} is</span>
+                          <span className="font-medium">
+                            {relation.from.name || fullName(relation.from)}
+                          </span>
                         </div>
-                      </div>
+                        {relation.primary && (
+                          <Badge variant="default">Primary</Badge>
+                        )}
+                      </Link>
                     ),
                   )}
                 </div>
-              </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <UserPlus className="h-12 w-12 text-muted-foreground/50 mb-4" />
+                  <p className="text-sm text-muted-foreground">No relationships found</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Add family members or related contacts
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

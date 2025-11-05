@@ -9,13 +9,26 @@ export async function getAccount() {
   } = await supabase.auth.getUser();
 
   try {
+    // First get the profile with account
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("*, accounts(*, senders(*))")
+      .select("*, accounts(*)")
       .eq("id", user?.id)
       .single();
 
     if (profileError) throw profileError;
+
+    // Then fetch senders for this account
+    if (profile.accounts?.id) {
+      const { data: senders, error: sendersError } = await supabase
+        .from("senders")
+        .select("*")
+        .eq("account_id", profile.accounts.id);
+      
+      if (!sendersError && senders) {
+        profile.accounts.senders = senders;
+      }
+    }
 
     return profile.accounts;
   } catch (error: any) {

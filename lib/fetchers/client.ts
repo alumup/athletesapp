@@ -16,22 +16,45 @@ export async function getAccountWithDomain(domain: string) {
     if (user?.id) {
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
-        .select("*, accounts(*, senders(*))")
+        .select("*, accounts(*)")
         .eq("id", user?.id)
         .single();
 
       if (profileError) throw profileError;
       account = profile?.accounts;
+      
+      // Fetch senders for this account
+      if (account?.id) {
+        const { data: senders, error: sendersError } = await supabase
+          .from("senders")
+          .select("*")
+          .eq("account_id", account.id);
+        
+        if (!sendersError && senders) {
+          account.senders = senders;
+        }
+      }
     } else if (domain) {
       const { data: site, error: siteError } = await supabase
         .from("sites")
-        .select("*, accounts(*, senders(*))")
+        .select("*, accounts(*)")
         .eq(domainKey, domainValue)
         .single();
 
       if (siteError) throw siteError;
       account = site?.accounts;
-      console.log("ACCOUNT", account);
+      
+      // Fetch senders for this account
+      if (account?.id) {
+        const { data: senders, error: sendersError } = await supabase
+          .from("senders")
+          .select("*")
+          .eq("account_id", account.id);
+        
+        if (!sendersError && senders) {
+          account.senders = senders;
+        }
+      }
     }
 
     return account;
@@ -50,13 +73,26 @@ export async function getAccount() {
   } = await supabase.auth.getUser();
 
   try {
+    // First get the profile with account
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("*, accounts(*, senders(*))")
+      .select("*, accounts(*)")
       .eq("id", user?.id)
       .single();
 
     if (profileError) throw profileError;
+
+    // Then fetch senders for this account
+    if (profile.accounts?.id) {
+      const { data: senders, error: sendersError } = await supabase
+        .from("senders")
+        .select("*")
+        .eq("account_id", profile.accounts.id);
+      
+      if (!sendersError && senders) {
+        profile.accounts.senders = senders;
+      }
+    }
 
     return profile.accounts;
   } catch (error: any) {
