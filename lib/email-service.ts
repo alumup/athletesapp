@@ -8,6 +8,7 @@
  * - Delivery tracking
  */
 
+import React from "react"
 import resend from "./resend"
 import { createClient } from "@/lib/supabase/server"
 import { BasicTemplate } from "@/components/emails/basic-template"
@@ -79,11 +80,12 @@ export async function sendEmails(options: EmailOptions): Promise<EmailResult> {
     if (template === "basic") {
       // Use React Email template
       emailHtml = await render(
-        BasicTemplate({
-          message: content,
-          account: account,
-          preview: preview || subject,
-        })
+        <BasicTemplate
+          message={content}
+          account={account}
+          person={null}
+          preview={preview || subject}
+        />
       )
       emailText = content
     } else if (template === "html") {
