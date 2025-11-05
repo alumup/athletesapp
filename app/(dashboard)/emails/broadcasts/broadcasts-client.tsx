@@ -430,8 +430,7 @@ export default function BroadcastsClient({ broadcasts, lists, account, accountId
                     required
                   />
                   <p className="text-xs text-muted-foreground">
-                    Use {{"{{"}}FIRST_NAME{{"}}"}}, {{"{{"}}LAST_NAME{{"}}"}}, and{" "}
-                    {{"{{"}}RESEND_UNSUBSCRIBE_URL{{"}}"}} for personalization
+                    Use {"{{FIRST_NAME}}"}, {"{{LAST_NAME}}"}, and {"{{RESEND_UNSUBSCRIBE_URL}}"} for personalization
                   </p>
                 </div>
 
@@ -442,6 +441,7 @@ export default function BroadcastsClient({ broadcasts, lists, account, accountId
                     checked={sendNow}
                     onChange={(e) => setSendNow(e.target.checked)}
                     className="h-4 w-4 rounded border-gray-300"
+                    aria-label="Send immediately"
                   />
                   <Label htmlFor="sendNow" className="cursor-pointer">
                     Send immediately (uncheck to save as draft)
