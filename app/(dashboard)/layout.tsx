@@ -13,7 +13,7 @@ export default async function DashboardLayout({
 }) {
 
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   return (
     <>

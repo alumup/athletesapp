@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 export async function POST(req: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   // Get the raw body
   const rawBody = await req.text();

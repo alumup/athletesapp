@@ -1,11 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import GenericButton from "@/components/modal-buttons/generic-button";
-import CreateTeamModal from "@/components/modal/create-team-modal";
-import { TeamTable } from "./table";
+import { PeopleTableWrapper } from "./people-table-wrapper";
 import { getAccount } from "@/lib/fetchers/server";
+import PersonSheet from "@/components/modal/person-sheet";
 
-export default async function TeamsPage() {
+export default async function PeoplePage() {
   const supabase = await createClient();
 
   const {
@@ -18,16 +17,15 @@ export default async function TeamsPage() {
 
   const account = await getAccount();
 
-  const { data: teams, error } = await supabase
-    .from("teams")
-    .select(`
-      *,
-      rosters(*, people(*)),
-      staff(*, people(name))
-    `)
-    .eq("account_id", account.id)
-    .order("is_active", { ascending: false })
-    .order("created_at", { ascending: false });
+  // Fetch people server-side
+  const { data: people, error } = await supabase
+    .from("people")
+    .select("*, relationships!relationships_person_id_fkey(*)")
+    .eq("account_id", account.id);
+
+  if (error) {
+    console.error("Error fetching people:", error);
+  }
 
   return (
     <div className="flex flex-col space-y-12">
@@ -35,17 +33,25 @@ export default async function TeamsPage() {
         <div className="flex flex-col items-center justify-between space-y-4 sm:flex-row sm:space-y-0">
           <div className="flex flex-col space-y-2">
             <h1 className="font-cal truncate text-xl font-bold dark:text-white sm:w-auto sm:text-3xl">
-              Teams
+              People
             </h1>
           </div>
-          <GenericButton cta="+ New Team" classNames="">
-            <CreateTeamModal account={account} />
-          </GenericButton>
+          <PersonSheet
+            cta="Create Person"
+            title="Create New Person"
+            description="Add a new person to your account"
+            account={account}
+            mode="create"
+          />
         </div>
         <div className="mt-10">
-          <TeamTable data={teams} account={account} />
+          <PeopleTableWrapper 
+            initialPeople={people || []} 
+            account={account} 
+          />
         </div>
       </div>
     </div>
   );
 }
+

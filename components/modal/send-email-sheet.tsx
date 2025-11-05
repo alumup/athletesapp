@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import LoadingDots from "@/components/icons/loading-dots";
 import { toast } from "sonner";
-import { Editor } from "novel";
 import { useRouter } from "next/navigation";
 import {
   Sheet,
@@ -41,7 +40,7 @@ const formSchema = z.object({
   sender: z.string().min(1, "Sender is required"),
   subject: z.string().min(1, "Subject is required"),
   preview: z.string().min(1, "Preview is required"),
-  message: z.any().refine((val) => val !== null, "Message is required"),
+  message: z.string().min(1, "Message is required"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -69,7 +68,7 @@ export default function SendEmailSheet({
       sender: account?.senders?.[0]?.email ? `${account.senders[0].name} <${account.senders[0].email}>` : "",
       subject: "",
       preview: "",
-      message: null,
+      message: "",
     },
   });
 
@@ -83,7 +82,7 @@ export default function SendEmailSheet({
         people,
         sender: values.sender,
         subject: values.subject,
-        message: values.message.getHTML(),
+        message: values.message,
         preview: values.preview,
       };
 
@@ -225,11 +224,10 @@ export default function SendEmailSheet({
                       <FormItem>
                         <FormLabel>Message</FormLabel>
                         <FormControl>
-                          <Editor
-                            defaultValue="Start Typing..."
-                            onUpdate={(value) => field.onChange(value)}
-                            disableLocalStorage={true}
-                            className="min-h-[300px] rounded-md border border-gray-200"
+                          <Textarea
+                            placeholder="Enter your email message..."
+                            className="min-h-[300px] resize-none"
+                            {...field}
                           />
                         </FormControl>
                         <FormDescription>

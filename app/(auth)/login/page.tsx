@@ -7,7 +7,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import LoadingDots from "@/components/icons/loading-dots";
 import { toast } from "sonner";
-import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { Eye, EyeOff } from "lucide-react";
 import { decryptId } from "@/app/utils/ecryption";
 import { signup, login } from './actions';
 import Image from 'next/image';
@@ -189,9 +189,9 @@ function LoginContent() {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5" />
+                    <EyeOff className="h-5 w-5" />
                   ) : (
-                    <EyeIcon className="h-5 w-5" />
+                    <Eye className="h-5 w-5" />
                   )}
                 </div>
               </div>
@@ -282,9 +282,9 @@ function LoginContent() {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5" />
+                    <EyeOff className="h-5 w-5" />
                   ) : (
-                    <EyeIcon className="h-5 w-5" />
+                    <Eye className="h-5 w-5" />
                   )}
                 </div>
               </div>

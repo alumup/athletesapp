@@ -6,8 +6,8 @@ import { TeamTable } from "./table";
 
 import GenericButton from "@/components/modal-buttons/generic-button";
 import EditTeamModal from "@/components/modal/edit-team-modal";
-import { useEffect, useState } from "react";
-import { AddToStaffSheet } from "@/components/modal/add-to-staff-modal";
+import { useEffect, useState, use } from "react";
+import { AddToStaffModal } from "@/components/modal/add-to-staff-modal";
 import { useRouter } from "next/navigation";
 import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -60,7 +60,10 @@ async function getPrimaryContacts(supabase: any, person: any) {
   }
 }
 
-export default function TeamPage({ params }: { params: { id: string } }) {
+export default function TeamPage({ params }: { params: Promise<{ id: string }> }) {
+  // Unwrap the params Promise
+  const { id } = use(params);
+  
   // const supabase = createServerComponentClient({ cookies })
   const supabase = createClient();
 
@@ -71,6 +74,8 @@ export default function TeamPage({ params }: { params: { id: string } }) {
   const [peopleWithPrimaryEmail, setPeopleWithPrimaryEmail] = useState<any>([]);
 
   useEffect(() => {
+    if (!id) return; // Guard against undefined id
+    
     const fetchUser = async () => {
       const {
         data: { user },
@@ -96,25 +101,33 @@ export default function TeamPage({ params }: { params: { id: string } }) {
           ),
           staff(*, people(*))
         `)
-        .eq("id", params.id)
+        .eq("id", id)
         .single();
 
       if (error) {
-        console.error(error);
+        console.error('Error fetching team:', error);
         return;
       }
+      console.log('Team data fetched:', {
+        name: team?.name,
+        rostersCount: team?.rosters?.length,
+        staffCount: team?.staff?.length,
+        rosters: team?.rosters
+      });
       setTeam(team);
     }
 
     fetchTeam();
-  }, []);
+  }, [id, supabase]);
 
   useEffect(() => {
+    if (!user?.id) return; // Guard against undefined user
+    
     const fetchAccount = async () => {
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*, accounts(*, senders(*))")
-        .eq("id", user?.id)
+        .eq("id", user.id)
         .single();
 
       if (profileError) throw profileError;
@@ -125,8 +138,15 @@ export default function TeamPage({ params }: { params: { id: string } }) {
   }, [user, supabase]);
 
   useEffect(() => {
+    if (!team?.rosters || team.rosters.length === 0) {
+      console.log('No rosters found or team not loaded yet', { team: !!team, rosters: team?.rosters?.length });
+      setPeopleWithPrimaryEmail([]); // Clear the array if no rosters
+      return;
+    }
+    
     const getPrimaryEmail = async () => {
-      if (team.rosters) {
+      console.log('Processing rosters:', team.rosters.length);
+      try {
         const peopleWithPrimaryEmailPromises = team.rosters.map(
           async (r: any) => {
             const primaryPeople = await getPrimaryContacts(supabase, r.people);
@@ -147,12 +167,15 @@ export default function TeamPage({ params }: { params: { id: string } }) {
         const peopleWithPrimaryEmails = await Promise.all(
           peopleWithPrimaryEmailPromises,
         );
+        console.log('Processed people:', peopleWithPrimaryEmails.length);
         setPeopleWithPrimaryEmail(peopleWithPrimaryEmails);
+      } catch (error) {
+        console.error('Error processing rosters:', error);
       }
     };
 
     getPrimaryEmail();
-  }, [supabase, team.rosters]);
+  }, [team?.id, team?.rosters?.length, supabase]);
 
   return (
     <div className="flex flex-col space-y-12">
@@ -167,7 +190,7 @@ export default function TeamPage({ params }: { params: { id: string } }) {
           <EditPersonModal person={person} account={account} />
         </GenericButton> */}
           <div className="flex items-center space-x-2">
-            <AddToStaffSheet team={team} />
+            <AddToStaffModal team={team} />
             <GenericButton
               cta="Edit Team"
               size={undefined}

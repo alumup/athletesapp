@@ -7,7 +7,10 @@ import {
   TrashIcon,
   MixerHorizontalIcon,
   ArrowRightIcon,
+  CheckCircledIcon,
+  CrossCircledIcon,
 } from "@radix-ui/react-icons";
+import { Badge } from "@/components/ui/badge";
 
 import {
   ColumnDef,
@@ -43,10 +46,12 @@ import { getPrimaryContact } from "@/lib/fetchers/client";
 import SendEmailSheet from "@/components/modal/send-email-sheet"
 
 import { useRouter } from "next/navigation";
+import { useCallback } from "react";
 
-export type Person = {
+export type Team = {
   id: string;
   name: string;
+  is_active: boolean;
   rosters: any;
   staff: {
     people: {
@@ -55,7 +60,7 @@ export type Person = {
   }[];
 };
 
-const columns: ColumnDef<Person>[] = [
+const columns: ColumnDef<Team>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -63,6 +68,7 @@ const columns: ColumnDef<Person>[] = [
         checked={table.getIsAllPageRowsSelected()}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
+        onClick={(e) => e.stopPropagation()}
       />
     ),
     cell: ({ row }) => (
@@ -70,6 +76,7 @@ const columns: ColumnDef<Person>[] = [
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
+        onClick={(e) => e.stopPropagation()}
       />
     ),
     enableSorting: false,
@@ -79,6 +86,34 @@ const columns: ColumnDef<Person>[] = [
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => <div>{row.getValue("name")}</div>,
+  },
+  {
+    accessorKey: "is_active",
+    header: "Status",
+    cell: ({ row }) => {
+      const isActive = row.getValue("is_active");
+      return (
+        <Badge variant={isActive ? "default" : "secondary"} className="flex w-fit items-center gap-1">
+          {isActive ? (
+            <>
+              <CheckCircledIcon className="h-3 w-3" />
+              Active
+            </>
+          ) : (
+            <>
+              <CrossCircledIcon className="h-3 w-3" />
+              Inactive
+            </>
+          )}
+        </Badge>
+      );
+    },
+    filterFn: (row, id, value) => {
+      if (value === "all") return true;
+      if (value === "active") return row.getValue(id) === true;
+      if (value === "inactive") return row.getValue(id) === false;
+      return true;
+    },
   },
   {
     accessorKey: "staff",
@@ -95,21 +130,19 @@ const columns: ColumnDef<Person>[] = [
     accessorKey: "actions",
     header: "",
     cell: ({ row }) => (
-      <>
-        <Link
-          href={`/teams/${row.original.id}`}
-          className="cursor rounded hover:bg-gray-100"
-        >
-          <span className="flex items-center space-x-2 text-sm text-gray-700">
-            <ArrowRightIcon className="h-5 w-5" />
-          </span>
-        </Link>
-      </>
+      <Link
+        href={`/teams/${row.original.id}`}
+        className="cursor rounded p-1 hover:bg-gray-100"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <ArrowRightIcon className="h-5 w-5 text-gray-700" />
+      </Link>
     ),
   },
 ];
 
-export function TeamTable({ data, account }: { data: Person[]; account: any }) {
+export function TeamTable({ data, account }: { data: Team[]; account: any }) {
+  const router = useRouter();
   const { refresh } = useRouter();
   const supabase = createClient();
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -118,6 +151,27 @@ export function TeamTable({ data, account }: { data: Person[]; account: any }) {
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+
+  // Navigate to team detail page
+  const navigateToTeam = useCallback((teamId: string) => {
+    router.push(`/teams/${teamId}`);
+  }, [router]);
+
+  // Define handler functions before table initialization
+  const handleToggleStatus = async (teamId: string, currentStatus: boolean) => {
+    const { error } = await supabase
+      .from("teams")
+      .update({ is_active: !currentStatus })
+      .eq("id", teamId);
+
+    if (error) {
+      toast.error("Failed to update team status");
+      return;
+    }
+
+    refresh();
+    toast.success(`Team ${!currentStatus ? "activated" : "archived"} successfully`);
+  };
 
   const table = useReactTable({
     data,
@@ -141,11 +195,7 @@ export function TeamTable({ data, account }: { data: Person[]; account: any }) {
   useEffect(() => {
     // Set the initial page size
     table.setPageSize(30);
-  }, []); //
-
-  // const navigateTo = (id: any) => {
-  //   router.push(`/teams/${id}`)
-  // }
+  }, []);
 
   const handleDeleteSelected = async () => {
     const selectedRows = table.getSelectedRowModel().rows;
@@ -157,8 +207,35 @@ export function TeamTable({ data, account }: { data: Person[]; account: any }) {
     );
 
     // Show a toast notification
+    table.toggleAllRowsSelected(false);
     refresh();
     toast.success("Selected teams have been deleted successfully.");
+  };
+
+  const handleArchiveSelected = async () => {
+    const selectedRows = table.getSelectedRowModel().rows;
+    await Promise.all(
+      selectedRows.map((row) => {
+        return supabase.from("teams").update({ is_active: false }).eq("id", row.original.id);
+      }),
+    );
+
+    table.toggleAllRowsSelected(false);
+    refresh();
+    toast.success("Selected teams have been archived successfully.");
+  };
+
+  const handleActivateSelected = async () => {
+    const selectedRows = table.getSelectedRowModel().rows;
+    await Promise.all(
+      selectedRows.map((row) => {
+        return supabase.from("teams").update({ is_active: true }).eq("id", row.original.id);
+      }),
+    );
+
+    table.toggleAllRowsSelected(false);
+    refresh();
+    toast.success("Selected teams have been activated successfully.");
   };
 
   // Check if any row is selected
@@ -191,7 +268,7 @@ export function TeamTable({ data, account }: { data: Person[]; account: any }) {
 
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
+      <div className="flex items-center gap-2 py-4">
         <Input
           placeholder="Search by name..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
@@ -200,6 +277,33 @@ export function TeamTable({ data, account }: { data: Person[]; account: any }) {
           }
           className="max-w-sm"
         />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="flex items-center justify-between">
+              Filter: {(table.getColumn("is_active")?.getFilterValue() as string) || "All"}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuCheckboxItem
+              checked={!table.getColumn("is_active")?.getFilterValue()}
+              onCheckedChange={() => table.getColumn("is_active")?.setFilterValue(undefined)}
+            >
+              All Teams
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={table.getColumn("is_active")?.getFilterValue() === "active"}
+              onCheckedChange={() => table.getColumn("is_active")?.setFilterValue("active")}
+            >
+              Active Only
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={table.getColumn("is_active")?.getFilterValue() === "inactive"}
+              onCheckedChange={() => table.getColumn("is_active")?.setFilterValue("inactive")}
+            >
+              Inactive Only
+            </DropdownMenuCheckboxItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -240,6 +344,20 @@ export function TeamTable({ data, account }: { data: Person[]; account: any }) {
               cta="Send Email"
               onClose={() => table.toggleAllRowsSelected(false)}
             />
+            <Button
+              onClick={handleActivateSelected}
+              variant="outline"
+              className="text-green-600"
+            >
+              <CheckCircledIcon className="mr-2 h-4 w-4" /> Activate
+            </Button>
+            <Button
+              onClick={handleArchiveSelected}
+              variant="outline"
+              className="text-orange-600"
+            >
+              <CrossCircledIcon className="mr-2 h-4 w-4" /> Archive
+            </Button>
           </div>
           <Button
             onClick={handleDeleteSelected}
@@ -274,10 +392,10 @@ export function TeamTable({ data, account }: { data: Person[]; account: any }) {
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                  // onClick={() => navigateTo(row.original.id)}
+                  onClick={() => navigateToTeam(row.original.id)}
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className={"cursor-pointer hover:bg-gray-50"}
+                  className="cursor-pointer hover:bg-gray-50"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

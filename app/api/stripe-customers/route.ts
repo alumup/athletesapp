@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function POST(req: Request) {
   try {
     const { email, accountId } = await req.json();
-    const supabase = createClient();
+    const supabase = await createClient();
     
     // Find person by email AND account_id
     const { data: person, error: personError } = await supabase

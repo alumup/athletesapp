@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getDomainQuery } from "../utils";
 
 export async function getAccount() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const {
     data: { user },
@@ -27,7 +27,7 @@ export async function getAccount() {
 
 
 export async function getSiteData(domain: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const [domainKey, domainValue] = getDomainQuery(domain);
 
@@ -41,7 +41,7 @@ export async function getSiteData(domain: string) {
 }
 
 export async function getAccountId(domain: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const [domainKey, domainValue] = getDomainQuery(domain);
 
@@ -60,7 +60,7 @@ export async function getAccountId(domain: string) {
 }
 
 export async function getSiteTheme(domain: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const [domainKey, domainValue] = getDomainQuery(domain);
 
@@ -80,7 +80,7 @@ export async function getSiteTheme(domain: string) {
 
 
 export async function getPageDataBySiteAndSlug(site_id: string, slug: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("pages")
     .select("*")
@@ -97,7 +97,7 @@ export async function getPageDataBySiteAndSlug(site_id: string, slug: string) {
 }
 
 export async function getPrimaryContact(person: any) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   if (person.dependent) {
     try {
@@ -139,7 +139,7 @@ export async function getPrimaryContact(person: any) {
 }
 
 export async function getPrimaryContacts(person: any) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   if (person.dependent) {
     try {

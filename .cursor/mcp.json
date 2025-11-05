@@ -1,13 +1,13 @@
 {
   "mcpServers": {
-    "supabase-postgres": {
+    "supabase": {
       "command": "npx",
       "args": [
         "-y", 
-        "@modelcontextprotocol/server-postgres",
-        "postgresql://postgres.zkoxnmdrhgbjovfvparc:Larrybird41%20Magic%2A@aws-0-us-east-1.pooler.supabase.com:5432/postgres"
-      ],
-      "port": 5432
+        "@supabase/mcp-server-supabase@latest",
+        "--access-token",
+        "sbp_9d4daa8dd0acbfa1d7a7dce8ce11fbb7cf78d19d"
+      ]
     }
   }
 }

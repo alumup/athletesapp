@@ -1,18 +1,22 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client"
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { useFormStatus } from "react-dom";
-import { cn } from "@/lib/utils";
-import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
-import { Switch } from "@/components/ui/switch"; // Make sure you have this component
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 export default function EditTeamModal({ team }: { team?: any }) {
   const { refresh } = useRouter();
   const modal = useModal();
+  const [isLoading, setIsLoading] = useState(false);
 
   const supabase = createClient();
   const {
@@ -37,53 +41,52 @@ export default function EditTeamModal({ team }: { team?: any }) {
   }, [team, setValue]);
 
   const onSubmit = async (data: any) => {
-    const teamData = {
-      name: data.name,
-      coach: data.coach,
-      is_active: data.is_active,
-    };
+    setIsLoading(true);
+    try {
+      const teamData = {
+        name: data.name,
+        coach: data.coach,
+        is_active: data.is_active,
+      };
 
-    let error;
-    if (team) {
-      // Update existing team
-      const { error: updateError } = await supabase
-        .from("teams")
-        .update(teamData)
-        .eq("id", team.id);
-      error = updateError;
-    } 
+      let error;
+      if (team) {
+        // Update existing team
+        const { error: updateError } = await supabase
+          .from("teams")
+          .update(teamData)
+          .eq("id", team.id);
+        error = updateError;
+      } 
 
-    if (error) {
-      console.log("FORM ERRORS: ", error);
-    } else {
-      modal?.hide();
-      refresh();
+      if (error) {
+        toast.error("Failed to update team");
+        console.error("FORM ERRORS: ", error);
+      } else {
+        toast.success(team ? "Team updated successfully" : "Team created successfully");
+        modal?.hide();
+        refresh();
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="w-96 rounded-md bg-white dark:bg-black md:border md:border-stone-200 md:shadow dark:md:border-stone-700"
-    >
-      <div className="w-full relative flex flex-col space-y-4 p-5 md:p-10">
-        <h2 className="font-cal text-2xl dark:text-white">{team ? "Edit Team" : "New Team"}</h2>
-
-        <div className="flex flex-col space-y-2">
-          <label
-            htmlFor="name"
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
-          >
-            Name
-          </label>
-          <input
-            type="text"
+    <>
+      <DialogHeader>
+        <DialogTitle>{team ? "Edit Team" : "New Team"}</DialogTitle>
+      </DialogHeader>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="name">Team Name</Label>
+          <Input
             id="name"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
+            placeholder="Enter team name"
             {...register("name", { required: true })}
           />
           {errors.name && (
-            <span className="text-sm text-red-500">This field is required</span>
+            <p className="text-sm text-red-500">Team name is required</p>
           )}
         </div>
 
@@ -93,34 +96,24 @@ export default function EditTeamModal({ team }: { team?: any }) {
             checked={isActive}
             onCheckedChange={(checked) => setValue("is_active", checked)}
           />
-          <label
-            htmlFor="is_active"
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
-          >
-            Active
-          </label>
+          <Label htmlFor="is_active">Active</Label>
         </div>
-      </div>
-      <div className="flex items-center justify-end rounded-b-lg border-t border-stone-200 bg-stone-50 p-3 dark:border-stone-700 dark:bg-stone-800 md:px-10">
-        <EditTeamFormButton isEditing={!!team} />
-      </div>
-    </form>
-  );
-}
 
-function EditTeamFormButton({ isEditing }: { isEditing: boolean }) {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      className={cn(
-        "flex h-10 w-full items-center justify-center space-x-2 rounded-md border text-sm transition-all focus:outline-none",
-        pending
-          ? "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
-          : "border-black bg-black text-white hover:bg-white hover:text-black dark:border-stone-700 dark:hover:border-stone-200 dark:hover:bg-black dark:hover:text-white dark:active:bg-stone-800",
-      )}
-      disabled={pending}
-    >
-      {pending ? <LoadingDots color="#808080" /> : <p>{isEditing ? "Update Team" : "Create Team"}</p>}
-    </button>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => modal?.hide()}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {team ? "Update Team" : "Create Team"}
+          </Button>
+        </DialogFooter>
+      </form>
+    </>
   );
 }

@@ -8,6 +8,7 @@ import {
   MixerHorizontalIcon,
   EnterIcon
 } from "@radix-ui/react-icons";
+import EditRosterFeeModal from "@/components/modal/edit-roster-fee-modal";
 
 import {
   ColumnDef,
@@ -42,10 +43,8 @@ import {
 import SendEmailModal from "@/components/modal/send-email-sheet";
 import SendButton from "@/components/modal-buttons/send-button";
 import { useRouter } from "next/navigation";
-import { CheckCircleIcon } from "@heroicons/react/24/solid";
+import { CheckCircle, Mail, FileText, DollarSign } from "lucide-react";
 import { CreateRosterInvoiceButton } from "@/components/create-roster-invoice-button";
-import { EnvelopeIcon } from "@heroicons/react/24/outline";
-import { DocumentIcon } from "@heroicons/react/24/outline";
 import SendEmailSheet from "@/components/modal/send-email-sheet";
 
 function paymentStatus(person: Person, fees: any, team: any) {
@@ -131,7 +130,7 @@ export type Person = {
   primary_contacts: any;
 };
 
-const createColumns = (team: any): ColumnDef<Person>[] => [
+const createColumns = (team: any, onEditFee: (rosterId: string, currentFeeId: string | null, personName: string) => void): ColumnDef<Person>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -171,11 +170,12 @@ const createColumns = (team: any): ColumnDef<Person>[] => [
     accessorKey: "fees",
     header: "Fee",
     cell: ({ row }: { row: any }) => {
-      const fees = row.getValue("fees") as { amount: number } | undefined;
+      const fees = row.getValue("fees") as { amount: number; id: string } | undefined;
       const amount = fees?.amount;
+      
       return (
-        <span className="rounded bg-gray-50 px-2 py-1 text-gray-500">
-          ${amount ?? "N/A"}
+        <span className={`rounded px-2 py-1 text-sm ${amount ? 'bg-gray-50 text-gray-700' : 'bg-yellow-50 text-yellow-700 border border-yellow-200'}`}>
+          {amount ? `$${amount}` : "No Fee"}
         </span>
       );
     },
@@ -185,6 +185,14 @@ const createColumns = (team: any): ColumnDef<Person>[] => [
     header: "Fee Status",
     cell: ({ row }: { row: any }) => {
       const person = row.original;
+      // If no fee is assigned, show N/A
+      if (!person.fees || !person.fees.amount) {
+        return (
+          <span className="rounded-md px-2 py-1 text-[10px] text-gray-900 bg-gray-100 border border-gray-200 uppercase">
+            N/A
+          </span>
+        );
+      }
       const status = paymentStatus(person, person.fees, team);
       const statusBadge = renderStatusSpan(status);
       return statusBadge;
@@ -228,61 +236,71 @@ const createColumns = (team: any): ColumnDef<Person>[] => [
     cell: ({ row }) => {
       const person = row.original;
       const roster = team.rosters?.find((r: any) => r.person_id === person.id);
+      const fees = roster?.fees;
       
       // Find invoice for this roster
       const invoice = person.invoices?.find(inv => inv.roster_id === roster?.id);
 
-      if (invoice?.status === "paid") {
-        return (
-          <span className="flex items-center">
-            <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />
-            Paid
-          </span>
-        );
-      }
-      
-      if (invoice?.status === "sent") {
-        return (
-          <Button 
+      return (
+        <div className="flex items-center gap-2">
+          {/* Edit Fee Button - Always visible */}
+          <Button
             variant="outline"
-            onClick={() => {
-              // TODO: Implement send reminder logic
-              toast.success('Payment reminder sent');
-            }}
-            className="text-purple-600 hover:text-purple-700 w-full"
+            size="sm"
+            onClick={() => onEditFee(roster?.id, fees?.id || null, person.name)}
+            className="h-8 px-3 text-xs"
+            title="Edit Fee"
           >
-            <EnvelopeIcon className="h-4 w-4 mr-2" />
-            Invoice Sent
+            <DollarSign className="h-3.5 w-3.5 mr-1" />
+            Edit Fee
           </Button>
-        );
-      }
 
-      if (invoice?.status === "draft") {
-        return (
-          <Button 
-            variant="outline"
-            disabled
-            className="text-gray-500 w-full"
-          >
-            <DocumentIcon className="h-4 w-4 mr-2" />
-            Invoice Created
-          </Button>
-        );
-      }
-
-      // Default case: show create invoice button when no invoice exists
-      const props = {
-        rosterId: roster?.id,
-        athleteName: `${person.first_name} ${person.last_name}`,
-        teamName: team?.name,
-        amount: roster?.fees?.amount,
-        guardianEmail: person.primary_contacts?.[0]?.email,
-        accountId: team.account_id,
-        stripeAccountId: team.accounts?.stripe_id,
-        person_id: person.id,
-      };
-
-      return <CreateRosterInvoiceButton {...props} />;
+          {/* Invoice/Payment Status Actions */}
+          {invoice?.status === "paid" ? (
+            <span className="flex items-center text-sm">
+              <CheckCircle className="h-4 w-4 text-green-500 mr-1" />
+              <span className="text-green-700">Paid</span>
+            </span>
+          ) : invoice?.status === "sent" ? (
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                // TODO: Implement send reminder logic
+                toast.success('Payment reminder sent');
+              }}
+              className="h-8 px-3 text-xs text-purple-600 hover:text-purple-700"
+            >
+              <Mail className="h-3.5 w-3.5 mr-1" />
+              Sent
+            </Button>
+          ) : invoice?.status === "draft" ? (
+            <Button 
+              variant="outline"
+              size="sm"
+              disabled
+              className="h-8 px-3 text-xs text-gray-500"
+            >
+              <FileText className="h-3.5 w-3.5 mr-1" />
+              Draft
+            </Button>
+          ) : fees?.amount ? (
+            // Show create invoice button only if fee is assigned
+            <CreateRosterInvoiceButton 
+              rosterId={roster?.id}
+              athleteName={`${person.first_name} ${person.last_name}`}
+              teamName={team?.name}
+              amount={roster?.fees?.amount}
+              guardianEmail={person.primary_contacts?.[0]?.email}
+              accountId={team.account_id}
+              stripeAccountId={team.accounts?.stripe_id}
+              person_id={person.id}
+            />
+          ) : (
+            <span className="text-xs text-gray-400 italic">No fee</span>
+          )}
+        </div>
+      );
     }
   }
 ];
@@ -302,13 +320,25 @@ export function TeamTable({
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+  
+  // State for edit fee modal
+  const [editFeeModalOpen, setEditFeeModalOpen] = useState(false);
+  const [editingRosterId, setEditingRosterId] = useState<string>("");
+  const [editingFeeId, setEditingFeeId] = useState<string | null>(null);
+  const [editingPersonName, setEditingPersonName] = useState<string>("");
+
+  const handleEditFee = (rosterId: string, currentFeeId: string | null, personName: string) => {
+    setEditingRosterId(rosterId);
+    setEditingFeeId(currentFeeId);
+    setEditingPersonName(personName);
+    setEditFeeModalOpen(true);
+  };
 
   const table = useReactTable({
     data,
-    columns: createColumns(team),
+    columns: createColumns(team, handleEditFee),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -376,7 +406,15 @@ export function TeamTable({
   const people = selectedRows.map((row) => row.original);
 
   return (
-    <div className="w-full">
+    <>
+      <EditRosterFeeModal
+        open={editFeeModalOpen}
+        onOpenChange={setEditFeeModalOpen}
+        rosterId={editingRosterId}
+        currentFeeId={editingFeeId}
+        personName={editingPersonName}
+      />
+      <div className="w-full">
       <div className="flex items-center py-4">
         <Input
           placeholder="Search by name..."
@@ -514,5 +552,6 @@ export function TeamTable({
         </div>
       </div>
     </div>
+    </>
   );
 }

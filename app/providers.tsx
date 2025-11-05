@@ -10,9 +10,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <Toaster className="dark:hidden" />
       <Toaster theme="dark" className="hidden dark:block" />
       <Next13ProgressBar
-        height="2px"
-        color="#000"
-        options={{ showSpinner: false }}
+        height="3px"
+        color="#3b82f6"
+        options={{ 
+          showSpinner: false,
+          easing: 'ease',
+          speed: 500,
+          trickleSpeed: 200,
+        }}
         showOnShallow
       />
       

@@ -17,8 +17,5 @@ module.exports = {
       { hostname: "bloximages.chicago2.vip.townnews.com" },
     ],
   },
-  reactStrictMode: false,
-  eslint: {
-    ignoreDuringBuilds: true,
-  }
+  reactStrictMode: false
 }

@@ -1,12 +1,10 @@
 import { NextResponse, NextRequest } from "next/server";
-// import { stripe } from "@/lib/stripe";
-import { cookies } from "next/headers";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/server";
 import Stripe from "stripe";
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createClient();
     const body = await req.json();
     const { rsvp, profile, person, fee, account } = body;
 

@@ -4,11 +4,19 @@ import { createClient } from "@/lib/supabase/client"
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { getAccount } from "@/lib/fetchers/client";
-import { useFormStatus } from "react-dom";
-import { cn } from "@/lib/utils";
-import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
 import { toast } from 'sonner'
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
 
 interface Team {
   id: number;
@@ -41,6 +49,9 @@ export default function AddToTeamModal({
 
   const [teams, setTeams] = useState<Team[]>([]);
   const [fees, setFees] = useState<Fee[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState<string>("");
+  const [selectedFee, setSelectedFee] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const fetchAccount = async () => {
@@ -58,7 +69,10 @@ export default function AddToTeamModal({
         console.log("ERROR: ", error);
       } else {
         setTeams(teams);
-        setValue("team", teams[0].id);
+        if (teams && teams[0]) {
+          setSelectedTeam(teams[0].id.toString());
+          setValue("team", teams[0].id);
+        }
       }
     }
 
@@ -72,11 +86,8 @@ export default function AddToTeamModal({
         console.log("ERROR: ", error);
       } else {
         setFees(fees || []);
-        if (fees && fees.length > 0) {
-          setValue("fee", fees[0].id);
-        } else {
-          setValue("fee", "No Available Fees");
-        }
+        setSelectedFee(undefined);
+        setValue("fee", undefined);
       }
     }
 
@@ -86,18 +97,26 @@ export default function AddToTeamModal({
       fetchTeams({ account: acc });
       fetchFees({ account: acc });
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onSubmit = async (data: any) => {    
+  const onSubmit = async (data: any) => {
+    setIsLoading(true);
     try {
       const promises = people.map(async (person: any) => {
-        const { error } = await supabase.from("rosters").insert([
-          {
-            team_id: data.team,
-            person_id: person.id,
-            fee_id: data.fee,
-          },
-        ])
+        // Only include fee_id if a fee was selected (not empty string)
+        const rosterData: any = {
+          team_id: data.team || selectedTeam,
+          person_id: person.id,
+        }
+        
+        // Add fee_id only if a fee was selected
+        const feeValue = data.fee || selectedFee;
+        if (feeValue && feeValue !== "none") {
+          rosterData.fee_id = feeValue;
+        }
+        
+        const { error } = await supabase.from("rosters").insert([rosterData])
         
         if (error) throw error
         return person
@@ -115,83 +134,80 @@ export default function AddToTeamModal({
     } catch (error: any) {
       console.error("FORM ERRORS: ", error)
       toast.error(error.message || 'Failed to add to team')
+    } finally {
+      setIsLoading(false);
     }
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="w-96 rounded-md bg-white dark:bg-black md:max-w-md md:border md:border-stone-200 md:shadow dark:md:border-stone-700"
-    >
-      <div className="relative flex flex-col space-y-4 p-5 md:p-10">
-        <h2 className="font-cal text-2xl dark:text-white">Add to Team</h2>
-
-        {/* Add a select that searches for lists and adds the person to the list */}
-        <div className="flex flex-col space-y-2">
-          <label
-            htmlFor="team"
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+    <>
+      <DialogHeader>
+        <DialogTitle>Add to Team</DialogTitle>
+      </DialogHeader>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="team">Team</Label>
+          <Select
+            value={selectedTeam}
+            onValueChange={(value) => {
+              setSelectedTeam(value);
+              setValue("team", value);
+            }}
           >
-            Team
-          </label>
-          <select
-            id="team"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            {...register("team")}
-          >
-            {teams.map((team: any) => (
-              <option key={team.id} value={team.id}>
-                {team.name}
-              </option>
-            ))}
-          </select>
-          {errors.list && (
-            <span className="text-sm text-red-500">This field is required</span>
+            <SelectTrigger>
+              <SelectValue placeholder="Select a team" />
+            </SelectTrigger>
+            <SelectContent>
+              {teams.map((team: any) => (
+                <SelectItem key={team.id} value={team.id.toString()}>
+                  {team.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.team && (
+            <p className="text-sm text-red-500">Team is required</p>
           )}
         </div>
 
-        <div className="flex flex-col space-y-2">
-          <label
-            htmlFor="fee"
-            className="text-sm font-medium text-gray-700 dark:text-stone-300"
+        <div className="space-y-2">
+          <Label htmlFor="fee">Fee (Optional)</Label>
+          <Select
+            value={selectedFee}
+            onValueChange={(value) => {
+              setSelectedFee(value === "none" ? undefined : value);
+              setValue("fee", value === "none" ? undefined : value);
+            }}
           >
-            Fee
-          </label>
-          <select
-            id="fee"
-            className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600 focus:border-stone-300 focus:outline-none dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300 dark:focus:border-stone-300"
-            {...register("fee")}
-          >
-            {fees.map((fee: any) => (
-              <option key={fee.id} value={fee.id}>
-                {fee.name}
-              </option>
-            ))}
-          </select>
-          {errors.list && (
-            <span className="text-sm text-red-500">This field is required</span>
-          )}
+            <SelectTrigger>
+              <SelectValue placeholder="No fee" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">No Fee</SelectItem>
+              {fees.map((fee: any) => (
+                <SelectItem key={fee.id} value={fee.id.toString()}>
+                  {fee.name} - ${fee.amount}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      </div>
-      <div className="flex items-center justify-end rounded-b-lg border-t border-stone-200 bg-stone-50 p-3 dark:border-stone-700 dark:bg-stone-800 md:px-10">
-        <CreateSiteFormButton />
-      </div>
-    </form>
-  );
-}
-function CreateSiteFormButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      className={cn(
-        "flex h-10 w-full items-center justify-center space-x-2 rounded-md border text-sm transition-all focus:outline-none",
-        pending
-          ? "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
-          : "border-black bg-black text-white hover:bg-white hover:text-black dark:border-stone-700 dark:hover:border-stone-200 dark:hover:bg-black dark:hover:text-white dark:active:bg-stone-800",
-      )}
-      disabled={pending}
-    >
-      {pending ? <LoadingDots color="#808080" /> : <p>Add to Team</p>}
-    </button>
+
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => modal?.hide()}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Add to Team
+          </Button>
+        </DialogFooter>
+      </form>
+    </>
   );
 }

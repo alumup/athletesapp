@@ -7,7 +7,7 @@ import resend from "@/lib/resend";
 export async function POST(req: Request) {
   try {
     const { email, sendEmail } = await req.json();
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Get person with account info
     const { data: person, error } = await supabase

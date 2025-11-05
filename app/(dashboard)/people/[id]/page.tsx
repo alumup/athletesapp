@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, Key } from "react";
+import { useState, useEffect, Key, use } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { getAccount, getPrimaryContacts } from "@/lib/fetchers/client";
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { fullName } from "@/lib/utils";
 import { toast } from "sonner";
-import { CheckBadgeIcon } from "@heroicons/react/24/outline";
+import { BadgeCheck } from "lucide-react";
 import LoadingCircle from "@/components/icons/loading-circle";
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -23,7 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { formatCurrency } from "@/lib/utils"
 
 interface PersonPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 // Add this interface for better type safety
@@ -81,6 +81,9 @@ function groupBy<T>(array: T[], key: keyof T): Record<string, T[]> {
 }
 
 export default function PersonPage({ params }: PersonPageProps) {
+  // Unwrap the params Promise
+  const { id } = use(params);
+  
   const supabase = createClient();
 
   const [person, setPerson] = useState<any>(null);
@@ -108,7 +111,7 @@ export default function PersonPage({ params }: PersonPageProps) {
           created_at
         )
       `)
-      .eq("person_id", params.id)
+      .eq("person_id", id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -133,7 +136,7 @@ export default function PersonPage({ params }: PersonPageProps) {
           due_date
         )
       `)
-      .eq('person_id', params.id)
+      .eq('person_id', id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -157,7 +160,7 @@ export default function PersonPage({ params }: PersonPageProps) {
             from:person_id(*),
             to:relation_id(*)
           `)
-          .or(`person_id.eq.${params.id},relation_id.eq.${params.id}`);
+          .or(`person_id.eq.${id},relation_id.eq.${id}`);
 
         if (relationshipsError) {
           console.error('Error fetching relationships:', relationshipsError);
@@ -167,7 +170,7 @@ export default function PersonPage({ params }: PersonPageProps) {
         // Get all related person IDs
         const relatedIds = relationships
           ? relationships.map(rel => 
-              rel.person_id === params.id ? rel.relation_id : rel.person_id
+              rel.person_id === id ? rel.relation_id : rel.person_id
             )
           : [];
 
@@ -184,7 +187,7 @@ export default function PersonPage({ params }: PersonPageProps) {
               dependent
             )
           `)
-          .in('person_id', [params.id, ...relatedIds])
+          .in('person_id', [id, ...relatedIds])
           .order('created_at', { ascending: false });
 
         if (invoicesError) {
@@ -202,15 +205,17 @@ export default function PersonPage({ params }: PersonPageProps) {
       }
     }
 
-    if (params.id) {
+    if (id) {
       fetchAllInvoicesAndPayments();
     }
-  }, [params.id]);
+  }, [id]);
 
   // Add this console.log to debug
   console.log('Invoices:', invoices);
 
   useEffect(() => {
+    if (!id) return; // Guard against undefined id
+    
     async function fetchData() {
       setIsLoading(true)
       try {
@@ -248,7 +253,7 @@ export default function PersonPage({ params }: PersonPageProps) {
     }
 
     fetchData()
-  }, [params.id])
+  }, [id])
 
   async function hasProfile(person: any) {
     let email = "";
@@ -275,7 +280,7 @@ export default function PersonPage({ params }: PersonPageProps) {
     const { data, error } = await supabase
       .from("people")
       .select("*")
-      .eq("id", params.id)
+      .eq("id", id)
       .single();
 
     if (error) {
@@ -290,7 +295,7 @@ export default function PersonPage({ params }: PersonPageProps) {
     const { data, error } = await supabase
       .from("relationships")
       .select("*,from:person_id(*),to:relation_id(*)")
-      .eq("person_id", params.id);
+      .eq("person_id", id);
 
     if (error) {
       console.error(error);
@@ -304,7 +309,7 @@ export default function PersonPage({ params }: PersonPageProps) {
     const { data, error } = await supabase
       .from("relationships")
       .select("*,from:person_id(*),to:relation_id(*)")
-      .eq("relation_id", params.id);
+      .eq("relation_id", id);
 
     if (error) {
       console.error(error);
@@ -478,7 +483,7 @@ export default function PersonPage({ params }: PersonPageProps) {
                         <div className="flex items-center justify-between">
                           <h3 className="text-lg font-semibold">
                             {person?.first_name} {person?.last_name}
-                            {personId === params.id && " (Primary)"}
+                            {personId === id && " (Primary)"}
                           </h3>
                           <Badge variant="outline">
                             Total: {formatCurrency(

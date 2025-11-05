@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       apiVersion: "2023-08-16",
       stripeAccount: stripeAccountId,
     });
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // First verify that the roster exists if rosterId is provided
     if (rosterId) {

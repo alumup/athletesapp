@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const body = await req.json();
     const { roster, profile, person, fee } = body;
     console.log("PROFILE IN CHECKOUT", profile);

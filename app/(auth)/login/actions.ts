@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
 export async function login(formData: any): Promise<{ error?: string } | void> {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const email = formData.get('email')
   const password = formData.get('password')
@@ -27,7 +27,7 @@ export async function login(formData: any): Promise<{ error?: string } | void> {
 }
 
 export async function signup(formData: FormData): Promise<{ error?: string } | void> {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const email = String(formData.get("email"))
   const password = String(formData.get("password"))
@@ -107,7 +107,7 @@ export async function signup(formData: FormData): Promise<{ error?: string } | v
 }
 
 export async function logout() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { error } = await supabase.auth.signOut()
 
   if (error) {
@@ -119,7 +119,7 @@ export async function logout() {
 }
 
 export async function resetPassword(email: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   if (!email) {
     return { error: 'Email is required' }
