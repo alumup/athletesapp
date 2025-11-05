@@ -93,11 +93,17 @@ function LoginContent() {
       if (result && result.error) {
         setEmailIsSending(false);
         toast.error(result.error);
-      } else {
-        // The login action will handle the redirect
-        toast.success("Logged in successfully!");
       }
+      // Success case: redirect will happen automatically
     } catch (error) {
+      // Check if it's a Next.js redirect (expected on successful login)
+      if (error && typeof error === 'object' && 'digest' in error && 
+          typeof (error as any).digest === 'string' && 
+          (error as any).digest.startsWith('NEXT_REDIRECT')) {
+        // This is a successful redirect, re-throw to allow navigation
+        throw error;
+      }
+      // Only show error toast for actual errors
       setEmailIsSending(false);
       toast.error("Login failed");
     }
@@ -117,11 +123,17 @@ function LoginContent() {
       if (result?.error) {
         setEmailIsSending(false);
         toast.error(result.error);
-      } else {
-        // The signup action will handle the redirect, so we don't need to do it here
-        toast.success("Account created successfully!");
       }
+      // Success case: redirect will happen automatically
     } catch (error) {
+      // Check if it's a Next.js redirect (expected on successful signup)
+      if (error && typeof error === 'object' && 'digest' in error && 
+          typeof (error as any).digest === 'string' && 
+          (error as any).digest.startsWith('NEXT_REDIRECT')) {
+        // This is a successful redirect, re-throw to allow navigation
+        throw error;
+      }
+      // Only show error toast for actual errors
       setEmailIsSending(false);
       toast.error("Sign up failed");
     }
@@ -130,7 +142,7 @@ function LoginContent() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
       <div className="flex items-center justify-center">
-        <Image src="/athletes-logo.svg" width={75} height={75} alt="Athletes Logo" />
+        <Image src="/logo.svg" width={75} height={75} alt="Bulldog Logo" />
       </div>
 
       <div className="mt-5 w-[300px] rounded border border-gray-100 bg-gray-50 p-3 shadow md:w-[400px]">
@@ -315,7 +327,7 @@ function LoginContent() {
         </Tabs>
       </div>
       <div className="mt-5 flex justify-center p-2 text-[10px]">
-        Powered by Athletes App.
+        Provo Basketball Club
       </div>
     </div>
   );

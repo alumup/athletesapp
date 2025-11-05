@@ -22,7 +22,7 @@ export default async function DashboardLayout({
           <div className="mx-auto max-w-screen-2xl">
             <div className="flex h-16 items-center px-4">
               <Link href="/">
-                <img src="/athletes-logo.svg" className="h-auto w-[50px]" alt="Athletes Logo" />
+                <img src="/logo.svg" className="h-auto w-[50px]" alt="Bulldog Logo" />
               </Link>
               <MainNav className="mx-6" />
               <div className="ml-auto flex items-center space-x-4">
