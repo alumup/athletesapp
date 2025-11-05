@@ -96,12 +96,18 @@ const columns: ColumnDef<Person>[] = [
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
           {!row.original.dependent ? (
-            <ShieldIcon className="h-4 w-4 text-green-600" title="Primary Contact" />
+            <span title="Primary Contact">
+              <ShieldIcon className="h-4 w-4 text-green-600" aria-label="Primary Contact" />
+            </span>
           ) : (
-            <User className="h-4 w-4 text-blue-600" title="Dependent" />
+            <span title="Dependent">
+              <User className="h-4 w-4 text-blue-600" aria-label="Dependent" />
+            </span>
           )}
           {row.original.relationships && row.original.relationships.length > 0 && (
-            <UsersIcon className="h-4 w-4 text-purple-600" title="Has Relationships" />
+            <span title="Has Relationships">
+              <UsersIcon className="h-4 w-4 text-purple-600" aria-label="Has Relationships" />
+            </span>
           )}
         </div>
         <div className="font-medium">{row.getValue("name")}</div>
