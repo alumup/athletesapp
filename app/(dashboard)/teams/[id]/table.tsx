@@ -43,7 +43,7 @@ import {
 import SendEmailModal from "@/components/modal/send-email-sheet";
 import SendButton from "@/components/modal-buttons/send-button";
 import { useRouter } from "next/navigation";
-import { CheckCircle, Mail, FileText, DollarSign } from "lucide-react";
+import { CheckCircle, Mail, FileText, DollarSign, ExternalLink } from "lucide-react";
 import { CreateRosterInvoiceButton } from "@/components/create-roster-invoice-button";
 import SendEmailSheet from "@/components/modal/send-email-sheet";
 
@@ -243,7 +243,20 @@ const createColumns = (team: any, onEditFee: (rosterId: string, currentFeeId: st
 
       return (
         <div className="flex items-center gap-2">
-          {/* Edit Fee Button - Always visible */}
+          {/* Link to Person Page */}
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="h-8 px-2"
+            title="View Person"
+          >
+            <Link href={`/people/${person.id}`}>
+              <ExternalLink className="h-4 w-4" />
+            </Link>
+          </Button>
+
+          {/* Edit Fee Button */}
           <Button
             variant="outline"
             size="sm"
@@ -296,9 +309,7 @@ const createColumns = (team: any, onEditFee: (rosterId: string, currentFeeId: st
               stripeAccountId={team.accounts?.stripe_id}
               person_id={person.id}
             />
-          ) : (
-            <span className="text-xs text-gray-400 italic">No fee</span>
-          )}
+          ) : null}
         </div>
       );
     }
