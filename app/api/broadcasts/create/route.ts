@@ -20,12 +20,23 @@ export async function POST(req: Request) {
     // Get user's profile
     const { data: profile } = await supabase
       .from("profiles")
-      .select("account_id, accounts(*)")
+      .select("account_id")
       .eq("id", user.id)
       .single()
 
     if (!profile?.account_id) {
       return NextResponse.json({ error: "No account found" }, { status: 404 })
+    }
+
+    // Get account details
+    const { data: account } = await supabase
+      .from("accounts")
+      .select("*")
+      .eq("id", profile.account_id)
+      .single()
+
+    if (!account) {
+      return NextResponse.json({ error: "Account not found" }, { status: 404 })
     }
 
     const body = await req.json()
@@ -51,7 +62,7 @@ export async function POST(req: Request) {
     }
 
     // Get sender email from account
-    const senderEmail = sender || `${profile.accounts.name} <${profile.accounts.email}>`
+    const senderEmail = sender || `${account.name} <${account.email}>`
 
     // Create broadcast in Resend
     const resendResult = await createBroadcast({
