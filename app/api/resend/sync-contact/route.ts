@@ -37,9 +37,33 @@ export async function POST(req: Request) {
       )
     }
 
+    // Get or create the default audience
+    const { data: audiences } = await resend.audiences.list()
+    let audienceId: string
+
+    if (audiences && audiences.data && audiences.data.length > 0) {
+      // Use the first (default) audience
+      audienceId = audiences.data[0].id
+    } else {
+      // Create a default audience
+      const { data: newAudience, error: audienceError } = await resend.audiences.create({
+        name: "Default Audience",
+      })
+
+      if (audienceError || !newAudience) {
+        return NextResponse.json(
+          { error: "Failed to create audience", details: audienceError },
+          { status: 500 }
+        )
+      }
+
+      audienceId = newAudience.id
+    }
+
     // Create or update contact in Resend
     try {
       const { data, error } = await resend.contacts.create({
+        audienceId,
         email,
         firstName: first_name || "",
         lastName: last_name || "",

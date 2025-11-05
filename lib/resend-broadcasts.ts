@@ -30,14 +30,40 @@ export interface BroadcastOptions {
 /**
  * Sync a person to Resend as a contact
  */
-export async function syncPersonToResend(person: {
-  id: string
-  email: string
-  first_name?: string
-  last_name?: string
-}) {
+export async function syncPersonToResend(
+  person: {
+    id: string
+    email: string
+    first_name?: string
+    last_name?: string
+  },
+  audienceId?: string
+) {
   try {
+    // Get or create default audience if not provided
+    let targetAudienceId = audienceId
+
+    if (!targetAudienceId) {
+      const { data: audiences } = await resend.audiences.list()
+      if (audiences && audiences.data && audiences.data.length > 0) {
+        targetAudienceId = audiences.data[0].id
+      } else {
+        // Create a default audience
+        const { data: newAudience } = await resend.audiences.create({
+          name: "Default Audience",
+        })
+        if (newAudience) {
+          targetAudienceId = newAudience.id
+        }
+      }
+    }
+
+    if (!targetAudienceId) {
+      return { success: false, error: new Error("No audience ID available") }
+    }
+
     const { data, error } = await resend.contacts.create({
+      audienceId: targetAudienceId,
       email: person.email,
       firstName: person.first_name || "",
       lastName: person.last_name || "",
