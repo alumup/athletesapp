@@ -83,45 +83,45 @@ export async function syncPersonToResend(
 }
 
 /**
- * Create or get a segment in Resend
+ * Create or get an audience in Resend
+ * Note: Resend's API uses "audiences" not "segments"
  */
 export async function createResendSegment(name: string, description?: string) {
   try {
-    const { data, error } = await resend.segments.create({
+    const { data, error } = await resend.audiences.create({
       name,
-      description: description || `Segment for ${name}`,
     })
 
     if (error) {
-      console.error("Error creating Resend segment:", error)
+      console.error("Error creating Resend audience:", error)
       return { success: false, error }
     }
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error creating Resend segment:", error)
+    console.error("Error creating Resend audience:", error)
     return { success: false, error }
   }
 }
 
 /**
- * Add a contact to a segment
+ * Add a contact to an audience
  */
 export async function addContactToSegment(contactId: string, segmentId: string) {
   try {
-    const { data, error } = await resend.contacts.addToSegment({
-      contactId,
-      segmentId,
+    const { data, error } = await resend.contacts.update({
+      id: contactId,
+      audienceId: segmentId,
     })
 
     if (error) {
-      console.error("Error adding contact to segment:", error)
+      console.error("Error adding contact to audience:", error)
       return { success: false, error }
     }
 
     return { success: true, data }
   } catch (error) {
-    console.error("Error adding contact to segment:", error)
+    console.error("Error adding contact to audience:", error)
     return { success: false, error }
   }
 }
@@ -132,7 +132,7 @@ export async function addContactToSegment(contactId: string, segmentId: string) 
 export async function createBroadcast(options: BroadcastOptions) {
   try {
     const { data, error } = await resend.broadcasts.create({
-      segmentId: options.segmentId,
+      audienceId: options.segmentId,
       from: options.from,
       subject: options.subject,
       html: options.html,
