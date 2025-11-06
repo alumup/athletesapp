@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import resend from "@/lib/resend"
 import { createClient } from "@/lib/supabase/server"
 
-export const maxDuration = 300 // 5 minutes for bulk sync
+export const maxDuration = 60 // Maximum for Vercel hobby plan
 
 /**
  * Bulk sync all people from an account to Resend contacts

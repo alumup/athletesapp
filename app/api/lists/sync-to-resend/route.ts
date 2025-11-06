@@ -6,7 +6,7 @@ import {
   addContactToSegment,
 } from "@/lib/resend-broadcasts"
 
-export const maxDuration = 300 // 5 minutes for large lists
+export const maxDuration = 60 // Maximum for Vercel hobby plan
 
 export async function POST(req: Request) {
   try {
