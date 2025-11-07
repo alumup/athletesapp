@@ -202,6 +202,43 @@ export default function PersonSheet({
     })));
   }, [fromRelationships]);
 
+  // Reset form when sheet opens in create mode
+  useEffect(() => {
+    if (open && mode === 'create') {
+      form.reset({
+        firstName: "",
+        lastName: "",
+        phone: "",
+        email: "",
+        dependent: false,
+        birthdate: undefined,
+        grade: "",
+        tags: [],
+        relationships: []
+      });
+      setError(null);
+    } else if (open && person) {
+      // Reset to person's data if editing
+      form.reset({
+        firstName: person.first_name || "",
+        lastName: person.last_name || "",
+        phone: person.phone || "",
+        email: person.email || "",
+        dependent: person.dependent || false,
+        birthdate: person.birthdate ? new Date(person.birthdate) : undefined,
+        grade: person.grade || "",
+        tags: person.tags || [],
+        relationships: deduplicateRelationships(fromRelationships || []).map((rel: any) => ({
+          relationshipId: rel.id,
+          id: rel.from?.id,
+          name: rel.name.toLowerCase(),
+          primary: rel.primary
+        })) || []
+      });
+      setError(null);
+    }
+  }, [open, mode, person, fromRelationships, form]);
+
   // Tag handlers
   // const handleTagSelect = (event: any) => {
   //   const selectedTag = event.target.value;
@@ -333,7 +370,25 @@ export default function PersonSheet({
         }
       }
 
-      toast.success("Person updated successfully");
+      toast.success(person ? "Person updated successfully" : "Person created successfully");
+      
+      // Reset form to initial state
+      form.reset({
+        firstName: "",
+        lastName: "",
+        phone: "",
+        email: "",
+        dependent: false,
+        birthdate: undefined,
+        grade: "",
+        tags: [],
+        relationships: []
+      });
+      
+      // Close the sheet
+      setOpen(false);
+      
+      // Refresh the page data
       router.refresh();
 
     } catch (err) {
@@ -353,7 +408,7 @@ export default function PersonSheet({
   })
 
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="outline" size="sm">
           {cta}
