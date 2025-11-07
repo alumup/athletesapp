@@ -54,6 +54,7 @@ import AddToTeamModal from "@/components/modal/add-to-team-modal";
 import IconButton from "@/components/modal-buttons/icon-button";
 import LoadingDots from "@/components/icons/loading-dots";
 import SendEmailSheet from "@/components/modal/send-email-sheet";
+import MergePeopleModal from "@/components/modal/merge-people-modal";
 
 export interface Person {
   id: string;
@@ -308,6 +309,14 @@ export function PeopleTable({
                 onClose={() => table.toggleAllPageRowsSelected(false)}
               />
             </IconButton>
+            {selectedRows.length === 2 && (
+              <MergePeopleModal
+                person1={people[0]}
+                person2={people[1]}
+                account={account}
+                onClose={() => table.toggleAllPageRowsSelected(false)}
+              />
+            )}
           </div>
           <Button
             onClick={handleDeleteSelected}
